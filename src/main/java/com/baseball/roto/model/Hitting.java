@@ -4,13 +4,12 @@ import com.ebay.xcelite.annotations.Column;
 import lombok.Data;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Data
-public class Hitting implements Stats {
+public class Hitting {
     @Column(name="N")
     private String name;
     @Column(name="R")
@@ -26,17 +25,17 @@ public class Hitting implements Stats {
     @Column(name="OPS")
     private double ops;
 
-    private List<Double> stats;
 
-    @Override
-    public List<Double> gatherStats(){
-        stats = new ArrayList<>();
+    public Map<String, List<Double>> gatherStats(){
+        Map<String, List<Double>> map = new HashMap<>();
+        List<Double> stats = new ArrayList<>();
         stats.add((double) runs);
         stats.add((double) homeRuns);
         stats.add((double) rbis);
         stats.add((double) sbs);
         stats.add(avg);
         stats.add(ops);
-        return stats;
+        map.put(name, stats);
+        return map;
     }
 }

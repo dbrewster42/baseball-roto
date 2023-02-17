@@ -23,9 +23,9 @@ public class Rank {
     public Rank(double rank, Player hitter, Player pitcher) {
         this.hitting_rank = rank;
         this.pitching_rank = rank;
-        this.name = hitter.name;
-        this.hitting = hitter.hitting;
-        this.name_ = pitcher.name;
-        this.pitching = pitcher.pitching;
+        this.name = hitter.getName();
+        this.hitting = hitter.getHitting();
+        this.name_ = pitcher.getName();
+        this.pitching = pitcher.getPitching();
     }
 }

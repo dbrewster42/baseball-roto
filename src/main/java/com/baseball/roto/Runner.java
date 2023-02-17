@@ -13,8 +13,8 @@ public class Runner {
     @Autowired private RotoService rotoService;
 
     @PostConstruct
-    public void postConstruct() {
+    public void run() {
         log.info("PostConstruct");
-        rotoService.printRoto();
+        rotoService.calculateRotoRanks();
     }
 }

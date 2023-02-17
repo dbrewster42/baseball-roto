@@ -2,29 +2,31 @@ package com.baseball.roto.model;
 
 import com.ebay.xcelite.annotations.Column;
 import com.ebay.xcelite.annotations.Row;
+import lombok.Data;
 
 import java.util.List;
 
+@Data
 @Row(colsOrder = {"rank", "name", "total", "hitting", "pitching", "space", "total_change", "hitting_change", "pitching_change"})
 public class Player {
     @Column
-    public double rank;
+    private double rank;
     @Column
-    public String name;
+    private String name;
     @Column
-    public double total;
+    private double total;
     @Column
-    public double hitting;
+    private double hitting;
     @Column
-    public double pitching;
+    private double pitching;
     @Column
-    public double total_change = .11;
+    private double total_change = .11;
     @Column
-    public double hitting_change;
+    private double hitting_change;
     @Column
-    public double pitching_change;
+    private double pitching_change;
     @Column
-    public final String space = null;
+    private final String space = null;
 
     private List<Double> hittingStats;
     private List<Double> pitchingStats;
