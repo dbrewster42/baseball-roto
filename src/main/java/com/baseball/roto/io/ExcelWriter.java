@@ -16,8 +16,8 @@ import java.util.List;
 @Service
 @Slf4j
 public class ExcelWriter {
-    private File file;
-    private Xcelite xcelite;
+    private final File file;
+    private final Xcelite xcelite;
 
     public ExcelWriter(@Value("${file.output}") String outputFile) {
         this.xcelite = new Xcelite();

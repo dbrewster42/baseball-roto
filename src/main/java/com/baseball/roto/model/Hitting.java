@@ -3,12 +3,14 @@ package com.baseball.roto.model;
 import com.ebay.xcelite.annotations.Column;
 import lombok.Data;
 
+import javax.persistence.Entity;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Data
+@Entity
 public class Hitting {
     @Column(name="N")
     private String name;

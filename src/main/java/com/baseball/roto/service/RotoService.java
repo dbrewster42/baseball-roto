@@ -1,8 +1,6 @@
 package com.baseball.roto.service;
 
 import com.baseball.roto.exception.CalculationException;
-import com.baseball.roto.io.ExcelReader;
-import com.baseball.roto.io.ExcelWriter;
 import com.baseball.roto.model.Hitting;
 import com.baseball.roto.model.Pitching;
 import com.baseball.roto.model.Player;
@@ -18,27 +16,22 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class RotoService {
-    private final ExcelReader excelReader;
-    private final ExcelWriter excelWriter;
 
-    public RotoService(ExcelReader excelReader, ExcelWriter excelWriter) {
-        this.excelReader = excelReader;
-        this.excelWriter = excelWriter;
+    public List<Player> calculateRotoScores(Collection<Hitting> hitting, Collection<Pitching> pitching){
+        return applyRotoCalculations(calculatePitchingStats(pitching), calculateHittingStats(hitting));
     }
 
-    public void calculateRotoRanks(){
-        List<Player> players = calculateHittingRoto(excelReader.readHitting());
-        finishRotoCalculations(excelReader.readPitching(), players);
-        calculateRank(players);
-        excelWriter.writeRoto(players);
-    }
-
-    private void sortByTotalRank(List<Player> players) {
-        players.forEach(v -> v.setTotal(v.getHitting() + v.getPitching()));
+    private List<Player> applyRotoCalculations(Map<String, List<Double>> stats, List<Player> players) {
+        players.forEach(player -> {
+            player.setPitching(stats.get(player.getName()).stream().mapToDouble(v -> v).sum());
+            player.setTotal(player.getHitting() + player.getPitching());
+        });
         players.sort((o1, o2) -> Double.compare(o2.getTotal(), o1.getTotal()));
+        calculateRank(players);
+        return players;
     }
 
-    public List<Player> calculateHittingRoto(Collection<Hitting> hitting) {
+    private List<Player> calculateHittingStats(Collection<Hitting> hitting) {
         Map<String, List<Double>> allStats = hitting.stream()
             .map(Hitting::gatherStats)
             .reduce((left, right) -> {
@@ -52,7 +45,7 @@ public class RotoService {
             .map(player -> new Player(player.getKey(), player.getValue().stream().mapToDouble(v -> v).sum()))
             .collect(Collectors.toList());
     }
-    public void finishRotoCalculations(Collection<Pitching> pitching, List<Player> players) {
+    private Map<String, List<Double>> calculatePitchingStats(Collection<Pitching> pitching) {
         Map<String, List<Double>> allStats = pitching.stream()
             .map(Pitching::gatherStats)
             .reduce((left, right) -> {
@@ -62,13 +55,10 @@ public class RotoService {
         for (int i = 0; i < 6; i++){
             rankColumn(allStats, i, i > 3);
         }
-        players.forEach(player -> {
-            player.setPitching(allStats.get(player.getName()).stream().mapToDouble(v -> v).sum());
-            player.setTotal(player.getHitting() + player.getPitching());
-        });
+        return allStats;
     }
 
-    public void rankColumn(Map<String, List<Double>> stats, int columnNumber, boolean isReversed){
+    private void rankColumn(Map<String, List<Double>> stats, int columnNumber, boolean isReversed){
         List<Double> statColumn = new ArrayList<>();
         for (List<Double> eachStatList : stats.values()){
             statColumn.add(eachStatList.get(columnNumber));
@@ -80,7 +70,7 @@ public class RotoService {
         }
 
         List<Integer> ties = recordTies(statColumn);
-        overwriteStatWithRank(stats, columnNumber, statColumn);
+        overwriteStatsWithRotoPoints(stats, columnNumber, statColumn);
         applyTies(stats, columnNumber, ties);
     }
 
@@ -96,7 +86,7 @@ public class RotoService {
         return ties;
     }
 
-    private void overwriteStatWithRank(Map<String, List<Double>> stats, int columnNumber, List<Double> statColumn) {
+    private void overwriteStatsWithRotoPoints(Map<String, List<Double>> stats, int columnNumber, List<Double> statColumn) {
         for (List<Double> eachStatList : stats.values()){
             eachStatList.set(columnNumber, 1.0 + statColumn.indexOf(eachStatList.get(columnNumber)));
         }
@@ -129,8 +119,7 @@ public class RotoService {
     }
 
     //TODO more testing
-    public void calculateRank(List<Player> players){
-        players.sort((o1, o2) -> Double.compare(o2.getTotal(), o1.getTotal()));
+    private void calculateRank(List<Player> players){
         for (int i = 0; i < players.size(); i++){
             double start = i + 1;
             int ties = 0;
