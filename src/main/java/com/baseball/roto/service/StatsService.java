@@ -1,10 +1,12 @@
 package com.baseball.roto.service;
 
+import com.baseball.roto.mapper.StatsMapper;
 import com.baseball.roto.model.Hitting;
 import com.baseball.roto.model.Pitching;
 import com.baseball.roto.model.Stats;
 import com.baseball.roto.repository.StatsRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -16,17 +18,26 @@ import java.util.stream.Collectors;
 public class StatsService {
 //    private final RotoService rotoService;
     private final StatsRepository repository;
+    private final StatsMapper statsMapper;
+    private final int week;
 
-    public StatsService(StatsRepository repository) {
+    public StatsService(StatsRepository repository, StatsMapper statsMapper, @Value("${week}") int week) {
 //        this.rotoService = rotoService;
         this.repository = repository;
+        this.statsMapper = statsMapper;
+        this.week = week;
     }
 
     public List<Stats> saveStats(Collection<Hitting> hitting, Collection<Pitching> pitching) {
         return hitting.stream()
-            .map(hit -> new Stats(hit, pitching.stream().filter(pitch -> pitch.getName().equals(hit.getName())).findAny().orElseThrow()))
+            .map(hit -> statsMapper.toStats(hit, pitching.stream().filter(pitch -> pitch.getName().equals(hit.getName())).findAny().orElseThrow(), week))
+            .peek(v -> log.info(v.toString()))
             .map(repository::save)
             .collect(Collectors.toList());
+//        return hitting.stream()
+//            .map(hit -> new Stats(hit, pitching.stream().filter(pitch -> pitch.getName().equals(hit.getName())).findAny().orElseThrow()))
+//            .map(repository::save)
+//            .collect(Collectors.toList());
     }
 
 //    private List<Roto> applyRotoCalculations(Map<String, List<Double>> stats, List<Roto> rotos) {
