@@ -18,7 +18,7 @@ public class Rank {
     @Column
     public final String __ = null;
 
-    public Rank(double rank, Player hitter, Player pitcher) {
+    public Rank(double rank, Roto hitter, Roto pitcher) {
         this.rank = rank;
         this.name = hitter.getName();
         this.hitting = hitter.getHitting();

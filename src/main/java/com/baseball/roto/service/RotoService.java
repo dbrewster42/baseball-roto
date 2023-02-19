@@ -3,7 +3,7 @@ package com.baseball.roto.service;
 import com.baseball.roto.exception.CalculationException;
 import com.baseball.roto.model.Hitting;
 import com.baseball.roto.model.Pitching;
-import com.baseball.roto.model.Player;
+import com.baseball.roto.model.Roto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -17,21 +17,21 @@ import java.util.stream.Collectors;
 @Slf4j
 public class RotoService {
 
-    public List<Player> calculateRotoScores(Collection<Hitting> hitting, Collection<Pitching> pitching){
+    public List<Roto> calculateRotoScores(Collection<Hitting> hitting, Collection<Pitching> pitching){
         return applyRotoCalculations(calculatePitchingStats(pitching), calculateHittingStats(hitting));
     }
 
-    private List<Player> applyRotoCalculations(Map<String, List<Double>> stats, List<Player> players) {
-        players.forEach(player -> {
-            player.setPitching(stats.get(player.getName()).stream().mapToDouble(v -> v).sum());
-            player.setTotal(player.getHitting() + player.getPitching());
+    private List<Roto> applyRotoCalculations(Map<String, List<Double>> stats, List<Roto> rotos) {
+        rotos.forEach(roto -> {
+            roto.setPitching(stats.get(roto.getName()).stream().mapToDouble(v -> v).sum());
+            roto.setTotal(roto.getHitting() + roto.getPitching());
         });
-        players.sort((o1, o2) -> Double.compare(o2.getTotal(), o1.getTotal()));
-        calculateRank(players);
-        return players;
+        rotos.sort((o1, o2) -> Double.compare(o2.getTotal(), o1.getTotal()));
+        calculateRank(rotos);
+        return rotos;
     }
 
-    private List<Player> calculateHittingStats(Collection<Hitting> hitting) {
+    private List<Roto> calculateHittingStats(Collection<Hitting> hitting) {
         Map<String, List<Double>> allStats = hitting.stream()
             .map(Hitting::gatherStats)
             .reduce((left, right) -> {
@@ -42,7 +42,7 @@ public class RotoService {
             rankColumn(allStats, i, false);
         }
         return allStats.entrySet().stream()
-            .map(player -> new Player(player.getKey(), player.getValue().stream().mapToDouble(v -> v).sum()))
+            .map(roto -> new Roto(roto.getKey(), roto.getValue().stream().mapToDouble(v -> v).sum()))
             .collect(Collectors.toList());
     }
     private Map<String, List<Double>> calculatePitchingStats(Collection<Pitching> pitching) {
@@ -119,18 +119,18 @@ public class RotoService {
     }
 
     //TODO more testing
-    private void calculateRank(List<Player> players){
-        for (int i = 0; i < players.size(); i++){
+    private void calculateRank(List<Roto> rotos){
+        for (int i = 0; i < rotos.size(); i++){
             double start = i + 1;
             int ties = 0;
-            while (i + ties + 1 < players.size() && players.get(i).getTotal() == players.get(i + 1 + ties).getTotal()){
+            while (i + ties + 1 < rotos.size() && rotos.get(i).getTotal() == rotos.get(i + 1 + ties).getTotal()){
                 start += .5;
                 ties++;
             }
-            players.get(i).setRank(start);
+            rotos.get(i).setRank(start);
             while (ties > 0){
                 i++;
-                players.get(i).setRank(start);
+                rotos.get(i).setRank(start);
                 ties--;
             }
         }

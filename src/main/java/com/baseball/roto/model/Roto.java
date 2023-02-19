@@ -5,12 +5,11 @@ import com.ebay.xcelite.annotations.Column;
 import com.ebay.xcelite.annotations.Row;
 import lombok.Data;
 
-import java.util.List;
 import java.util.Map;
 
 @Data
 @Row(colsOrder = {"rank", "name", "total", "hitting", "pitching", "__", "total_change", "hitting_change", "pitching_change"})
-public class Player {
+public class Roto {
     @Column
     private double rank;
     @Column
@@ -32,9 +31,9 @@ public class Player {
     @AnyColumn
     private Map<String, Object> dynamicCols;
 
-    public Player() {}
+    public Roto() {}
 
-    public Player(String name, double hitting) {
+    public Roto(String name, double hitting) {
         this.name = name;
         this.hitting = hitting;
     }

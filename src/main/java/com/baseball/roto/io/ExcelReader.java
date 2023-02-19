@@ -2,10 +2,8 @@ package com.baseball.roto.io;
 
 import com.baseball.roto.model.Hitting;
 import com.baseball.roto.model.Pitching;
-import com.baseball.roto.model.Player;
+import com.baseball.roto.model.Roto;
 import com.ebay.xcelite.Xcelite;
-import com.ebay.xcelite.options.XceliteOptions;
-import com.ebay.xcelite.policies.MissingRowPolicy;
 import com.ebay.xcelite.reader.SheetReader;
 import com.ebay.xcelite.sheet.XceliteSheet;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +37,7 @@ public class ExcelReader {
         return reader.read();
     }
 
-    public Collection<Player> readRoto() {
-        return rotoXcel.getSheet("Sheet").getBeanReader(Player.class).read();
+    public Collection<Roto> readRoto() {
+        return rotoXcel.getSheet("Sheet").getBeanReader(Roto.class).read();
     }
 }

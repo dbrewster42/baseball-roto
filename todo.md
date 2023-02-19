@@ -4,7 +4,7 @@ change doubles to floats
 
 more testing around ties, possibly refactor
 
-find different way of finding old unmatched player
+find different way of finding old unmatched roto
 
 
 1. either use simplereader for table or 

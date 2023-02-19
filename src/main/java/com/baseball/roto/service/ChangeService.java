@@ -1,6 +1,6 @@
 package com.baseball.roto.service;
 
-import com.baseball.roto.model.Player;
+import com.baseball.roto.model.Roto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -11,27 +11,27 @@ import java.util.List;
 @Service
 @Slf4j
 public class ChangeService {
-    public void calculateChanges(Collection<Player> lastWeeksRanks, List<Player> finalPlayerRanks){
-        List<Player> unmatchedPlayers = new ArrayList<>();
-        for (Player player : finalPlayerRanks){
-            lastWeeksRanks.stream().filter(oldPlayer -> oldPlayer.getName().equals(player.getName())).findAny()
+    public void calculateChanges(Collection<Roto> lastWeeksRanks, List<Roto> currentRoto){
+        List<Roto> unmatchedRotos = new ArrayList<>();
+        for (Roto roto : currentRoto){
+            lastWeeksRanks.stream().filter(oldRoto -> oldRoto.getName().equals(roto.getName())).findAny()
                 .ifPresentOrElse(
-                    oldPlayer -> calculateChangeInPlayer(player, oldPlayer),
-                    () -> unmatchedPlayers.add(player));
+                    oldRoto -> calculateChangeInPlayer(roto, oldRoto),
+                    () -> unmatchedRotos.add(roto));
         }
-        if (unmatchedPlayers.size() == 1){
-            resolveUnmatchedPlayer(unmatchedPlayers.get(0), lastWeeksRanks);
+        if (unmatchedRotos.size() == 1){
+            resolveUnmatchedPlayer(unmatchedRotos.get(0), lastWeeksRanks);
         }
     }
 
-    private void calculateChangeInPlayer(Player player, Player oldPlayer){
-        player.setTotal_change(player.getTotal() - oldPlayer.getTotal());
-        player.setHitting_change(player.getHitting() - oldPlayer.getHitting());
-        player.setPitching_change(player.getPitching() - oldPlayer.getPitching());
-        oldPlayer.setTotal_change(1);
+    private void calculateChangeInPlayer(Roto roto, Roto oldRoto){
+        roto.setTotal_change(roto.getTotal() - oldRoto.getTotal());
+        roto.setHitting_change(roto.getHitting() - oldRoto.getHitting());
+        roto.setPitching_change(roto.getPitching() - oldRoto.getPitching());
+        oldRoto.setTotal_change(1);
     }
 
-    private void resolveUnmatchedPlayer(Player unmatchedPlayer, Collection<Player> lastWeeksRanks){
+    private void resolveUnmatchedPlayer(Roto unmatchedPlayer, Collection<Roto> lastWeeksRanks){
         lastWeeksRanks.stream().filter(v -> v.getTotal_change() == .11).findAny()
             .ifPresent(o -> calculateChangeInPlayer(unmatchedPlayer, o));
     }

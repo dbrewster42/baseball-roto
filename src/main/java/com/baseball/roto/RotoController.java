@@ -2,7 +2,7 @@ package com.baseball.roto;
 
 import com.baseball.roto.io.ExcelReader;
 import com.baseball.roto.io.ExcelWriter;
-import com.baseball.roto.model.Player;
+import com.baseball.roto.model.Roto;
 import com.baseball.roto.service.ChangeService;
 import com.baseball.roto.service.RotoService;
 import org.springframework.stereotype.Controller;
@@ -24,8 +24,8 @@ public class RotoController {
     }
 
     public void generateRotoStats() {
-        List<Player> players = rotoService.calculateRotoScores(excelReader.readHitting(), excelReader.readPitching());
-        changeService.calculateChanges(excelReader.readRoto(), players);
-        excelWriter.writeRoto(players);
+        List<Roto> rotos = rotoService.calculateRotoScores(excelReader.readHitting(), excelReader.readPitching());
+        changeService.calculateChanges(excelReader.readRoto(), rotos);
+        excelWriter.writeRoto(rotos);
     }
 }

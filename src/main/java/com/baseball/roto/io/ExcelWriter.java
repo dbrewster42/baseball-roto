@@ -1,6 +1,6 @@
 package com.baseball.roto.io;
 
-import com.baseball.roto.model.Player;
+import com.baseball.roto.model.Roto;
 import com.baseball.roto.model.Rank;
 import com.ebay.xcelite.Xcelite;
 import com.ebay.xcelite.options.XceliteOptions;
@@ -24,12 +24,12 @@ public class ExcelWriter {
         this.file = new File(outputFile);
     }
 
-    public void writeRoto(List<Player> players){
+    public void writeRoto(List<Roto> rotos){
         log.info("writing results");
         XceliteSheet sheet = xcelite.createSheet("Sheet");
-        SheetWriter<Player> writer = sheet.getBeanWriter(Player.class);
+        SheetWriter<Roto> writer = sheet.getBeanWriter(Roto.class);
 
-        writer.write(players);
+        writer.write(rotos);
         xcelite.write(file);
         log.info("done");
     }
