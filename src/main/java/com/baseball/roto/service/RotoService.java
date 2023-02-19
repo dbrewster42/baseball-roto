@@ -4,6 +4,7 @@ import com.baseball.roto.exception.CalculationException;
 import com.baseball.roto.model.Hitting;
 import com.baseball.roto.model.Pitching;
 import com.baseball.roto.model.Roto;
+import com.baseball.roto.model.Stats;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -16,8 +17,14 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class RotoService {
+    private final StatsService statsService;
+
+    public RotoService(StatsService statsService) {
+        this.statsService = statsService;
+    }
 
     public List<Roto> calculateRotoScores(Collection<Hitting> hitting, Collection<Pitching> pitching){
+        List<Stats> stats = statsService.saveStats(hitting, pitching);
         return applyRotoCalculations(calculatePitchingStats(pitching), calculateHittingStats(hitting));
     }
 
@@ -58,7 +65,7 @@ public class RotoService {
         return allStats;
     }
 
-    private void rankColumn(Map<String, List<Double>> stats, int columnNumber, boolean isReversed){
+    protected void rankColumn(Map<String, List<Double>> stats, int columnNumber, boolean isReversed){
         List<Double> statColumn = new ArrayList<>();
         for (List<Double> eachStatList : stats.values()){
             statColumn.add(eachStatList.get(columnNumber));

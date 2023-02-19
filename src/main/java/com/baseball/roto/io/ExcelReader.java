@@ -38,6 +38,13 @@ public class ExcelReader {
     }
 
     public Collection<Roto> readRoto() {
+//        Collection<Roto> rotos = null;
+//        try {
+//            rotos = rotoXcel.getSheet("Sheet").getBeanReader(Roto.class).read();
+//        } catch (Exception e) {
+//            log.info("finished");
+//        }
+//        return rotos;
         return rotoXcel.getSheet("Sheet").getBeanReader(Roto.class).read();
     }
 }

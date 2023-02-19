@@ -1,4 +1,4 @@
-package com.baseball.roto;
+package com.baseball.roto.controller;
 
 import com.baseball.roto.io.ExcelReader;
 import com.baseball.roto.io.ExcelWriter;
