@@ -1,6 +1,6 @@
 package com.baseball.roto.service;
 
-import com.baseball.roto.model.Roto;
+import com.baseball.roto.model.excel.Roto;
 import com.baseball.roto.model.Stats;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,6 +27,7 @@ public class ChangeService {
                 .ifPresent(lw -> calculateChangeInPlayer(unmatchedRotos.get(0), lw));
         }
         currentRoto.forEach(roto -> log.info(roto.toString()));
+        log.info("changes calculated with {} unmatched players", unmatchedRotos.size());
         return currentRoto;
     }
 

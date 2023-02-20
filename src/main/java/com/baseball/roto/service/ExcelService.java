@@ -1,9 +1,9 @@
 package com.baseball.roto.service;
 
-import com.baseball.roto.model.Hitting;
-import com.baseball.roto.model.Pitching;
-import com.baseball.roto.model.Rank;
-import com.baseball.roto.model.Roto;
+import com.baseball.roto.model.excel.Hitting;
+import com.baseball.roto.model.excel.Pitching;
+import com.baseball.roto.model.excel.CategoryRank;
+import com.baseball.roto.model.excel.Roto;
 import com.ebay.xcelite.Xcelite;
 import com.ebay.xcelite.options.XceliteOptions;
 import lombok.extern.slf4j.Slf4j;
@@ -42,12 +42,12 @@ public class ExcelService {
         log.info("done");
     }
 
-    public void writeRanks(List<Rank> ranks) {
+    public void writeRanks(List<CategoryRank> categoryRanks) {
         XceliteOptions options = new XceliteOptions();
         options.setHeaderRowIndex(17);
         rotoXcel.setOptions(options);
 
-        rotoXcel.getSheet("Sheet").getBeanWriter(Rank.class).write(ranks);
+        rotoXcel.getSheet("Sheet").getBeanWriter(CategoryRank.class).write(categoryRanks);
         rotoXcel.write(outputFile);
     }
 }

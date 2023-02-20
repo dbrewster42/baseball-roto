@@ -23,4 +23,6 @@ more testing around ties, possibly refactor
 
 [//]: # ([//]: # &#40;1. either use simplereader for table or &#41; // using db)
 
-[//]: # (2. get rid of a. weekly change or b. secondary ranks)
+[//]: # (2. get rid of a. weekly change or b. secondary categoryRanks)
+
+change rotoService to statService and/or split and combine changeService with Roto

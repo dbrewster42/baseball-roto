@@ -62,7 +62,6 @@ public class Stats {
         stats.add((float) netSaves);
         stats.add(era);
         stats.add(whip);
-//        return Map.of(name, stats);
         map.put(name, stats);
         return map;
     }

@@ -1,4 +1,4 @@
-package com.baseball.roto.model;
+package com.baseball.roto.model.excel;
 
 import com.ebay.xcelite.annotations.Column;
 import com.ebay.xcelite.annotations.Row;
