@@ -24,8 +24,6 @@ public class RotoController {
     }
 
     public void generateRotoStats() {
-        List<Roto> rotos = rotoService.calculateRotoScores(excelReader.readHitting(), excelReader.readPitching());
-        changeService.calculateChanges(excelReader.readRoto(), rotos);
-        excelWriter.writeRoto(rotos);
+        excelWriter.writeRoto(rotoService.calculateRotoScores(excelReader.readHitting(), excelReader.readPitching()));
     }
 }

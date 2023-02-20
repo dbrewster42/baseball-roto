@@ -26,24 +26,12 @@ public class Pitching {
     @Column(name="K")
     private int strikeouts;
     @Column(name="ERA")
-    private double era;
+    private float era;
     @Column(name="WHIP")
-    private double whip;
+    private float whip;
     @Column(name="QS")
     private int qualityStarts;
     @Column(name="NSV")
     private int netSaves;
 
-    public Map<String, List<Double>> gatherStats(){
-        Map<String, List<Double>> map = new HashMap<>();
-        List<Double> stats = new ArrayList<>();
-        stats.add((double) wins);
-        stats.add((double) strikeouts);
-        stats.add((double) qualityStarts);
-        stats.add((double) netSaves);
-        stats.add(era);
-        stats.add(whip);
-        map.put(name, stats);
-        return map;
-    }
 }

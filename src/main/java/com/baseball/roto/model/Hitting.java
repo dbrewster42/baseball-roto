@@ -7,10 +7,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @Data
 @Entity
@@ -30,21 +26,8 @@ public class Hitting {
     @Column(name="SB")
     private int sbs;
     @Column(name="AVG")
-    private double avg;
+    private float avg;
     @Column(name="OPS")
-    private double ops;
+    private float ops;
 
-
-    public Map<String, List<Double>> gatherStats(){
-        Map<String, List<Double>> map = new HashMap<>();
-        List<Double> stats = new ArrayList<>();
-        stats.add((double) runs);
-        stats.add((double) homeRuns);
-        stats.add((double) rbis);
-        stats.add((double) sbs);
-        stats.add(avg);
-        stats.add(ops);
-        map.put(name, stats);
-        return map;
-    }
 }

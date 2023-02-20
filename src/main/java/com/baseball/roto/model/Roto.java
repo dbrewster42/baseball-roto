@@ -8,7 +8,7 @@ import lombok.Data;
 import java.util.Map;
 
 @Data
-@Row(colsOrder = {"rank", "name", "total", "hitting", "pitching", "__", "total_change", "hitting_change", "pitching_change"})
+@Row(colsOrder = {"rank", "name", "total", "hitting", "pitching", " ", "total_change", "hitting_change", "pitching_change"})
 public class Roto {
     @Column
     private double rank;
@@ -20,21 +20,15 @@ public class Roto {
     private double hitting;
     @Column
     private double pitching;
-    @Column
-    private double total_change = .11;
-    @Column
-    private double hitting_change;
-    @Column
-    private double pitching_change;
-    @Column
+    @Column(name = "total_change")
+    private double totalChange = .11;
+    @Column(name = "hitting_change")
+    private double hittingChange;
+    @Column(name = "pitching_change")
+    private double pitchingChange;
+    @Column(name = " ")
     private final String __ = null;
-    @AnyColumn
-    private Map<String, Object> dynamicCols;
 
     public Roto() {}
 
-    public Roto(String name, double hitting) {
-        this.name = name;
-        this.hitting = hitting;
-    }
 }

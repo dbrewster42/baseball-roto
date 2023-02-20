@@ -5,6 +5,10 @@ import lombok.Data;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Entity
 @IdClass(StatsId.class)
@@ -15,21 +19,17 @@ public class Stats {
     @Id
     private String name;
 
-//    private Hitting hitting;
-//    private Pitching pitching;
-//    private RotoEntity roto;
-
     private int runs;
     private int homeRuns;
     private int rbis;
     private int sbs;
-    private double avg;
-    private double ops;
+    private float avg;
+    private float ops;
 
     private int wins;
     private int strikeouts;
-    private double era;
-    private double whip;
+    private float era;
+    private float whip;
     private int qualityStarts;
     private int netSaves;
 
@@ -40,11 +40,30 @@ public class Stats {
     public Stats() {
     }
 
-//    public Stats(Hitting hitting, Pitching pitching) {
-//        if (!hitting.getName().equals(pitching.getName())) { throw new RuntimeException("Mistake!"); }
-//        this.name = hitting.getName();
-//        this.week = 1;
-//        this.hitting = hitting;
-//        this.pitching = pitching;
-//    }
+    public Map<String, List<Float>> gatherHittingStats(){
+        Map<String, List<Float>> map = new HashMap<>();
+        List<Float> stats = new ArrayList<>();
+        stats.add((float) runs);
+        stats.add((float) homeRuns);
+        stats.add((float) rbis);
+        stats.add((float) sbs);
+        stats.add(avg);
+        stats.add(ops);
+        map.put(name, stats);
+        return map;
+    }
+
+    public Map<String, List<Float>> gatherPitchingStats(){
+        Map<String, List<Float>> map = new HashMap<>();
+        List<Float> stats = new ArrayList<>();
+        stats.add((float) wins);
+        stats.add((float) strikeouts);
+        stats.add((float) qualityStarts);
+        stats.add((float) netSaves);
+        stats.add(era);
+        stats.add(whip);
+//        return Map.of(name, stats);
+        map.put(name, stats);
+        return map;
+    }
 }
