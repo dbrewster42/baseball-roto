@@ -1,4 +1,4 @@
-package com.baseball.roto.io;
+package com.baseball.roto.service;
 
 import com.baseball.roto.model.Hitting;
 import com.baseball.roto.model.Pitching;
@@ -6,8 +6,6 @@ import com.baseball.roto.model.Rank;
 import com.baseball.roto.model.Roto;
 import com.ebay.xcelite.Xcelite;
 import com.ebay.xcelite.options.XceliteOptions;
-import com.ebay.xcelite.sheet.XceliteSheet;
-import com.ebay.xcelite.writer.SheetWriter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -24,9 +22,9 @@ public class ExcelService {
     private final Xcelite rotoXcel;
 
     public ExcelService(@Value("${file.stats}") String statsFile, @Value("${file.output}") String filename) {
-        this.outputFile = new File(filename);
         this.statsXcel = new Xcelite(new File(statsFile));
         this.rotoXcel = new Xcelite();
+        this.outputFile = new File(filename);
     }
 
     public Collection<Hitting> readHitting() {
@@ -39,23 +37,17 @@ public class ExcelService {
 
     public void writeRoto(List<Roto> rotos){
         log.info("writing results");
-//        XceliteSheet sheet = rotoXcel.createSheet("Sheet");
-//        SheetWriter<Roto> writer = sheet.getBeanWriter(Roto.class);
-//
-//        writer.write(rotos);
-//        rotoXcel.write(outputFile);
         rotoXcel.createSheet("Sheet").getBeanWriter(Roto.class).write(rotos);
         rotoXcel.write(outputFile);
         log.info("done");
     }
 
     public void writeRanks(List<Rank> ranks) {
-        rotoXcel.getOptions().setHeaderRowIndex(18);
+        XceliteOptions options = new XceliteOptions();
+        options.setHeaderRowIndex(17);
+        rotoXcel.setOptions(options);
 
-        XceliteSheet sheet = rotoXcel.getSheet("Sheet");
-        SheetWriter writer = sheet.getBeanWriter(Rank.class);
-
-        writer.write(ranks);
+        rotoXcel.getSheet("Sheet").getBeanWriter(Rank.class).write(ranks);
         rotoXcel.write(outputFile);
     }
 }

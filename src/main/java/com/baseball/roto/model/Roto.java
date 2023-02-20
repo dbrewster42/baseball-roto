@@ -8,21 +8,21 @@ import lombok.Data;
 @Row(colsOrder = {"rank", "name", "total", "hitting", "pitching", " ", "total_change", "hitting_change", "pitching_change"})
 public class Roto {
     @Column
-    private double rank;
+    private float rank;
     @Column
     private String name;
     @Column
-    private double total;
+    private float total;
     @Column
-    private double hitting;
+    private float hitting;
     @Column
-    private double pitching;
+    private float pitching;
     @Column(name = "total_change")
-    private double totalChange = .11;
+    private float totalChange = .11f;
     @Column(name = "hitting_change")
-    private double hittingChange;
+    private float hittingChange;
     @Column(name = "pitching_change")
-    private double pitchingChange;
+    private float pitchingChange;
     @Column(name = " ")
     private final String __ = null;
 

@@ -29,16 +29,15 @@ public class RotoService {
         this.changeService = changeService;
     }
 
-
-    public List<Roto> calculateRotoScores(Collection<Hitting> hitting, Collection<Pitching> pitching){
+    public List<Roto> calculateRoto(Collection<Hitting> hitting, Collection<Pitching> pitching){
         int week = (int) (repository.count() / 14) + 1;
         List<Stats> statsList = hitting.stream()
             .map(hit -> statsMapper.toStats(hit, matchStats(pitching, hit.getName(), Pitching::getName), week))
             .collect(Collectors.toList());
-        repository.saveAll(calculateRoto(statsList));
+        repository.saveAll(calculateStats(statsList));
 
         List<Roto> rotos = includeRank(statsList.stream().map(statsMapper::toRoto).collect(Collectors.toList()));
-        List<Stats> lastWeekStats = repository.findAllByWeek(week);
+        List<Stats> lastWeekStats = repository.findAllByWeek(week - 1);
         return changeService.calculateChanges(lastWeekStats, rotos);
     }
 
@@ -48,7 +47,7 @@ public class RotoService {
             .findAny().orElseThrow(() -> new RuntimeException("player not found"));
     }
 
-    private List<Stats> calculateRoto(List<Stats> statsList) {
+    private List<Stats> calculateStats(List<Stats> statsList) {
         Map<String, List<Float>> hittingStats = combineStatLists(statsList, Stats::gatherHittingStats);
         Map<String, List<Float>> pitchingStats = combineStatLists(statsList, Stats::gatherPitchingStats);
         for (int i = 0; i < 6; i++){
@@ -135,7 +134,7 @@ public class RotoService {
     //TODO more testing
     private List<Roto> includeRank(List<Roto> rotos){
         for (int i = 0; i < rotos.size(); i++){
-            double start = i + 1;
+            float start = i + 1;
             int ties = 0;
             while (i + ties + 1 < rotos.size() && rotos.get(i).getTotal() == rotos.get(i + 1 + ties).getTotal()){
                 start += .5;

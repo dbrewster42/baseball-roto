@@ -1,23 +1,28 @@
 package com.baseball.roto.controller;
 
-import com.baseball.roto.io.ExcelReader;
-import com.baseball.roto.io.ExcelWriter;
+import com.baseball.roto.model.Roto;
+import com.baseball.roto.service.ExcelService;
+import com.baseball.roto.service.RankService;
 import com.baseball.roto.service.RotoService;
 import org.springframework.stereotype.Controller;
+
+import java.util.List;
 
 @Controller
 public class RotoController {
     private final RotoService rotoService;
-    private final ExcelReader excelReader;
-    private final ExcelWriter excelWriter;
+    private final ExcelService excelService;
+    private final RankService rankService;
 
-    public RotoController(RotoService rotoService, ExcelReader excelReader, ExcelWriter excelWriter) {
+    public RotoController(RotoService rotoService, ExcelService excelService, RankService rankService) {
         this.rotoService = rotoService;
-        this.excelReader = excelReader;
-        this.excelWriter = excelWriter;
+        this.excelService = excelService;
+        this.rankService = rankService;
     }
 
     public void generateRotoStats() {
-        excelWriter.writeRoto(rotoService.calculateRotoScores(excelReader.readHitting(), excelReader.readPitching()));
+        List<Roto> rotoList = rotoService.calculateRoto(excelService.readHitting(), excelService.readPitching());
+        excelService.writeRoto(rotoList);
+        excelService.writeRanks(rankService.convertToRanks(rotoList));
     }
 }

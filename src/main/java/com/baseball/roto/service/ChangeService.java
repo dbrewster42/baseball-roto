@@ -14,7 +14,8 @@ public class ChangeService {
     public List<Roto> calculateChanges(List<Stats> lastWeeksRanks, List<Roto> currentRoto){
         List<Roto> unmatchedRotos = new ArrayList<>();
         for (Roto roto : currentRoto){
-            lastWeeksRanks.stream().filter(oldRoto -> oldRoto.getName().equals(roto.getName())).findAny()
+            lastWeeksRanks.stream()
+                .filter(oldRoto -> oldRoto.getName().equals(roto.getName())).findAny()
                 .ifPresentOrElse(
                     oldRoto -> calculateChangeInPlayer(roto, oldRoto),
                     () -> unmatchedRotos.add(roto));
