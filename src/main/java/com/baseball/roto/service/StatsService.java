@@ -3,6 +3,7 @@ package com.baseball.roto.service;
 import com.baseball.roto.mapper.StatsMapper;
 import com.baseball.roto.model.Hitting;
 import com.baseball.roto.model.Pitching;
+import com.baseball.roto.model.Roto;
 import com.baseball.roto.model.Stats;
 import com.baseball.roto.repository.StatsRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +11,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,27 +31,23 @@ public class StatsService {
         this.week = week;
     }
 
-    public List<Stats> saveStats(Collection<Hitting> hitting, Collection<Pitching> pitching) {
+    public List<Stats> saveStats(Collection<Hitting> hitting, Collection<Pitching> pitching, List<Roto> rotos) {
         return hitting.stream()
-            .map(hit -> statsMapper.toStats(hit, pitching.stream().filter(pitch -> pitch.getName().equals(hit.getName())).findAny().orElseThrow(), week))
+            .map(hit -> statsMapper.toStats(hit, matchStats(pitching, hit.getName(), Pitching::getName), week, matchStats(rotos, hit.getName(), Roto::getName)))
             .peek(v -> log.info(v.toString()))
             .map(repository::save)
             .collect(Collectors.toList());
-//        return hitting.stream()
-//            .map(hit -> new Stats(hit, pitching.stream().filter(pitch -> pitch.getName().equals(hit.getName())).findAny().orElseThrow()))
-//            .map(repository::save)
-//            .collect(Collectors.toList());
+    }
+//    private <T> T sortByName(Collection<T> collection, String name, Function<T, String> getter) {
+//        return collection.stream().sorted((a, b) -> a.apply())
+//    }
+    private <T> T matchStats(Collection<T> collection, String name, Function<T, String> getter){
+        return collection.stream()
+            .filter(pitch -> getter.apply(pitch).equals(name))
+            .findAny().orElseThrow(() -> new RuntimeException("player not found"));
     }
 
-//    private List<Roto> applyRotoCalculations(Map<String, List<Double>> stats, List<Roto> rotos) {
-//        rotos.forEach(roto -> {
-//            roto.setPitching(stats.get(roto.getName()).stream().mapToDouble(v -> v).sum());
-//            roto.setTotal(roto.getHitting() + roto.getPitching());
-//        });
-//        rotos.sort((o1, o2) -> Double.compare(o2.getTotal(), o1.getTotal()));
-//        calculateRank(rotos);
-//        return rotoService.calculateRank(rotos);
-//    }
+
 //
 //    private List<Stats> calculateHittingStats(Collection<Hitting> hitting) {
 //        Map<String, List<Double>> allStats = hitting.stream()

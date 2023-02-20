@@ -24,8 +24,11 @@ public class RotoService {
     }
 
     public List<Roto> calculateRotoScores(Collection<Hitting> hitting, Collection<Pitching> pitching){
-        List<Stats> stats = statsService.saveStats(hitting, pitching);
-        return applyRotoCalculations(calculatePitchingStats(pitching), calculateHittingStats(hitting));
+        List<Roto> rotos = applyRotoCalculations(calculatePitchingStats(pitching), calculateHittingStats(hitting));
+        List<Stats> stats = statsService.saveStats(hitting, pitching, rotos);
+        return rotos;
+//        List<Stats> stats = statsService.saveStats(hitting, pitching);
+//        return applyRotoCalculations(calculatePitchingStats(pitching), calculateHittingStats(hitting));
     }
 
     private List<Roto> applyRotoCalculations(Map<String, List<Double>> stats, List<Roto> rotos) {

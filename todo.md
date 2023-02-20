@@ -1,3 +1,9 @@
+1. rework roto service to use Stats// 
+   2. should use stats the whole time and then map to roto at the end? easier?
+2. save stats after roto calculated
+3. better way to get week
+
+
 save stats in db tables
 
 change doubles to floats
