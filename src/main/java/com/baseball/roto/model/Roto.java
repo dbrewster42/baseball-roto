@@ -1,11 +1,8 @@
 package com.baseball.roto.model;
 
-import com.ebay.xcelite.annotations.AnyColumn;
 import com.ebay.xcelite.annotations.Column;
 import com.ebay.xcelite.annotations.Row;
 import lombok.Data;
-
-import java.util.Map;
 
 @Data
 @Row(colsOrder = {"rank", "name", "total", "hitting", "pitching", " ", "total_change", "hitting_change", "pitching_change"})
