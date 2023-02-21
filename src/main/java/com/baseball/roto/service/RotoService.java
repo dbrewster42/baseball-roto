@@ -10,11 +10,11 @@ import com.baseball.roto.repository.StatsRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 @Slf4j
@@ -38,20 +38,21 @@ public class RotoService {
             .collect(Collectors.toList());
         repository.saveAll(statCalculationService.calculateStats(statsList));
 
-        List<Roto> rotos = withRank(statsList.stream().map(statsMapper::toRoto).collect(Collectors.toList()));
+        List<Roto> rotos = rankByGetter(statsList.stream().map(statsMapper::toRoto).collect(Collectors.toList()), Roto::getTotal);
 
         List<Stats> lastWeekStats = repository.findAllByWeek(week - 1);
         return changeService.calculateChanges(lastWeekStats, rotos);
+
     }
 
     public List<CategoryRank> rankCategories(List<Roto> rotoList) {
-        List<Roto> sortedHitters = sortByGetter(rotoList, Roto::getHitting);
-        List<Roto> sortedPitchers = sortByGetter(rotoList, Roto::getPitching);
+        List<CategoryRank> categoryRanks = rankByGetter(sortByGetter(rotoList, Roto::getHitting), Roto::getHitting)
+            .stream()
+            .map(CategoryRank::new)
+            .collect(Collectors.toList());
 
-        List<CategoryRank> categoryRanks = new ArrayList<>();
-        for (int i = 0; i < sortedHitters.size(); i++) {
-            categoryRanks.add(new CategoryRank(i + 1, sortedHitters.get(i), sortedPitchers.get(i)));
-        }
+        List<Roto> sortedPitchers = rankByGetter(sortByGetter(rotoList, Roto::getPitching), Roto::getPitching);
+        IntStream.range(0, sortedPitchers.size()).forEach(i -> categoryRanks.get(i).setPitchingCategories(sortedPitchers.get(i)));
         return categoryRanks;
     }
 
@@ -61,13 +62,11 @@ public class RotoService {
             .findAny().orElseThrow(() -> new RuntimeException("player not found"));
     }
 
-
-    //TODO more testing and can use for categoryRanks by adding getter as parameter
-    protected List<Roto> withRank(List<Roto> rotos){
+    protected List<Roto> rankByGetter(List<Roto> rotos, Function<Roto, Float> getter){
         for (int i = 0; i < rotos.size(); i++){
             float rank = i + 1;
             int tiesCount = 0;
-            while (i + tiesCount + 1 < rotos.size() && rotos.get(i).getTotal() == rotos.get(i + 1 + tiesCount).getTotal()){
+            while (i + tiesCount + 1 < rotos.size() && getter.apply(rotos.get(i)).equals(getter.apply(rotos.get(i + 1 + tiesCount)))){
                 rank += .5;
                 tiesCount++;
             }

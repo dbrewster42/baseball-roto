@@ -58,7 +58,7 @@ public class StatCalculationService {
         List<Integer> ties = new ArrayList<>();
         float previous = -1.1f;
         for (float singleStat : statColumn){
-            if (previous == singleStat){
+            if (singleStat == previous){
                 ties.add(statColumn.indexOf(singleStat) + 1);
             }
             previous = singleStat;
@@ -72,30 +72,19 @@ public class StatCalculationService {
         }
     }
 
-    //TODO more testing
-    private void applyTies(Map<String, List<Float>> stats, int columnNumber, List<Integer> ties){
-        for (int i = 0; i < ties.size(); i++){
-            if (i < ties.size() - 1 && ties.get(i) == ties.get(i + 1)){
-                int multiTie = ties.get(i);
-                float specialModifier = .5F;
-                while (i < ties.size() - 1 && ties.get(i) == ties.get(i + 1)){
-                    specialModifier += .5;
-                    i++;
-                }
-                for (List<Float> each : stats.values()) {
-                    if (each.get(columnNumber).intValue() == multiTie) {
-                        each.set(columnNumber, each.get(columnNumber) + specialModifier);
-                    }
-                }
+    private void applyTies(Map<String, List<Float>> stats, int columnNumber, List<Integer> tiedRanks){
+        for (int i = 0; i < tiedRanks.size(); i++){
+            float tieModifier = .5F;
+            int tiedRank = tiedRanks.get(i);
+            while (i < tiedRanks.size() - 1 && tiedRank == tiedRanks.get(i + 1)){
+                tieModifier += .5;
+                i++;
             }
-            else {
-                for (List<Float> each : stats.values()){
-                    if (each.get(columnNumber).intValue()  == ties.get(i)){ //todo ??
-                        each.set(columnNumber,(each.get(columnNumber) + 0.5f));
-                    }
+            for (List<Float> statList : stats.values()){
+                if (statList.get(columnNumber).intValue() == tiedRank){
+                    statList.set(columnNumber, tiedRank + tieModifier);
                 }
             }
         }
     }
-
 }

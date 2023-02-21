@@ -5,7 +5,7 @@ import com.ebay.xcelite.annotations.Row;
 import lombok.Data;
 
 @Data
-@Row(colsOrder = {"rank", "name", "total", "hitting", "pitching", " ", "total_change", "hitting_change", "pitching_change"})
+@Row(colsOrder = {"rank", "name", "total", "hitting", "pitching", " ", "total change", "hitting change", "pitching change"})
 public class Roto {
     @Column
     private float rank;
@@ -17,11 +17,11 @@ public class Roto {
     private float hitting;
     @Column
     private float pitching;
-    @Column(name = "total_change")
+    @Column(name = "total change")
     private float totalChange = .11f;
-    @Column(name = "hitting_change")
+    @Column(name = "hitting change")
     private float hittingChange;
-    @Column(name = "pitching_change")
+    @Column(name = "pitching change")
     private float pitchingChange;
     @Column(name = " ")
     private final String __ = null;
