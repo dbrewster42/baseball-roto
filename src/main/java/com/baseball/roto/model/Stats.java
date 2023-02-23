@@ -65,4 +65,14 @@ public class Stats {
         map.put(name, stats);
         return map;
     }
+
+    public void determineTotals(Map<String, List<Float>> hittingStats, Map<String, List<Float>> pitchingStats) {
+        this.hitting = sumTotal(hittingStats);
+        this.pitching = sumTotal(pitchingStats);
+        this.total = hitting + pitching;
+    }
+
+    private float sumTotal(Map<String, List<Float>> stats) {
+        return (float) stats.get(name).stream().mapToDouble(stat -> stat).sum();
+    }
 }

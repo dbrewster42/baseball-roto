@@ -24,15 +24,9 @@ public class StatCalculationService {
     private List<Stats> calculateStats(List<Stats> statsList, Map<String, List<Float>> hittingStats, Map<String, List<Float>> pitchingStats) {
         for (int i = 0; i < STAT_COLUMNS_SIZE; i++){
             rankColumn(hittingStats, i, false);
-            rankColumn(pitchingStats, i, i > 3);
+            rankColumn(pitchingStats, i, i >= COUNTING_STATS_SIZE);
         }
-        for (Stats stats : statsList) {
-            stats.setHitting((float) hittingStats.get(stats.getName()).stream().mapToDouble(v -> v).sum());
-            stats.setPitching((float) pitchingStats.get(stats.getName()).stream().mapToDouble(v -> v).sum());
-            stats.setTotal(stats.getHitting() + stats.getPitching());
-        }
-        statsList.sort((o1, o2) -> Float.compare(o2.getTotal(), o1.getTotal()));
-        log.info("stats calculated and sorted");
+        statsList.forEach(stats -> stats.determineTotals(hittingStats, pitchingStats));
         return statsList;
     }
 
@@ -112,13 +106,12 @@ public class StatCalculationService {
             for (int i = 0; i < COUNTING_STATS_SIZE; i++) {
                 playersStats.getValue().set(i, playersStats.getValue().get(i) - playersOldStats.get(i));
             }
-            for (int i = 4; i < STAT_COLUMNS_SIZE; i++) {
+            for (int i = COUNTING_STATS_SIZE; i < STAT_COLUMNS_SIZE; i++) {
                 playersStats.getValue().set(i, calculateAveragedValues(weight, playersOldStats.get(i), playersStats.getValue().get(i)));
             }
         }
         return currentStats;
     }
-
     private float calculateAveragedValues(float weight, float oldValue, float newValue) {
         float diff = roundToThousandth(newValue - oldValue);
         return roundToThousandth(newValue + (diff * weight));

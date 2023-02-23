@@ -7,13 +7,13 @@ import com.baseball.roto.model.Stats;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring")
 public interface StatsMapper {
     @Mapping(target = "name", source = "hitting.name")
     Stats toStats(Hitting hitting, Pitching pitching);
-//    @Mapping(target = "week", source = "week")
-//    @Mapping(target = "runs", source = "hitting.runs")
-//    @Mapping(target = "rbis", source = "hitting.rbis")
+
     @Mapping(target = "name", source = "hitting.name")
     Stats toStats(Hitting hitting, Pitching pitching, int week);
 
@@ -21,4 +21,7 @@ public interface StatsMapper {
     Stats toStats(Hitting hitting, Pitching pitching, int week, Roto roto);
 
     Roto toRoto(Stats source);
+
+    List<Roto> toRotoList(List<Stats> source);
+
 }
