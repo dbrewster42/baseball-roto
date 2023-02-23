@@ -23,6 +23,10 @@ public class RotoService {
     private final StatsMapper statsMapper;
     private final StatCalculationService statCalculationService;
     private final ChangeService changeService;
+//    @Value("${calculatePastMonth}") int week;
+    private static final int NUMBER_OF_PLAYERS = 14;
+    private List<Stats> statsList;
+    private int week;
 
     public RotoService(StatsRepository repository, StatsMapper statsMapper, StatCalculationService statCalculationService, ChangeService changeService) {
         this.repository = repository;
@@ -32,17 +36,16 @@ public class RotoService {
     }
 
     public List<Roto> calculateRoto(Collection<Hitting> hitting, Collection<Pitching> pitching){
-        int week = (int) (repository.count() / 14) + 1;
-        List<Stats> statsList = hitting.stream()
+        week = (int) (repository.count() / NUMBER_OF_PLAYERS) + 1;
+        statsList = hitting.stream()
             .map(hit -> statsMapper.toStats(hit, matchStats(pitching, hit.getName(), Pitching::getName), week))
             .collect(Collectors.toList());
         repository.saveAll(statCalculationService.calculateStats(statsList));
 
-        List<Roto> rotos = rankByGetter(statsList.stream().map(statsMapper::toRoto).collect(Collectors.toList()), Roto::getTotal);
+        List<Roto> rotoList = rankByGetter(statsList.stream().map(statsMapper::toRoto).collect(Collectors.toList()), Roto::getTotal);
 
         List<Stats> lastWeekStats = repository.findAllByWeek(week - 1);
-        return changeService.calculateChanges(lastWeekStats, rotos);
-
+        return changeService.calculateChanges(lastWeekStats, rotoList);
     }
 
     public List<CategoryRank> rankCategories(List<Roto> rotoList) {
@@ -84,5 +87,12 @@ public class RotoService {
         return players.stream()
             .sorted((o1, o2) -> Float.compare(getter.apply(o2), getter.apply(o1)))
             .collect(Collectors.toList());
+    }
+
+    public List<Roto> calculateLastMonth() {
+        List<Stats> lastMonthsStats = repository.findAllByWeek(week - 4);
+        statsList = statCalculationService.subtractOldStats(statsList, lastMonthsStats, week);
+
+        return rankByGetter(statsList.stream().map(statsMapper::toRoto).collect(Collectors.toList()), Roto::getTotal);
     }
 }

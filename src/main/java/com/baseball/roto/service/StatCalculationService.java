@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.function.Function;
 
 @Service
@@ -16,6 +17,9 @@ public class StatCalculationService {
     public List<Stats> calculateStats(List<Stats> statsList) {
         Map<String, List<Float>> hittingStats = combineStatLists(statsList, Stats::gatherHittingStats);
         Map<String, List<Float>> pitchingStats = combineStatLists(statsList, Stats::gatherPitchingStats);
+        return calculateStats(statsList, hittingStats, pitchingStats);
+    }
+    private List<Stats> calculateStats(List<Stats> statsList, Map<String, List<Float>> hittingStats, Map<String, List<Float>> pitchingStats) {
         for (int i = 0; i < 6; i++){
             rankColumn(hittingStats, i, false);
             rankColumn(pitchingStats, i, i > 3);
@@ -86,5 +90,44 @@ public class StatCalculationService {
                 }
             }
         }
+    }
+
+//    public List<Stats> subtractOldStats(List<Stats> statsList, List<Stats> lastMonthsStats) {
+//        Map<String, List<Float>> hittingStats = subtractStatLists(
+//            combineStatLists(statsList, Stats::gatherHittingStats),
+//            combineStatLists(lastMonthsStats, Stats::gatherHittingStats));
+//        Map<String, List<Float>> pitchingStats = subtractStatLists(
+//            combineStatLists(statsList, Stats::gatherPitchingStats),
+//            combineStatLists(lastMonthsStats, Stats::gatherPitchingStats));
+//        return calculateStats(statsList, hittingStats, pitchingStats);
+//    }
+    public List<Stats> subtractOldStats(List<Stats> statsList, List<Stats> lastMonthsStats, int week) {
+        Map<String, List<Float>> hittingStats = subtractStatLists(statsList, lastMonthsStats, Stats::gatherHittingStats, week);
+        Map<String, List<Float>> pitchingStats = subtractStatLists(statsList, lastMonthsStats, Stats::gatherPitchingStats, week);
+        return calculateStats(statsList, hittingStats, pitchingStats);
+    }
+    private Map<String, List<Float>> subtractStatLists(List<Stats> statsList, List<Stats> oldStatsList, Function<Stats, Map<String, List<Float>>> getter, int week) {
+        return subtractStatLists(combineStatLists(statsList, getter), combineStatLists(oldStatsList, getter), week);
+    }
+    private Map<String, List<Float>> subtractStatLists(Map<String, List<Float>> currentStats, Map<String, List<Float>> oldStats, int week) {
+        for (Entry<String, List<Float>> playersStats : currentStats.entrySet()) {
+            List<Float> playersOldStats = oldStats.entrySet().stream()
+                .filter(entry -> entry.getKey().equals(playersStats.getKey()))
+                .map(Entry::getValue)
+                .findAny().orElseThrow();
+            for (int i = 0; i < 4; i++) {
+                playersStats.getValue().set(i, playersStats.getValue().get(i) - playersOldStats.get(i));
+            }
+            for (int i = 4; i < 6; i++) {
+                playersStats.getValue().set(i, calculateAveragedValues(week, playersOldStats.get(i), playersStats.getValue().get(i)));
+            }
+        }
+        return currentStats;
+    }
+
+    private float calculateAveragedValues(int week, float oldValue, float newValue) {
+        float weight = (week - 4.0f) / 4;
+        float diff = newValue - oldValue;
+        return newValue + (diff * weight);
     }
 }

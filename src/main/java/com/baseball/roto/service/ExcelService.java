@@ -35,9 +35,15 @@ public class ExcelService {
         return statsXcel.getSheet("Sheet2").getBeanReader(Pitching.class).read();
     }
 
-    public void writeRoto(List<Roto> rotos){
+    public void writeRoto(List<Roto> rotoList){
+        writeRoto(rotoList, "Sheet");
+    }
+    public void writeLastMonth(List<Roto> rotoList) {
+        writeRoto(rotoList, "LastMonth");
+    }
+    public void writeRoto(List<Roto> rotoList, String sheetName){
         log.info("writing results");
-        rotoXcel.createSheet("Sheet").getBeanWriter(Roto.class).write(rotos);
+        rotoXcel.createSheet(sheetName).getBeanWriter(Roto.class).write(rotoList);
         rotoXcel.write(outputFile);
         log.info("done");
     }
@@ -50,4 +56,5 @@ public class ExcelService {
         rotoXcel.getSheet("Sheet").getBeanWriter(CategoryRank.class).write(categoryRanks);
         rotoXcel.write(outputFile);
     }
+
 }
