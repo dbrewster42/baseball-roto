@@ -20,7 +20,6 @@ class RotoServiceTest {
     @Mock StatsRepository repository;
     @Mock StatsMapper statsMapper;
     @Mock StatCalculationService statCalculationService;
-    @Mock ChangeService changeService;
     @InjectMocks RotoService sut;
 
     @Test

@@ -13,6 +13,9 @@ import java.util.function.Function;
 @Service
 @Slf4j
 public class StatCalculationService {
+    private static final int STAT_COLUMNS_SIZE = 6;
+    private static final int COUNTING_STATS_SIZE = 4;
+
 
     public List<Stats> calculateStats(List<Stats> statsList) {
         Map<String, List<Float>> hittingStats = combineStatLists(statsList, Stats::gatherHittingStats);
@@ -20,7 +23,7 @@ public class StatCalculationService {
         return calculateStats(statsList, hittingStats, pitchingStats);
     }
     private List<Stats> calculateStats(List<Stats> statsList, Map<String, List<Float>> hittingStats, Map<String, List<Float>> pitchingStats) {
-        for (int i = 0; i < 6; i++){
+        for (int i = 0; i < STAT_COLUMNS_SIZE; i++){
             rankColumn(hittingStats, i, false);
             rankColumn(pitchingStats, i, i > 3);
         }
@@ -92,42 +95,36 @@ public class StatCalculationService {
         }
     }
 
-//    public List<Stats> subtractOldStats(List<Stats> statsList, List<Stats> lastMonthsStats) {
-//        Map<String, List<Float>> hittingStats = subtractStatLists(
-//            combineStatLists(statsList, Stats::gatherHittingStats),
-//            combineStatLists(lastMonthsStats, Stats::gatherHittingStats));
-//        Map<String, List<Float>> pitchingStats = subtractStatLists(
-//            combineStatLists(statsList, Stats::gatherPitchingStats),
-//            combineStatLists(lastMonthsStats, Stats::gatherPitchingStats));
-//        return calculateStats(statsList, hittingStats, pitchingStats);
-//    }
     public List<Stats> subtractOldStats(List<Stats> statsList, List<Stats> lastMonthsStats, int week) {
-        Map<String, List<Float>> hittingStats = subtractStatLists(statsList, lastMonthsStats, Stats::gatherHittingStats, week);
-        Map<String, List<Float>> pitchingStats = subtractStatLists(statsList, lastMonthsStats, Stats::gatherPitchingStats, week);
+        float weight = (week - 4) / 4f;
+        Map<String, List<Float>> hittingStats = subtractStatLists(statsList, lastMonthsStats, Stats::gatherHittingStats, weight);
+        Map<String, List<Float>> pitchingStats = subtractStatLists(statsList, lastMonthsStats, Stats::gatherPitchingStats, weight);
         return calculateStats(statsList, hittingStats, pitchingStats);
     }
-    private Map<String, List<Float>> subtractStatLists(List<Stats> statsList, List<Stats> oldStatsList, Function<Stats, Map<String, List<Float>>> getter, int week) {
-        return subtractStatLists(combineStatLists(statsList, getter), combineStatLists(oldStatsList, getter), week);
+    private Map<String, List<Float>> subtractStatLists(List<Stats> statsList, List<Stats> oldStatsList, Function<Stats, Map<String, List<Float>>> getter, float weight) {
+        return subtractStatLists(combineStatLists(statsList, getter), combineStatLists(oldStatsList, getter), weight);
     }
-    private Map<String, List<Float>> subtractStatLists(Map<String, List<Float>> currentStats, Map<String, List<Float>> oldStats, int week) {
+    private Map<String, List<Float>> subtractStatLists(Map<String, List<Float>> currentStats, Map<String, List<Float>> oldStats, float weight) {
         for (Entry<String, List<Float>> playersStats : currentStats.entrySet()) {
             List<Float> playersOldStats = oldStats.entrySet().stream()
                 .filter(entry -> entry.getKey().equals(playersStats.getKey()))
                 .map(Entry::getValue)
                 .findAny().orElseThrow();
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < COUNTING_STATS_SIZE; i++) {
                 playersStats.getValue().set(i, playersStats.getValue().get(i) - playersOldStats.get(i));
             }
-            for (int i = 4; i < 6; i++) {
-                playersStats.getValue().set(i, calculateAveragedValues(week, playersOldStats.get(i), playersStats.getValue().get(i)));
+            for (int i = 4; i < STAT_COLUMNS_SIZE; i++) {
+                playersStats.getValue().set(i, calculateAveragedValues(weight, playersOldStats.get(i), playersStats.getValue().get(i)));
             }
         }
         return currentStats;
     }
 
-    private float calculateAveragedValues(int week, float oldValue, float newValue) {
-        float weight = (week - 4.0f) / 4;
-        float diff = newValue - oldValue;
-        return newValue + (diff * weight);
+    private float calculateAveragedValues(float weight, float oldValue, float newValue) {
+        float diff = roundToThousandth(newValue - oldValue);
+        return roundToThousandth(newValue + (diff * weight));
+    }
+    private float roundToThousandth(float value) { //stats are only accurate to 3 decimal places
+        return Math.round(value * 1000) / 1000f;
     }
 }

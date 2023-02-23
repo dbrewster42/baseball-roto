@@ -10,6 +10,7 @@ import com.baseball.roto.repository.StatsRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
@@ -22,21 +23,18 @@ public class RotoService {
     private final StatsRepository repository;
     private final StatsMapper statsMapper;
     private final StatCalculationService statCalculationService;
-    private final ChangeService changeService;
-//    @Value("${calculatePastMonth}") int week;
-    private static final int NUMBER_OF_PLAYERS = 14;
+    private static final int NUMBER_OF_PLAYERS = 14; //needs to be property if kept
     private List<Stats> statsList;
     private int week;
 
-    public RotoService(StatsRepository repository, StatsMapper statsMapper, StatCalculationService statCalculationService, ChangeService changeService) {
+    public RotoService(StatsRepository repository, StatsMapper statsMapper, StatCalculationService statCalculationService) {
         this.repository = repository;
         this.statsMapper = statsMapper;
         this.statCalculationService = statCalculationService;
-        this.changeService = changeService;
     }
 
     public List<Roto> calculateRoto(Collection<Hitting> hitting, Collection<Pitching> pitching){
-        week = (int) (repository.count() / NUMBER_OF_PLAYERS) + 1;
+        week = (int) (repository.count() / NUMBER_OF_PLAYERS) + 1; //todo better way to get week? audit column?
         statsList = hitting.stream()
             .map(hit -> statsMapper.toStats(hit, matchStats(pitching, hit.getName(), Pitching::getName), week))
             .collect(Collectors.toList());
@@ -45,7 +43,7 @@ public class RotoService {
         List<Roto> rotoList = rankByGetter(statsList.stream().map(statsMapper::toRoto).collect(Collectors.toList()), Roto::getTotal);
 
         List<Stats> lastWeekStats = repository.findAllByWeek(week - 1);
-        return changeService.calculateChanges(lastWeekStats, rotoList);
+        return withWeeklyChanges(lastWeekStats, rotoList);
     }
 
     public List<CategoryRank> rankCategories(List<Roto> rotoList) {
@@ -59,6 +57,13 @@ public class RotoService {
         return categoryRanks;
     }
 
+    public List<Roto> calculateLastMonth() {
+        List<Stats> lastMonthsStats = repository.findAllByWeek(week - 4);
+        statsList = statCalculationService.subtractOldStats(statsList, lastMonthsStats, week);
+
+        return rankByGetter(statsList.stream().map(statsMapper::toRoto).collect(Collectors.toList()), Roto::getTotal);
+    }
+
     private <T> T matchStats(Collection<T> collection, String name, Function<T, String> getter){
         return collection.stream()
             .filter(pitch -> getter.apply(pitch).equals(name))
@@ -66,15 +71,15 @@ public class RotoService {
     }
 
     protected List<Roto> rankByGetter(List<Roto> rotos, Function<Roto, Float> getter){
-        for (int i = 0; i < rotos.size(); i++){
+        for (int i = 0; i < NUMBER_OF_PLAYERS; i++){
             float rank = i + 1;
             int tiesCount = 0;
-            while (i + tiesCount + 1 < rotos.size() && getter.apply(rotos.get(i)).equals(getter.apply(rotos.get(i + 1 + tiesCount)))){
+            while (i + tiesCount + 1 < NUMBER_OF_PLAYERS && getter.apply(rotos.get(i)).equals(getter.apply(rotos.get(i + 1 + tiesCount)))){
                 rank += .5;
                 tiesCount++;
             }
             rotos.get(i).setRank(rank);
-            while (tiesCount > 0){
+            while (tiesCount > 0){ //set ranks for rest of tied players
                 i++;
                 rotos.get(i).setRank(rank);
                 tiesCount--;
@@ -89,10 +94,29 @@ public class RotoService {
             .collect(Collectors.toList());
     }
 
-    public List<Roto> calculateLastMonth() {
-        List<Stats> lastMonthsStats = repository.findAllByWeek(week - 4);
-        statsList = statCalculationService.subtractOldStats(statsList, lastMonthsStats, week);
+    private List<Roto> withWeeklyChanges(List<Stats> lastWeeksRanks, List<Roto> currentRoto){
+        List<Roto> unmatchedRotos = new ArrayList<>();
+        for (Roto roto : currentRoto){
+            lastWeeksRanks.stream()
+                .filter(oldRoto -> oldRoto.getName().equals(roto.getName())).findAny()
+                .ifPresentOrElse(
+                    oldRoto -> calculateChangeInPlayer(roto, oldRoto),
+                    () -> unmatchedRotos.add(roto));
+        }
+        if (unmatchedRotos.size() == 1){
+            lastWeeksRanks.stream()
+                .filter(lw -> currentRoto.stream().noneMatch(roto -> lw.getName().equals(roto.getName())))
+                .findAny()
+                .ifPresent(lw -> calculateChangeInPlayer(unmatchedRotos.get(0), lw));
+        }
+        currentRoto.forEach(roto -> log.info(roto.toString()));
+        log.info("changes calculated with {} unmatched players", unmatchedRotos.size());
+        return currentRoto;
+    }
 
-        return rankByGetter(statsList.stream().map(statsMapper::toRoto).collect(Collectors.toList()), Roto::getTotal);
+    private void calculateChangeInPlayer(Roto roto, Stats oldStats){;
+        roto.setTotalChange(roto.getTotal() - oldStats.getTotal());
+        roto.setHittingChange(roto.getHitting() - oldStats.getHitting());
+        roto.setPitchingChange(roto.getPitching() - oldStats.getPitching());
     }
 }

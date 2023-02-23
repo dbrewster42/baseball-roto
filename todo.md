@@ -1,4 +1,4 @@
-test withRank
+[//]: # (test withRank)
 
 [//]: # (1. rework roto service to use Stats// )
 
@@ -19,7 +19,7 @@ test withRank
 [//]: # (find different way of finding old unmatched roto)
 
 
-more testing around ties, possibly refactor
+[//]: # (more testing around ties, possibly refactor)
 
 
 

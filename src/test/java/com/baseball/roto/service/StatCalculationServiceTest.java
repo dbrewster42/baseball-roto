@@ -35,7 +35,7 @@ class StatCalculationServiceTest {
     }
 
     @Test
-    void customer() {
+    void customTest() {
         int week = 8;
         float value1 = 3.0f;
         float value2 = 4.0f;
@@ -55,5 +55,15 @@ class StatCalculationServiceTest {
         float weight = (week - 4) / 4f;
         float diff = newValue - oldValue;
         return newValue + (diff * weight);
+    }
+    @Test
+    void customTest2() {
+        assertThat(divideInts(12, 8)).isEqualTo(1f);
+        assertThat(divideInts(12, 6)).isEqualTo(1.5f);
+        assertThat(divideInts(12, 3)).isEqualTo(2.25f);
+
+    }
+    private float divideInts(int first, int second) {
+        return (first - second) / 4f;
     }
 }
