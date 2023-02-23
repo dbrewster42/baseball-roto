@@ -23,9 +23,9 @@ public class RotoService {
     private final StatsRepository repository;
     private final StatsMapper statsMapper;
     private final StatCalculationService statCalculationService;
-    private static final int NUMBER_OF_PLAYERS = 14; //needs to be property if kept
     private List<Stats> statsList;
     private int week;
+    private int numberOfPlayers = 14; //needs to be property if kept
 
     public RotoService(StatsRepository repository, StatsMapper statsMapper, StatCalculationService statCalculationService) {
         this.repository = repository;
@@ -34,7 +34,8 @@ public class RotoService {
     }
 
     public List<Roto> calculateRoto(Collection<Hitting> hitting, Collection<Pitching> pitching){
-        week = (int) (repository.count() / NUMBER_OF_PLAYERS) + 1; //todo better way to get week? audit column?
+        numberOfPlayers = hitting.size();
+        week = (int) (repository.count() / numberOfPlayers) + 1;
         statsList = hitting.stream()
             .map(hit -> statsMapper.toStats(hit, matchStats(pitching, hit.getName(), Pitching::getName), week))
             .collect(Collectors.toList());
@@ -53,7 +54,7 @@ public class RotoService {
             .collect(Collectors.toList());
 
         List<Roto> sortedPitchers = rankByGetter(sortByGetter(rotoList, Roto::getPitching), Roto::getPitching);
-        IntStream.range(0, sortedPitchers.size()).forEach(i -> categoryRanks.get(i).setPitchingCategories(sortedPitchers.get(i)));
+        IntStream.range(0, numberOfPlayers).forEach(i -> categoryRanks.get(i).setPitchingCategories(sortedPitchers.get(i)));
         return categoryRanks;
     }
 
@@ -71,15 +72,15 @@ public class RotoService {
     }
 
     protected List<Roto> rankByGetter(List<Roto> rotos, Function<Roto, Float> getter){
-        for (int i = 0; i < NUMBER_OF_PLAYERS; i++){
+        for (int i = 0; i < numberOfPlayers; i++){
             float rank = i + 1;
-            int tiesCount = 0;
-            while (i + tiesCount + 1 < NUMBER_OF_PLAYERS && getter.apply(rotos.get(i)).equals(getter.apply(rotos.get(i + 1 + tiesCount)))){
+            int tiesCount = 1;
+            while (i + tiesCount < numberOfPlayers && getter.apply(rotos.get(i)).equals(getter.apply(rotos.get(i + tiesCount)))){
                 rank += .5;
                 tiesCount++;
             }
             rotos.get(i).setRank(rank);
-            while (tiesCount > 0){ //set ranks for rest of tied players
+            while (tiesCount > 1){ //set ranks for rest of tied players
                 i++;
                 rotos.get(i).setRank(rank);
                 tiesCount--;
@@ -100,23 +101,18 @@ public class RotoService {
             lastWeeksRanks.stream()
                 .filter(oldRoto -> oldRoto.getName().equals(roto.getName())).findAny()
                 .ifPresentOrElse(
-                    oldRoto -> calculateChangeInPlayer(roto, oldRoto),
+                    roto::setChangesFromGiven,
                     () -> unmatchedRotos.add(roto));
+
         }
         if (unmatchedRotos.size() == 1){
             lastWeeksRanks.stream()
                 .filter(lw -> currentRoto.stream().noneMatch(roto -> lw.getName().equals(roto.getName())))
                 .findAny()
-                .ifPresent(lw -> calculateChangeInPlayer(unmatchedRotos.get(0), lw));
+                .ifPresent(lw -> unmatchedRotos.get(0).setChangesFromGiven(lw));
         }
         currentRoto.forEach(roto -> log.info(roto.toString()));
         log.info("changes calculated with {} unmatched players", unmatchedRotos.size());
         return currentRoto;
-    }
-
-    private void calculateChangeInPlayer(Roto roto, Stats oldStats){;
-        roto.setTotalChange(roto.getTotal() - oldStats.getTotal());
-        roto.setHittingChange(roto.getHitting() - oldStats.getHitting());
-        roto.setPitchingChange(roto.getPitching() - oldStats.getPitching());
     }
 }

@@ -12,7 +12,7 @@ import java.util.List;
 public class RotoController {
     private final RotoService rotoService;
     private final ExcelService excelService;
-    @Value("${week}") private boolean calculatePastMonth;
+    @Value("${calculatePastMonth}") private boolean calculatePastMonth;
 
     public RotoController(RotoService rotoService, ExcelService excelService) {
         this.rotoService = rotoService;

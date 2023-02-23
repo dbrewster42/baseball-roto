@@ -50,7 +50,7 @@ public class ExcelService {
 
     public void writeRanks(List<CategoryRank> categoryRanks) {
         XceliteOptions options = new XceliteOptions();
-        options.setHeaderRowIndex(17);
+        options.setHeaderRowIndex(categoryRanks.size() + 2);
         rotoXcel.setOptions(options);
 
         rotoXcel.getSheet("Sheet").getBeanWriter(CategoryRank.class).write(categoryRanks);

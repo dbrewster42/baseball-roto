@@ -16,7 +16,6 @@ public class StatCalculationService {
     private static final int STAT_COLUMNS_SIZE = 6;
     private static final int COUNTING_STATS_SIZE = 4;
 
-
     public List<Stats> calculateStats(List<Stats> statsList) {
         Map<String, List<Float>> hittingStats = combineStatLists(statsList, Stats::gatherHittingStats);
         Map<String, List<Float>> pitchingStats = combineStatLists(statsList, Stats::gatherPitchingStats);
@@ -36,6 +35,7 @@ public class StatCalculationService {
         log.info("stats calculated and sorted");
         return statsList;
     }
+
     private Map<String, List<Float>> combineStatLists(List<Stats> stats, Function<Stats, Map<String, List<Float>>> getter) {
         return stats.stream()
             .map(getter)
@@ -55,7 +55,6 @@ public class StatCalculationService {
         } else {
             statColumn.sort(Float::compare);
         }
-
         List<Integer> ties = recordTies(statColumn);
         overwriteStatsWithRotoPoints(stats, columnNumber, statColumn);
         applyTies(stats, columnNumber, ties);

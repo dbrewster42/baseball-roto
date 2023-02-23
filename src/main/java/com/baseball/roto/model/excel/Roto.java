@@ -1,5 +1,6 @@
 package com.baseball.roto.model.excel;
 
+import com.baseball.roto.model.Stats;
 import com.ebay.xcelite.annotations.Column;
 import com.ebay.xcelite.annotations.Row;
 import lombok.Data;
@@ -27,5 +28,11 @@ public class Roto {
     private final String __ = null;
 
     public Roto() {}
+
+    public void setChangesFromGiven(Stats oldStats) {
+        totalChange = total - oldStats.getTotal();
+        hittingChange = hitting - oldStats.getHitting();
+        pitchingChange = pitchingChange - oldStats.getPitching();
+    }
 
 }
