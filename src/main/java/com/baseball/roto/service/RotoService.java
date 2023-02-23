@@ -1,83 +1,118 @@
 package com.baseball.roto.service;
 
-import com.baseball.roto.io.ExcelReader;
-import com.baseball.roto.model.Hitting;
-import com.baseball.roto.model.Pitching;
+import com.baseball.roto.mapper.StatsMapper;
 import com.baseball.roto.model.Stats;
+import com.baseball.roto.model.excel.CategoryRank;
+import com.baseball.roto.model.excel.Hitting;
+import com.baseball.roto.model.excel.Pitching;
+import com.baseball.roto.model.excel.Roto;
+import com.baseball.roto.repository.StatsRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 @Slf4j
 public class RotoService {
-    private final ExcelReader excelReader;
+    private final StatsRepository repository;
+    private final StatsMapper statsMapper;
+    private final StatCalculationService statCalculationService;
+    private List<Stats> statsList;
+    private int week;
+    private int numberOfPlayers = 14; //needs to be property if kept
 
-    public RotoService(ExcelReader excelReader) {
-        this.excelReader = excelReader;
+    public RotoService(StatsRepository repository, StatsMapper statsMapper, StatCalculationService statCalculationService) {
+        this.repository = repository;
+        this.statsMapper = statsMapper;
+        this.statCalculationService = statCalculationService;
     }
 
-    public void printRoto(){
-        Collection<Hitting> hitters = excelReader.readHitting();
-        hitters.forEach(v -> log.info(v.toString()));
-        rankHitting(hitters);
+    public List<Roto> calculateRoto(Collection<Hitting> hitting, Collection<Pitching> pitching){
+        numberOfPlayers = hitting.size();
+        week = (int) (repository.count() / numberOfPlayers) + 1;
+        statsList = hitting.stream()
+            .map(hit -> statsMapper.toStats(hit, matchStats(pitching, hit.getName(), Pitching::getName), week))
+            .collect(Collectors.toList());
+        repository.saveAll(statCalculationService.calculateStats(statsList));
 
-        Collection<Pitching> pitchers = excelReader.readPitching();
+        List<Roto> rotoList = rankByGetter(statsList.stream().map(statsMapper::toRoto).collect(Collectors.toList()), Roto::getTotal);
 
-    }
-    public void rankHitting(Collection<Hitting> hitters) {
-//        hitters.forEach(Hitting::gatherStats);
-        //todo list of lists of doubles, keep it in hitters or convert to players?
-        //todo proba
-        for (int i = 0; i < 6; i++){
-            rankColumn(hitters, i, false);
-        }
+        List<Stats> lastWeekStats = repository.findAllByWeek(week - 1);
+        return withWeeklyChanges(lastWeekStats, rotoList);
     }
 
-    public void rankAllColumns(boolean isPitching){
-        if (isPitching){
-            for (int i = 0; i < 6; i++){
-                rankColumn(i, i == 2 || i == 3);
+    public List<CategoryRank> rankCategories(List<Roto> rotoList) {
+        List<CategoryRank> categoryRanks = rankByGetter(sortByGetter(rotoList, Roto::getHitting), Roto::getHitting)
+            .stream()
+            .map(CategoryRank::new)
+            .collect(Collectors.toList());
+
+        List<Roto> sortedPitchers = rankByGetter(sortByGetter(rotoList, Roto::getPitching), Roto::getPitching);
+        IntStream.range(0, numberOfPlayers).forEach(i -> categoryRanks.get(i).setPitchingCategories(sortedPitchers.get(i)));
+        return categoryRanks;
+    }
+
+    public List<Roto> calculateLastMonth() {
+        List<Stats> lastMonthsStats = repository.findAllByWeek(week - 4);
+        statsList = statCalculationService.subtractOldStats(statsList, lastMonthsStats, week);
+
+        return rankByGetter(statsList.stream().map(statsMapper::toRoto).collect(Collectors.toList()), Roto::getTotal);
+    }
+
+    private <T> T matchStats(Collection<T> collection, String name, Function<T, String> getter){
+        return collection.stream()
+            .filter(pitch -> getter.apply(pitch).equals(name))
+            .findAny().orElseThrow(() -> new RuntimeException("player not found"));
+    }
+
+    protected List<Roto> rankByGetter(List<Roto> rotos, Function<Roto, Float> getter){
+        for (int i = 0; i < numberOfPlayers; i++){
+            float rank = i + 1;
+            int tiesCount = 1;
+            while (i + tiesCount < numberOfPlayers && getter.apply(rotos.get(i)).equals(getter.apply(rotos.get(i + tiesCount)))){
+                rank += .5;
+                tiesCount++;
             }
-        } else {
-            for (int i = 0; i < 6; i++){
-                rankColumn(i, false);
+            rotos.get(i).setRank(rank);
+            while (tiesCount > 1){ //set ranks for rest of tied players
+                i++;
+                rotos.get(i).setRank(rank);
+                tiesCount--;
             }
         }
-    }
-    public void rankColumn(Collection<Stats> stats, int columnNumber, boolean isReversed){
-        List<Double> values = new ArrayList<>();
-        List<List<Double>> masterList = stats.stream().map(Stats::gatherStats).collect(Collectors.toList());
-        for (List<Double> each : masterList){
-            values.add(each.get(columnNumber));
-        }
-        if (isReversed){
-            values.sort((o1, o2) -> Double.compare(o2, o1));
-        } else {
-            values.sort(Double::compare);
-        }
-
-        List<Integer> ties = new ArrayList<>();
-        double previous = -1.0;
-        for (double value : values){
-            if (previous != -1.0){
-                //FIXME  doubles should not allow ties ie  if (previous % 1 == 0 && previous == value){
-                if (previous == value){
-                    ties.add(values.indexOf(value) + 1);
-                }
-            }
-            previous = value;
-        }
-        for (List<Double> each : thePlayers.values()){
-            each.set(columnNumber, (double) 1 + values.indexOf(each.get(columnNumber)));
-
-        }
-        applyTies(columnNumber, ties);
+        return rotos;
     }
 
+    private List<Roto> sortByGetter(List<Roto> players, Function<Roto, Float> getter){
+        return players.stream()
+            .sorted((o1, o2) -> Float.compare(getter.apply(o2), getter.apply(o1)))
+            .collect(Collectors.toList());
+    }
+
+    private List<Roto> withWeeklyChanges(List<Stats> lastWeeksRanks, List<Roto> currentRoto){
+        List<Roto> unmatchedRotos = new ArrayList<>();
+        for (Roto roto : currentRoto){
+            lastWeeksRanks.stream()
+                .filter(oldRoto -> oldRoto.getName().equals(roto.getName())).findAny()
+                .ifPresentOrElse(
+                    roto::setChangesFromGiven,
+                    () -> unmatchedRotos.add(roto));
+
+        }
+        if (unmatchedRotos.size() == 1){
+            lastWeeksRanks.stream()
+                .filter(lw -> currentRoto.stream().noneMatch(roto -> lw.getName().equals(roto.getName())))
+                .findAny()
+                .ifPresent(lw -> unmatchedRotos.get(0).setChangesFromGiven(lw));
+        }
+        currentRoto.forEach(roto -> log.info(roto.toString()));
+        log.info("changes calculated with {} unmatched players", unmatchedRotos.size());
+        return currentRoto;
+    }
 }
