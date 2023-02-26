@@ -39,7 +39,7 @@ public class RotoService {
         statsList = hitting.stream()
             .map(hit -> statsMapper.toStats(hit, matchStats(pitching, hit.getName()), week))
             .collect(Collectors.toList());
-        repository.saveAll(statCalculationService.calculateStats(statsList)); //todo save later
+        statCalculationService.calculateStats(statsList);
 
         List<Roto> rotoList = rankByGetter(statsMapper.toRotoList(statsList), Roto::getTotal);
 
@@ -47,10 +47,8 @@ public class RotoService {
         return withWeeklyChanges(lastWeekStats, rotoList);
     }
 
-    private Pitching matchStats(Collection<Pitching> pitching, String name) {
-        return pitching.stream()
-            .filter(p -> p.getName().equals(name))
-            .findAny().orElseThrow(() -> new RuntimeException("player not found"));
+    public void saveStatistics() {
+        repository.saveAll(statsList);
     }
 
     public List<CategoryRank> rankCategories(List<Roto> rotoList) {
@@ -65,14 +63,25 @@ public class RotoService {
     }
 
     public List<Roto> calculateLastMonth() {
-        List<Stats> lastMonthsStats = repository.findAllByWeek(week - 4);
-        statsList = statCalculationService.subtractOldStats(statsList, lastMonthsStats, week);
+        return calculateLastXWeeks(4);
+    }
+
+    public List<Roto> calculateLastXWeeks(int x) {
+        List<Stats> lastMonthsStats = repository.findAllByWeek(week - x);
+        statsList = statCalculationService.subtractOldStats(statsList, lastMonthsStats, week, x);
 
         return rankByGetter(statsMapper.toRotoList(statsList), Roto::getTotal);
     }
 
+
+    private Pitching matchStats(Collection<Pitching> pitching, String name) {
+        return pitching.stream()
+            .filter(p -> p.getName().equals(name))
+            .findAny().orElseThrow(() -> new RuntimeException("player not found"));
+    }
+
     protected List<Roto> rankByGetter(List<Roto> rotos, Function<Roto, Float> getter){
-        rotos.sort((o1, o2) -> Float.compare(getter.apply(o2), getter.apply(o1))); //todo needs to be new list?
+        rotos.sort((o1, o2) -> Float.compare(getter.apply(o2), getter.apply(o1)));
         for (int i = 0; i < numberOfPlayers; i++){
             float rank = i + 1;
             int tiesCount = 1;

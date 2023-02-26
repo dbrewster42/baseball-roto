@@ -3,7 +3,9 @@ package com.baseball.roto.service;
 import com.baseball.roto.model.Stats;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.baseball.roto.mother.StatsMother.buildEvenStatsList;
 import static com.baseball.roto.mother.StatsMother.buildEvenWeek12StatsList;
@@ -21,13 +23,13 @@ class StatCalculationServiceTest {
 
     @Test
     void subtractOldStats1() {
-        List<Stats> recentStats = sut.subtractOldStats(buildEvenStatsList(), buildVariedStatsList(), 8);
+        List<Stats> recentStats = sut.subtractOldStats(buildEvenStatsList(), buildVariedStatsList(), 9, 4);
 //        assertThat(recentStats.get(0).getName()).isEqualTo("player1");
     }
 
     @Test
     void subtractOldStatsWeighted() {
-        List<Stats> recentStats = sut.subtractOldStats(buildEvenWeek12StatsList(), buildEvenStatsList(), 12);
+        List<Stats> recentStats = sut.subtractOldStats(buildEvenWeek12StatsList(), buildEvenStatsList(), 12, 4);
         assertThat(recentStats.get(0).getEra()).isEqualTo(3.1);
         assertThat(recentStats.get(0).getWhip()).isEqualTo(1.35);
         assertThat(recentStats.get(0).getAvg()).isEqualTo(.295);
@@ -66,4 +68,12 @@ class StatCalculationServiceTest {
     private float divideInts(int first, int second) {
         return (first - second) / 4f;
     }
+
+//    @Test
+//    void debug(){
+//        Map<String, List<Float>> currentStats = new HashMap<>();
+//        currentStats.put("player1", List.of(2f, 4f, 6f, 8f));
+//        currentStats.put("player2", List.of(3f, 5f, 7f, 9f));
+//        sut.debug(currentStats);
+//    }
 }

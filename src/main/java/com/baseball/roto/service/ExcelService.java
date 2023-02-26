@@ -38,8 +38,9 @@ public class ExcelService {
     public void writeRoto(List<Roto> rotoList){
         writeRoto(rotoList, "Sheet");
     }
-    public void writeLastMonth(List<Roto> rotoList) {
-        writeRoto(rotoList, "LastMonth");
+    public void writeLastXWeeks(List<Roto> rotoList) {
+        rotoXcel.setOptions(null);
+        writeRoto(rotoList, "Recent");
     }
     public void writeRoto(List<Roto> rotoList, String sheetName){
         log.info("writing results");

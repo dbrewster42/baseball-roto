@@ -11,14 +11,9 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface StatsMapper {
-    @Mapping(target = "name", source = "hitting.name")
-    Stats toStats(Hitting hitting, Pitching pitching);
 
     @Mapping(target = "name", source = "hitting.name")
     Stats toStats(Hitting hitting, Pitching pitching, int week);
-
-    @Mapping(target = "name", source = "hitting.name")
-    Stats toStats(Hitting hitting, Pitching pitching, int week, Roto roto);
 
     Roto toRoto(Stats source);
 

@@ -88,8 +88,8 @@ public class StatCalculationService {
         }
     }
 
-    public List<Stats> subtractOldStats(List<Stats> statsList, List<Stats> lastMonthsStats, int week) {
-        float weight = (week - 4) / 4f;
+    public List<Stats> subtractOldStats(List<Stats> statsList, List<Stats> lastMonthsStats, int week, int includedWeeks) {
+        float weight = (week - includedWeeks) / (float) includedWeeks;
         Map<String, List<Float>> hittingStats = subtractStatLists(statsList, lastMonthsStats, Stats::gatherHittingStats, weight);
         Map<String, List<Float>> pitchingStats = subtractStatLists(statsList, lastMonthsStats, Stats::gatherPitchingStats, weight);
         return calculateStats(statsList, hittingStats, pitchingStats);
@@ -110,8 +110,11 @@ public class StatCalculationService {
                 playersStats.getValue().set(i, calculateAveragedValues(weight, playersOldStats.get(i), playersStats.getValue().get(i)));
             }
         }
+        currentStats.forEach((k, v) -> log.info(k + " - " + v));
+
         return currentStats;
     }
+
     private float calculateAveragedValues(float weight, float oldValue, float newValue) {
         float diff = roundToThousandth(newValue - oldValue);
         return roundToThousandth(newValue + (diff * weight));

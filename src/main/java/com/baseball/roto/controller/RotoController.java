@@ -12,6 +12,7 @@ import java.util.List;
 public class RotoController {
     private final RotoService rotoService;
     private final ExcelService excelService;
+    @Value("${calculatePastXWeeks}") private int lastWeeks;
     @Value("${calculatePastMonth}") private boolean calculatePastMonth;
 
     public RotoController(RotoService rotoService, ExcelService excelService) {
@@ -23,8 +24,9 @@ public class RotoController {
         List<Roto> rotoList = rotoService.calculateRoto(excelService.readHitting(), excelService.readPitching());
         excelService.writeRoto(rotoList);
         excelService.writeRanks(rotoService.rankCategories(rotoList));
-        if (calculatePastMonth) {
-            excelService.writeLastMonth(rotoService.calculateLastMonth());
+        rotoService.saveStatistics();
+        if (lastWeeks > 0) {
+            excelService.writeLastXWeeks(rotoService.calculateLastXWeeks(lastWeeks));
         }
     }
 }
