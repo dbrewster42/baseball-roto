@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StatsMother {
+
     public static List<Stats> buildVariedStatsList() {
         List<Stats> statsList = new ArrayList<>();
         int playerNumber = 1;
@@ -110,5 +111,17 @@ public class StatsMother {
         stats.setOps(.8f + diff / 30f);
         stats.setSbs(3 + diff);
         return stats;
+    }
+
+    public static List<Stats> buildVariedStatsListWith1NameChange() {
+        List<Stats> statsList = buildVariedStatsList();
+        statsList.get(1).setName("problemCauser");
+        return statsList;
+    }
+    public static List<Stats> buildVariedStatsListWith2NameChanges() {
+        List<Stats> statsList = buildVariedStatsList();
+        statsList.get(1).setName("problemCauser");
+        statsList.get(3).setName("rocking the boat");
+        return statsList;
     }
 }

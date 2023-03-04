@@ -16,11 +16,13 @@ import static com.baseball.roto.mother.RotoMother.buildRotoListWithHitting;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
-class RotoServiceTest {
+class StatsServiceTest {
     @Mock StatsRepository repository;
     @Mock StatsMapper statsMapper;
-    @Mock StatCalculationService statCalculationService;
-    @InjectMocks RotoService sut;
+    @Mock
+    RotoCalculator statCalculator;
+    @InjectMocks
+    StatsService sut;
 
     @Test
     void calculateRoto() {

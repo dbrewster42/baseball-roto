@@ -29,4 +29,4 @@ save later to avoid duplicates in case of error
 
 [//]: # (2. get rid of a. weekly change or b. secondary categoryRanks)
 
-change rotoService to statService and/or split and combine changeService with Roto
+change statsService to statService and/or split and combine changeService with Roto

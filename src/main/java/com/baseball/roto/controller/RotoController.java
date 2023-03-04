@@ -1,32 +1,50 @@
 package com.baseball.roto.controller;
 
+import com.baseball.roto.model.Stats;
 import com.baseball.roto.model.excel.Roto;
 import com.baseball.roto.service.ExcelService;
-import com.baseball.roto.service.RotoService;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Controller;
+import com.baseball.roto.service.StatsService;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@Controller
+@RestController
 public class RotoController {
-    private final RotoService rotoService;
+    private final StatsService statsService;
     private final ExcelService excelService;
-    @Value("${calculatePastXWeeks}") private int lastWeeks;
-    @Value("${calculatePastMonth}") private boolean calculatePastMonth;
 
-    public RotoController(RotoService rotoService, ExcelService excelService) {
-        this.rotoService = rotoService;
+    public RotoController(StatsService statsService, ExcelService excelService) {
+        this.statsService = statsService;
         this.excelService = excelService;
     }
 
-    public void generateRotoStats() {
-        List<Roto> rotoList = rotoService.calculateRoto(excelService.readHitting(), excelService.readPitching());
+    @PostMapping
+    public void writeExcelRotoStats() {
+//        List<Stats> statsList = statsService.prepareStats(excelService.readHitting(), excelService.readPitching())
+        List<Roto> rotoList = statsService.calculateRoto(excelService.readHitting(), excelService.readPitching());
         excelService.writeRoto(rotoList);
-        excelService.writeRanks(rotoService.rankCategories(rotoList));
-        rotoService.saveStatistics();
-        if (lastWeeks > 0) {
-            excelService.writeLastXWeeks(rotoService.calculateLastXWeeks(lastWeeks));
-        }
+        excelService.writeRanks(statsService.rankCategories(rotoList));
+    }
+
+    @PostMapping("/calculate{pastWeeks}weeks")
+    public List<Stats> writeLastXWeeks(@PathVariable int pastWeeks) {
+        List<Stats> statsList = statsService.limitStatsToPastXWeeks(pastWeeks);
+        excelService.writeLastXWeeks(statsService.convertToSortedRoto(statsList));
+        return statsList;
+    }
+
+    @DeleteMapping
+    public void deleteLastWeek() {
+        statsService.deleteLastWeek();
+    }
+
+    @PutMapping("/{newName}/{oldName}")
+    public String updateName(@PathVariable String newName, @PathVariable String oldName) {
+        statsService.updatePlayerName(newName, oldName);
+        return "Done";
     }
 }

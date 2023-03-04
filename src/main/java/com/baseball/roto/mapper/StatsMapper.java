@@ -1,9 +1,9 @@
 package com.baseball.roto.mapper;
 
+import com.baseball.roto.model.Stats;
 import com.baseball.roto.model.excel.Hitting;
 import com.baseball.roto.model.excel.Pitching;
 import com.baseball.roto.model.excel.Roto;
-import com.baseball.roto.model.Stats;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
