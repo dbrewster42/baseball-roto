@@ -18,6 +18,10 @@ public class Stats {
     private int week = 0;
     @Id
     private String name;
+    @Id
+    private String league;
+//    @Id
+//    private int year;
 
     private int runs;
     private int homeRuns;
@@ -37,8 +41,6 @@ public class Stats {
     private float hitting;
     private float pitching;
 
-    public Stats() {
-    }
 
     public Map<String, List<Float>> gatherHittingStats(){
         Map<String, List<Float>> map = new HashMap<>();

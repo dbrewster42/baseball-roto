@@ -1,3 +1,14 @@
+# TEST
+1. updateName method
+2. list mapping
+
+## other
+1. league settings
+give parameters for stats boundaries
+2. sort raw stats by name for better mapping
+3. better encapsulate parts into pojos
+   4. probably better to replace double map<string, list<double>> with pojo
+
 save later to avoid duplicates in case of error
 
 [//]: # (test withRank)
@@ -13,7 +24,8 @@ save later to avoid duplicates in case of error
    6. use h2 db
    7. integration test- use bdd?
 
-
+maybe change it to use api calls with league and week as params
+or have 2 different calls for 2 different excel files with both leagues
 [//]: # (save stats in db tables)
 
 [//]: # (change doubles to floats)

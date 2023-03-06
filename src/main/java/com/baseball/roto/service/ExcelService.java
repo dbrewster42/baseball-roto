@@ -1,5 +1,6 @@
 package com.baseball.roto.service;
 
+import com.baseball.roto.model.RawStats;
 import com.baseball.roto.model.excel.Hitting;
 import com.baseball.roto.model.excel.Pitching;
 import com.baseball.roto.model.excel.CategoryRank;
@@ -25,6 +26,25 @@ public class ExcelService {
         this.statsXcel = new Xcelite(new File(statsFile));
         this.rotoXcel = new Xcelite();
         this.outputFile = new File(filename);
+    }
+
+    public RawStats readStats(String league) {
+        return RawStats.builder()
+            .hittingList(readHitting(league))
+            .pitchingList(readPitching(league))
+            .build();
+    }
+    public RawStats readStats() {
+        return RawStats.builder()
+            .hittingList(readHitting())
+            .pitchingList(readPitching())
+            .build();
+    }
+    private Collection<Hitting> readHitting(String league) {
+        return statsXcel.getSheet(league + " Hitting").getBeanReader(Hitting.class).read();
+    }
+    private Collection<Pitching> readPitching(String league) {
+        return statsXcel.getSheet(league + " Pitching").getBeanReader(Pitching.class).read();
     }
 
     public Collection<Hitting> readHitting() {

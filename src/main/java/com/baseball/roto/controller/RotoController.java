@@ -25,7 +25,13 @@ public class RotoController {
     @PostMapping
     public void writeExcelRotoStats() {
 //        List<Stats> statsList = statsService.prepareStats(excelService.readHitting(), excelService.readPitching())
-        List<Roto> rotoList = statsService.calculateRoto(excelService.readHitting(), excelService.readPitching());
+        List<Roto> rotoList = statsService.calculateRoto(excelService.readStats());
+        excelService.writeRoto(rotoList);
+        excelService.writeRanks(statsService.rankCategories(rotoList));
+    }
+    @PostMapping("/{league}/{week}")
+    public void writeExcelRotoStats(@PathVariable String league, @PathVariable int week) {
+        List<Roto> rotoList = statsService.calculateRoto(excelService.readStats(league));
         excelService.writeRoto(rotoList);
         excelService.writeRanks(statsService.rankCategories(rotoList));
     }

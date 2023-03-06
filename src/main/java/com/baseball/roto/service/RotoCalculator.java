@@ -20,7 +20,6 @@ public class RotoCalculator {
         Map<String, List<Float>> hittingStats = convertStatFieldsToMap(statsList, Stats::gatherHittingStats);
         Map<String, List<Float>> pitchingStats = convertStatFieldsToMap(statsList, Stats::gatherPitchingStats);
         return calculateRotoPoints(statsList, hittingStats, pitchingStats);
-        //        return calculateStats(statsList, combineStatLists(statsList, Stats::gatherHittingStats), combineStatLists(statsList, Stats::gatherPitchingStats));
     }
 
     protected List<Stats> calculateRotoPoints(List<Stats> statsList, Map<String, List<Float>> hittingStats, Map<String, List<Float>> pitchingStats) {

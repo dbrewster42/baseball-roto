@@ -1,17 +1,15 @@
 package com.baseball.roto.service;
 
 import com.baseball.roto.mapper.StatsMapper;
+import com.baseball.roto.model.RawStats;
 import com.baseball.roto.model.Stats;
 import com.baseball.roto.model.excel.CategoryRank;
-import com.baseball.roto.model.excel.Hitting;
-import com.baseball.roto.model.excel.Pitching;
 import com.baseball.roto.model.excel.Roto;
 import com.baseball.roto.repository.StatsRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -24,7 +22,6 @@ public class StatsService {
     private final StatsMapper statsMapper;
     private final RotoCalculator statCalculator;
     private final StatsSubtracter qualifiedRoto;
-//    private List<Stats> statsList;
     private int week;
     private int numberOfPlayers;
 
@@ -35,22 +32,18 @@ public class StatsService {
         this.qualifiedRoto = qualifiedRoto;
     }
 
-//    public List<Roto> calculateRoto(){
-//        List<Stats> statsList = getStatsFromWeek(week);
-//        return withWeeklyChanges(convertToSortedRoto(statsList));
-//    }
-
-    public List<Roto> calculateRoto(Collection<Hitting> hitting, Collection<Pitching> pitching){
-        List<Stats> statsList = prepareStats(hitting, pitching);
+    public List<Roto> calculateRoto(RawStats rawStats){
+        List<Stats> statsList = prepareStats(rawStats);
         List<Roto> rotoList = convertToSortedRoto(statsList);
         return withWeeklyChanges(rotoList);
     }
 
-    public List<Stats> prepareStats(Collection<Hitting> hitting, Collection<Pitching> pitching){
-        numberOfPlayers = hitting.size();
+    public List<Stats> prepareStats(RawStats rawStats){
+        numberOfPlayers = rawStats.getNumberOfPlayers();
         week = (int) (repository.count() / numberOfPlayers) + 1;
-        List<Stats> statsList = hitting.stream()
-            .map(hit -> statsMapper.toStats(hit, matchStats(pitching, hit.getName()), week))
+//        List<Stats> statsList = statsMapper.toStatsList(rawStats.getHittingStats(), rawStats.getPitchingStats(), week);
+        List<Stats> statsList = rawStats.getHittingList().stream()
+            .map(hitting -> statsMapper.toStats(hitting, rawStats.matchPitching(hitting), week))
             .collect(Collectors.toList());
         repository.saveAll(statCalculator.calculateRotoPoints(statsList));
         return statsList;
@@ -85,12 +78,6 @@ public class StatsService {
     }
     public void deleteByWeek(int x) {
         repository.deleteAll(repository.findAllByWeek(x));
-    }
-
-    private Pitching matchStats(Collection<Pitching> pitching, String name) {
-        return pitching.stream()
-            .filter(p -> p.getName().equals(name))
-            .findAny().orElseThrow(() -> new RuntimeException("player not found"));
     }
 
     protected List<Roto> rankByGetter(List<Roto> rotos, Function<Roto, Float> getter){
