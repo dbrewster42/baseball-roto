@@ -1,6 +1,7 @@
 package com.baseball.roto.service;
 
 import com.baseball.roto.mapper.StatsMapper;
+import com.baseball.roto.model.LeagueSettings;
 import com.baseball.roto.model.RawStats;
 import com.baseball.roto.model.Stats;
 import com.baseball.roto.model.excel.CategoryRank;
@@ -36,6 +37,24 @@ public class StatsService {
         List<Stats> statsList = prepareStats(rawStats);
         List<Roto> rotoList = convertToSortedRoto(statsList);
         return withWeeklyChanges(rotoList);
+    }
+
+    public List<Roto> calculateRoto(RawStats rawStats, String league, int week){
+        List<Stats> statsList = prepareStats(rawStats, week, LeagueSettings.valueOf(league));
+        List<Roto> rotoList = convertToSortedRoto(statsList);
+        return withWeeklyChanges(rotoList);
+    }
+
+
+    public List<Stats> prepareStats(RawStats rawStats, int week, LeagueSettings leagueSettings){
+        this.numberOfPlayers = leagueSettings.getPlayersNo();
+        this.week = week;
+        List<Stats> statsList = IntStream.range(0, numberOfPlayers)
+            .mapToObj(i -> statsMapper.toStats(rawStats.getHittingList().get(i), rawStats.getPitchingList().get(i), week))
+            .collect(Collectors.toList());
+//        List<Stats> statsList = statsMapper.toStatsList(rawStats.getHittingList(), rawStats.getPitchingList(), week);
+        repository.saveAll(statCalculator.calculateRotoPoints(statsList, leagueSettings));
+        return statsList;
     }
 
     public List<Stats> prepareStats(RawStats rawStats){

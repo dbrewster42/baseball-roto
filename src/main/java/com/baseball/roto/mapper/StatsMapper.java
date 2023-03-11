@@ -7,6 +7,8 @@ import com.baseball.roto.model.excel.Roto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.util.Collection;
+
 import java.util.List;
 
 @Mapper(componentModel = "spring")
@@ -14,6 +16,8 @@ public interface StatsMapper {
 
     @Mapping(target = "name", source = "hitting.name")
     Stats toStats(Hitting hitting, Pitching pitching, int week);
+
+//    List<Stats> toStatsList(List<Hitting> hitting, List<Pitching> pitching, int week);
 
     Roto toRoto(Stats source);
 

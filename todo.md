@@ -8,6 +8,8 @@ give parameters for stats boundaries
 2. sort raw stats by name for better mapping
 3. better encapsulate parts into pojos
    4. probably better to replace double map<string, list<double>> with pojo
+   5. maybe have one pojo that contains List<Stats> along with the 2 maps
+6. make Change its own pojo to be written in Excel 
 
 save later to avoid duplicates in case of error
 

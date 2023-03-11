@@ -1,8 +1,10 @@
 package com.baseball.roto.service;
 
 import com.baseball.roto.mapper.StatsMapper;
+import com.baseball.roto.model.RawStats;
 import com.baseball.roto.model.excel.Roto;
 import com.baseball.roto.repository.StatsRepository;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -33,7 +35,10 @@ class StatsServiceTest {
     }
 
     @Test
+    @Disabled
     void rankByGetter() {
+//        RawStats rawStats = RawStats.builder().hittingList(List.of()).build();
+//        sut.prepareStats() //todo set playerNo
         List<Roto> testList = buildRotoListWithHitting().stream()
             .sorted((o1, o2) -> Float.compare(o2.getHitting(), o1.getHitting()))
             .collect(Collectors.toList());

@@ -30,14 +30,14 @@ public class ExcelService {
 
     public RawStats readStats(String league) {
         return RawStats.builder()
-            .hittingList(readHitting(league))
-            .pitchingList(readPitching(league))
+            .hittingList((List<Hitting>) readHitting(league))
+            .pitchingList((List<Pitching>) readPitching(league))
             .build();
     }
     public RawStats readStats() {
         return RawStats.builder()
-            .hittingList(readHitting())
-            .pitchingList(readPitching())
+            .hittingList((List<Hitting>) readHitting())
+            .pitchingList((List<Pitching>) readPitching())
             .build();
     }
     private Collection<Hitting> readHitting(String league) {

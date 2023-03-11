@@ -49,7 +49,7 @@ public class StatsSubtracter {
                 .filter(lw -> currentStats.entrySet().stream().noneMatch(stats -> lw.getKey().equals(stats.getKey())))
                 .findAny()
                 .ifPresent(lw ->  subtractPlayersStats(unmatchedStats.get(0), lw.getValue(), weight));
-        } else {
+        } else if (!unmatchedStats.isEmpty()) {
             throw new RuntimeException("There are multiple unmatched players so recent stats cannot be calculated");
         }
         currentStats.forEach((k, v) -> log.info(k + " - " + v));

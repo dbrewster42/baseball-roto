@@ -1,5 +1,6 @@
 package com.baseball.roto.service;
 
+import com.baseball.roto.model.LeagueSettings;
 import com.baseball.roto.model.Stats;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,16 @@ public class RotoCalculator {
         Map<String, List<Float>> hittingStats = convertStatFieldsToMap(statsList, Stats::gatherHittingStats);
         Map<String, List<Float>> pitchingStats = convertStatFieldsToMap(statsList, Stats::gatherPitchingStats);
         return calculateRotoPoints(statsList, hittingStats, pitchingStats);
+    }
+    public List<Stats> calculateRotoPoints(List<Stats> statsList, LeagueSettings leagueSettings) {
+        Map<String, List<Float>> hittingStats = convertStatFieldsToMap(statsList, Stats::gatherHittingStats);
+        Map<String, List<Float>> pitchingStats = convertStatFieldsToMap(statsList, Stats::gatherPitchingStats);
+        for (int i = 0; i < leagueSettings.getStatColumns(); i++){
+            rankColumn(hittingStats, i, true);
+            rankColumn(pitchingStats, i, i < leagueSettings.getPCountingStats());
+        }
+        statsList.forEach(stats -> stats.determineTotals(hittingStats, pitchingStats));
+        return statsList;
     }
 
     protected List<Stats> calculateRotoPoints(List<Stats> statsList, Map<String, List<Float>> hittingStats, Map<String, List<Float>> pitchingStats) {
