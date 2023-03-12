@@ -21,39 +21,41 @@ public class ExcelService {
     private final File outputFile;
     private final Xcelite statsXcel;
     private final Xcelite rotoXcel;
+    private final String league;
 
-    public ExcelService(@Value("${file.stats}") String statsFile, @Value("${file.output}") String filename) {
+    public ExcelService(@Value("${file.stats}") String statsFile, @Value("${file.output}") String filename, @Value("${league}") String league) {
         this.statsXcel = new Xcelite(new File(statsFile));
         this.rotoXcel = new Xcelite();
         this.outputFile = new File(filename);
+        this.league = league;
     }
 
-    public RawStats readStats(String league) {
-        return RawStats.builder()
-            .hittingList((List<Hitting>) readHitting(league))
-            .pitchingList((List<Pitching>) readPitching(league))
-            .build();
-    }
     public RawStats readStats() {
         return RawStats.builder()
             .hittingList((List<Hitting>) readHitting())
             .pitchingList((List<Pitching>) readPitching())
             .build();
     }
-    private Collection<Hitting> readHitting(String league) {
+//    public RawStats readStats() {
+//        return RawStats.builder()
+//            .hittingList((List<Hitting>) readHitting())
+//            .pitchingList((List<Pitching>) readPitching())
+//            .build();
+//    }
+    private Collection<Hitting> readHitting() {
         return statsXcel.getSheet(league + " Hitting").getBeanReader(Hitting.class).read();
     }
-    private Collection<Pitching> readPitching(String league) {
+    private Collection<Pitching> readPitching() {
         return statsXcel.getSheet(league + " Pitching").getBeanReader(Pitching.class).read();
     }
 
-    public Collection<Hitting> readHitting() {
-        return statsXcel.getSheet("Sheet1").getBeanReader(Hitting.class).read();
-    }
-
-    public Collection<Pitching> readPitching() {
-        return statsXcel.getSheet("Sheet2").getBeanReader(Pitching.class).read();
-    }
+//    public Collection<Hitting> readHitting() {
+//        return statsXcel.getSheet("Sheet1").getBeanReader(Hitting.class).read();
+//    }
+//
+//    public Collection<Pitching> readPitching() {
+//        return statsXcel.getSheet("Sheet2").getBeanReader(Pitching.class).read();
+//    }
 
     public void writeRoto(List<Roto> rotoList){
         writeRoto(rotoList, "Sheet");

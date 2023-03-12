@@ -6,12 +6,19 @@
 1. league settings
 give parameters for stats boundaries
 2. sort raw stats by name for better mapping
+   3. use mapstrcut for list
 3. better encapsulate parts into pojos
    4. probably better to replace double map<string, list<double>> with pojo
    5. maybe have one pojo that contains List<Stats> along with the 2 maps
 6. make Change its own pojo to be written in Excel 
 
 save later to avoid duplicates in case of error
+
+should league be enum or table?
+#### eventually will make League and Player tables that link with stats
+
+## bugs
+cannot calculate recent stats for leagues with different amount of counting stats
 
 [//]: # (test withRank)
 
@@ -43,4 +50,4 @@ or have 2 different calls for 2 different excel files with both leagues
 
 [//]: # (2. get rid of a. weekly change or b. secondary categoryRanks)
 
-change statsService to statService and/or split and combine changeService with Roto
+change rotoService to statService and/or split and combine changeService with Roto

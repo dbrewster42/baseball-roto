@@ -1,5 +1,6 @@
 package com.baseball.roto.service;
 
+import com.baseball.roto.model.LeagueSettings;
 import com.baseball.roto.model.Stats;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -11,15 +12,16 @@ import java.util.Map.Entry;
 import java.util.function.Function;
 
 import static com.baseball.roto.mapper.StatFieldsMapper.convertStatFieldsToMap;
-import static com.baseball.roto.service.RotoCalculator.COUNTING_COLUMNS;
-import static com.baseball.roto.service.RotoCalculator.TOTAL_COLUMNS;
+
 
 @Service
 @Slf4j
 public class StatsSubtracter {
+    private final LeagueSettings league;
     private final RotoCalculator rotoCalculator;
 
-    public StatsSubtracter(RotoCalculator rotoCalculator) {
+    public StatsSubtracter(LeagueSettings league, RotoCalculator rotoCalculator) {
+        this.league = league;
         this.rotoCalculator = rotoCalculator;
     }
 
@@ -57,10 +59,10 @@ public class StatsSubtracter {
         return currentStats;
     }
     private void subtractPlayersStats(Entry<String, List<Float>> playersStats, List<Float> playersOldStats, float weight) {
-        for (int i = 0; i < COUNTING_COLUMNS; i++) {
+        for (int i = 0; i < league.getHitCounterCol(); i++) { //todo will not work for PSD league
             playersStats.getValue().set(i, playersStats.getValue().get(i) - playersOldStats.get(i));
         }
-        for (int i = COUNTING_COLUMNS; i < TOTAL_COLUMNS; i++) {
+        for (int i = league.getHitCounterCol(); i < league.getStatColumns(); i++) {
             playersStats.getValue().set(i, calculateAveragedValues(weight, playersOldStats.get(i), playersStats.getValue().get(i)));
         }
     }

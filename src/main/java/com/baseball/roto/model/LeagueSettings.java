@@ -4,20 +4,21 @@ import lombok.Getter;
 
 @Getter
 public enum LeagueSettings {
-    CHAMPIONS("n", 14, 6, 4, 4),
-    OTHER("o", 12, 5, 3, 4);
+    CHAMPIONS("Champs", 14, 6, 4, 4),
+    PSD("PSD", 12, 5, 3, 4);
 
     private final String name;
     private final int playersNo;
     private final int statColumns;
-    private final int hCountingStats;
-    private final int pCountingStats;
-    LeagueSettings(String name, int playersNo, int statColumns, int hCountingStats, int pCountingStats) {
+    private final int hitCounterCol;
+    private final int pitchCounterCol;
+
+    LeagueSettings(String name, int playersNo, int statColumns, int hitCounterCol, int pitchCounterCol) {
         this.name = name;
         this.playersNo = playersNo;
         this.statColumns = statColumns;
-        this.hCountingStats = hCountingStats;
-        this.pCountingStats = pCountingStats;
+        this.hitCounterCol = hitCounterCol;
+        this.pitchCounterCol = pitchCounterCol;
     }
 
 }

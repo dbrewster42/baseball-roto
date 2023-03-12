@@ -14,30 +14,24 @@ import static com.baseball.roto.mapper.StatFieldsMapper.convertStatFieldsToMap;
 @Service
 @Slf4j
 public class RotoCalculator {
-    static final int TOTAL_COLUMNS = 6;
-    static final int COUNTING_COLUMNS = 4;
+    private final LeagueSettings league;
+
+    public RotoCalculator(LeagueSettings league) {
+        this.league = league;
+    }
 
     public List<Stats> calculateRotoPoints(List<Stats> statsList) {
         Map<String, List<Float>> hittingStats = convertStatFieldsToMap(statsList, Stats::gatherHittingStats);
         Map<String, List<Float>> pitchingStats = convertStatFieldsToMap(statsList, Stats::gatherPitchingStats);
         return calculateRotoPoints(statsList, hittingStats, pitchingStats);
     }
-    public List<Stats> calculateRotoPoints(List<Stats> statsList, LeagueSettings leagueSettings) {
-        Map<String, List<Float>> hittingStats = convertStatFieldsToMap(statsList, Stats::gatherHittingStats);
-        Map<String, List<Float>> pitchingStats = convertStatFieldsToMap(statsList, Stats::gatherPitchingStats);
-        for (int i = 0; i < leagueSettings.getStatColumns(); i++){
-            rankColumn(hittingStats, i, true);
-            rankColumn(pitchingStats, i, i < leagueSettings.getPCountingStats());
-        }
-        statsList.forEach(stats -> stats.determineTotals(hittingStats, pitchingStats));
-        return statsList;
-    }
 
     protected List<Stats> calculateRotoPoints(List<Stats> statsList, Map<String, List<Float>> hittingStats, Map<String, List<Float>> pitchingStats) {
-        for (int i = 0; i < TOTAL_COLUMNS; i++){
+        for (int i = 0; i < league.getStatColumns(); i++){
             rankColumn(hittingStats, i, true);
-            rankColumn(pitchingStats, i, i < COUNTING_COLUMNS);
+            rankColumn(pitchingStats, i, i < league.getPitchCounterCol());
         }
+        pitchingStats.forEach((key, value) -> log.info(key + " --- " + value));
         statsList.forEach(stats -> stats.determineTotals(hittingStats, pitchingStats));
         return statsList;
     }

@@ -16,5 +16,7 @@ public class Runner {
     public void run() {
         log.info("PostConstruct");
         rotoController.writeExcelRotoStats();
+        log.info("wrote stats");
+        log.info(rotoController.updateName("Old Fart", "Mac"));
     }
 }
