@@ -15,7 +15,9 @@ give parameters for stats boundaries
 save later to avoid duplicates in case of error
 
 should league be enum or table?
-#### eventually will make League and Player tables that link with stats
+### eventually will make League and Player tables that link with stats
+
+### refactor into StatsService and RotoService, maybe split Excel again?
 
 ## bugs
 cannot calculate recent stats for leagues with different amount of counting stats

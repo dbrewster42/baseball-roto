@@ -20,8 +20,6 @@ public class Stats {
     private String name;
     @Id
     private String league;
-//    @Id
-//    private int year;
 
     private int runs;
     private int homeRuns;

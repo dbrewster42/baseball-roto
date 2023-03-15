@@ -29,13 +29,6 @@ public class RotoController {
         excelService.writeRoto(rotoList);
         excelService.writeRanks(rotoService.rankCategories(rotoList));
     }
-//    @PostMapping("/{league}/{week}")
-//    public void writeExcelRotoStats(@PathVariable String league, @PathVariable int week) {
-//        List<Roto> rotoList = statsService.calculateRoto(excelService.readStats(league), league, week);
-//        excelService.writeRoto(rotoList);
-//        excelService.writeRanks(statsService.rankCategories(rotoList));
-//    }
-//
 
     @PostMapping("/calculate{pastWeeks}weeks")
     public List<Stats> writeLastXWeeks(@PathVariable int pastWeeks) {

@@ -43,10 +43,7 @@ public class RotoService {
     }
 
     public List<Stats> prepareStats(RawStats rawStats){
-//        List<Stats> statsList = IntStream.range(0, league.getPlayersNo())
-//            .mapToObj(i -> statsMapper.toStats(rawStats.getHittingList().get(i), rawStats.getPitchingList().get(i), week))
-//            .collect(Collectors.toList());
-        List<Stats> statsList = rawStats.convertToStatsList(statsMapper, week);
+        List<Stats> statsList = rawStats.convertToStatsList(statsMapper, week, league.getName());
         repository.saveAll(statCalculator.calculateRotoPoints(statsList));
         return statsList;
     }
