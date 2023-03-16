@@ -1,6 +1,7 @@
 package com.baseball.roto.service;
 
 import com.baseball.roto.model.LeagueSettings;
+import com.baseball.roto.model.LeagueStats;
 import com.baseball.roto.model.Stats;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,19 +22,18 @@ public class RotoCalculator {
     }
 
     public List<Stats> calculateRotoPoints(List<Stats> statsList) {
-        Map<String, List<Float>> hittingStats = convertStatFieldsToMap(statsList, Stats::gatherHittingStats);
-        Map<String, List<Float>> pitchingStats = convertStatFieldsToMap(statsList, Stats::gatherPitchingStats);
-        return calculateRotoPoints(statsList, hittingStats, pitchingStats);
+        return calculateRotoPoints(new LeagueStats(statsList));
     }
 
-    protected List<Stats> calculateRotoPoints(List<Stats> statsList, Map<String, List<Float>> hittingStats, Map<String, List<Float>> pitchingStats) {
+
+    protected List<Stats> calculateRotoPoints(LeagueStats leagueStats) {
         for (int i = 0; i < league.getStatColumns(); i++){
-            rankColumn(hittingStats, i, true);
-            rankColumn(pitchingStats, i, i < league.getPitchCounterCol());
+            rankColumn(leagueStats.getHittingStats(), i, true);
+            rankColumn(leagueStats.getPitchingStats(), i, i < league.getPitchCounterCol());
         }
-        pitchingStats.forEach((key, value) -> log.info(key + " --- " + value));
-        statsList.forEach(stats -> stats.determineTotals(hittingStats, pitchingStats));
-        return statsList;
+//        leagueStats.getPitchingStats().forEach((key, value) -> log.info(key + " --- " + value));
+        leagueStats.getStatsList().forEach(stats -> stats.determineTotals(leagueStats.getHittingStats(), leagueStats.getPitchingStats()));
+        return leagueStats.getStatsList();
     }
 
     private void rankColumn(Map<String, List<Float>> stats, int columnNumber, boolean isDescending){

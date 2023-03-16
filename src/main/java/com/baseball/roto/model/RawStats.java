@@ -17,7 +17,7 @@ public class RawStats {
     private List<Hitting> hittingList;
     private List<Pitching> pitchingList;
 
-    public int getNumberOfPlayers() {
+    public int size() {
         int size = hittingList.size();
         if (size != pitchingList.size()) {
             throw new RuntimeException("Stats are mismatched");
@@ -27,7 +27,7 @@ public class RawStats {
 
     public List<Stats> convertToStatsList(StatsMapper statsMapper, int week, String league) {
         orderListsByName();
-        return IntStream.range(0, getNumberOfPlayers())
+        return IntStream.range(0, size())
             .mapToObj(i -> statsMapper.toStats(hittingList.get(i), pitchingList.get(i), week, league))
             .collect(Collectors.toList());
     }

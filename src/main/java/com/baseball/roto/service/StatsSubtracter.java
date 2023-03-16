@@ -1,6 +1,7 @@
 package com.baseball.roto.service;
 
 import com.baseball.roto.model.LeagueSettings;
+import com.baseball.roto.model.LeagueStats;
 import com.baseball.roto.model.Stats;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,7 +30,7 @@ public class StatsSubtracter {
         float weight = (week - includedWeeks) / (float) includedWeeks;
         Map<String, List<Float>> hittingStats = subtractStatLists(statsList, lastMonthsStats, Stats::gatherHittingStats, weight);
         Map<String, List<Float>> pitchingStats = subtractStatLists(statsList, lastMonthsStats, Stats::gatherPitchingStats, weight);
-        return rotoCalculator.calculateRotoPoints(statsList, hittingStats, pitchingStats);
+        return rotoCalculator.calculateRotoPoints(new LeagueStats(statsList, hittingStats, pitchingStats));
     }
     private Map<String, List<Float>> subtractStatLists(List<Stats> statsList, List<Stats> oldStatsList, Function<Stats, Map<String, List<Float>>> getter, float weight) {
         return subtractStatLists(convertStatFieldsToMap(statsList, getter), convertStatFieldsToMap(oldStatsList, getter), weight);

@@ -4,6 +4,7 @@ import com.baseball.roto.mapper.StatsMapper;
 import com.baseball.roto.model.LeagueSettings;
 import com.baseball.roto.model.RawStats;
 import com.baseball.roto.model.Stats;
+import com.baseball.roto.model.StatsSubtraction;
 import com.baseball.roto.model.excel.CategoryRank;
 import com.baseball.roto.model.excel.Roto;
 import com.baseball.roto.repository.StatsRepository;
@@ -24,16 +25,14 @@ public class RotoService {
     private final StatsRepository repository;
     private final StatsMapper statsMapper;
     private final RotoCalculator statCalculator;
-    private final StatsSubtracter qualifiedRoto;
     private final int week;
 
-    public RotoService(LeagueSettings league, StatsRepository repository, StatsMapper statsMapper, RotoCalculator statCalculator, StatsSubtracter qualifiedRoto, @Value("${week}") int week) {
+    public RotoService(LeagueSettings league, StatsRepository repository, StatsMapper statsMapper, RotoCalculator statCalculator, @Value("${week}") int week) {
         this.league = league;
         this.week = week;
         this.repository = repository;
         this.statsMapper = statsMapper;
         this.statCalculator = statCalculator;
-        this.qualifiedRoto = qualifiedRoto;
     }
 
     public List<Roto> calculateRoto(RawStats rawStats){
@@ -57,6 +56,12 @@ public class RotoService {
         List<Roto> sortedPitchers = rankByGetter(rotoList, Roto::getPitching);
         IntStream.range(0, league.getPlayersNo()).forEach(i -> categoryRanks.get(i).setPitchingCategories(sortedPitchers.get(i)));
         return categoryRanks;
+    }
+
+    public List<Stats> limitStatsToPastXWeeks(int x) {
+        StatsSubtraction statsSubtraction = new StatsSubtraction(getStatsFromWeek(week), getStatsFromWeek(week - x));
+        float weight = (week - x) / (float) x;
+        return statCalculator.calculateRotoPoints(statsSubtraction.getRecentLeagueStats(weight, league));
     }
 
     protected List<Roto> rankByGetter(List<Roto> rotos, Function<Roto, Float> getter){
@@ -88,9 +93,9 @@ public class RotoService {
     public List<Stats> getStatsFromWeek(int x) {
         return repository.findAllByWeek(x);
     }
-    public List<Stats> limitStatsToPastXWeeks(int x) {
-        return qualifiedRoto.calculateRecentStats(getStatsFromWeek(week), getStatsFromWeek(week - x), week, x);
-    }
+//    public List<Stats> limitStatsToPastXWeeksFormer(int x) {
+//        return qualifiedRoto.calculateRecentStats(getStatsFromWeek(week), getStatsFromWeek(week - x), week, x);
+//    }
 
     public void deleteLastWeek() {
         deleteByWeek((int) repository.count() / league.getPlayersNo());
