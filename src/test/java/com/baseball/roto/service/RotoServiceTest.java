@@ -1,20 +1,9 @@
 package com.baseball.roto.service;
 
-import com.baseball.roto.mapper.StatsMapper;
-import com.baseball.roto.model.LeagueSettings;
-import com.baseball.roto.model.excel.Roto;
-import com.baseball.roto.repository.StatsRepository;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static com.baseball.roto.mother.RotoMother.buildRotoListWithHitting;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)

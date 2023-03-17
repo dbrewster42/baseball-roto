@@ -1,6 +1,6 @@
 package com.baseball.roto.service;
 
-import com.baseball.roto.model.LeagueSettings;
+import com.baseball.roto.model.League;
 import com.baseball.roto.model.LeagueStats;
 import com.baseball.roto.model.Stats;
 import lombok.extern.slf4j.Slf4j;
@@ -10,19 +10,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.baseball.roto.mapper.StatFieldsMapper.convertStatFieldsToMap;
-
 @Service
 @Slf4j
 public class RotoCalculator {
-    private final LeagueSettings league;
+    private final League league;
 
-    public RotoCalculator(LeagueSettings league) {
+    public RotoCalculator(League league) {
         this.league = league;
-    }
-
-    public List<Stats> calculateRotoPoints(List<Stats> statsList) {
-        return calculateRotoPoints(new LeagueStats(statsList));
     }
 
 
@@ -31,8 +25,7 @@ public class RotoCalculator {
             rankColumn(leagueStats.getHittingStats(), i, true);
             rankColumn(leagueStats.getPitchingStats(), i, i < league.getPitchCounterCol());
         }
-//        leagueStats.getPitchingStats().forEach((key, value) -> log.info(key + " --- " + value));
-        leagueStats.getStatsList().forEach(stats -> stats.determineTotals(leagueStats.getHittingStats(), leagueStats.getPitchingStats()));
+        leagueStats.determineTotals();
         return leagueStats.getStatsList();
     }
 

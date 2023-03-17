@@ -14,9 +14,9 @@ public class Runner {
 
     @PostConstruct
     public void run() {
-        log.info("PostConstruct");
-        rotoController.writeExcelRotoStats();
-        log.info("wrote stats");
+//        log.info("PostConstruct");
+//        rotoController.writeExcelRotoStats();
+//        log.info("wrote stats");
         log.info(rotoController.updateName("Old Fart", "Mac"));
     }
 }

@@ -1,12 +1,12 @@
 package com.baseball.roto.service;
 
-import com.baseball.roto.model.LeagueSettings;
+import com.baseball.roto.model.League;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class RotoCalculatorTest {
-    RotoCalculator sut = new RotoCalculator(LeagueSettings.CHAMPIONS);
+    RotoCalculator sut = new RotoCalculator(League.CHAMPIONS);
 
 
     @Test

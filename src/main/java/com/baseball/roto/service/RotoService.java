@@ -1,10 +1,10 @@
 package com.baseball.roto.service;
 
 import com.baseball.roto.mapper.StatsMapper;
-import com.baseball.roto.model.LeagueSettings;
+import com.baseball.roto.model.League;
+import com.baseball.roto.model.LeagueStats;
 import com.baseball.roto.model.RawStats;
 import com.baseball.roto.model.Stats;
-import com.baseball.roto.model.StatsSubtraction;
 import com.baseball.roto.model.excel.CategoryRank;
 import com.baseball.roto.model.excel.Roto;
 import com.baseball.roto.repository.StatsRepository;
@@ -18,21 +18,23 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static com.baseball.roto.service.StatsSubtraction.getRecentLeagueStats;
+
 @Service
 @Slf4j
 public class RotoService {
-    private final LeagueSettings league;
+    private final League league;
     private final StatsRepository repository;
     private final StatsMapper statsMapper;
-    private final RotoCalculator statCalculator;
+    private final RotoCalculator rotoCalculator;
     private final int week;
 
-    public RotoService(LeagueSettings league, StatsRepository repository, StatsMapper statsMapper, RotoCalculator statCalculator, @Value("${week}") int week) {
+    public RotoService(League league, StatsRepository repository, StatsMapper statsMapper, RotoCalculator rotoCalculator, @Value("${week}") int week) {
         this.league = league;
         this.week = week;
         this.repository = repository;
         this.statsMapper = statsMapper;
-        this.statCalculator = statCalculator;
+        this.rotoCalculator = rotoCalculator;
     }
 
     public List<Roto> calculateRoto(RawStats rawStats){
@@ -41,9 +43,14 @@ public class RotoService {
         return withWeeklyChanges(rotoList);
     }
 
-    public List<Stats> prepareStats(RawStats rawStats){
+    public List<Roto> calculateRotoForPastXWeeks(int includedWeeks){
+        return convertToSortedRoto(limitStatsToPastXWeeks(includedWeeks));
+    }
+
+
+    private List<Stats> prepareStats(RawStats rawStats){
         List<Stats> statsList = rawStats.convertToStatsList(statsMapper, week, league.getName());
-        repository.saveAll(statCalculator.calculateRotoPoints(statsList));
+        repository.saveAll(rotoCalculator.calculateRotoPoints(new LeagueStats(statsList)));
         return statsList;
     }
 
@@ -58,13 +65,16 @@ public class RotoService {
         return categoryRanks;
     }
 
-    public List<Stats> limitStatsToPastXWeeks(int x) {
-        StatsSubtraction statsSubtraction = new StatsSubtraction(getStatsFromWeek(week), getStatsFromWeek(week - x));
-        float weight = (week - x) / (float) x;
-        return statCalculator.calculateRotoPoints(statsSubtraction.getRecentLeagueStats(weight, league));
+    private List<Stats> limitStatsToPastXWeeks(int includedWeeks) {
+        float weight = (week - includedWeeks) / (float) includedWeeks;
+        LeagueStats recentLeagueStats = getRecentLeagueStats(getStatsFromWeek(week), getStatsFromWeek(week - includedWeeks), league, weight);
+        return rotoCalculator.calculateRotoPoints(recentLeagueStats);
+//        StatsSubtraction statsSubtraction = new StatsSubtraction(getStatsFromWeek(week), getStatsFromWeek(week - x), league, weight);
+//        return statCalculator.calculateRotoPoints(statsSubtraction.getRecentLeagueStats());
+//        return statCalculator.calculateRotoPoints(getRecentLeagueStats(getStatsFromWeek(week), getStatsFromWeek(week - x), league, weight));
     }
 
-    protected List<Roto> rankByGetter(List<Roto> rotos, Function<Roto, Float> getter){
+    private List<Roto> rankByGetter(List<Roto> rotos, Function<Roto, Float> getter){
         rotos.sort((o1, o2) -> Float.compare(getter.apply(o2), getter.apply(o1)));
         for (int i = 0; i < rotos.size(); i++){
             float rank = i + 1;
@@ -83,7 +93,7 @@ public class RotoService {
         return rotos;
     }
 
-    public List<Roto> convertToSortedRoto(List<Stats> statsList) {
+    private List<Roto> convertToSortedRoto(List<Stats> statsList) {
         return rankByGetter(statsMapper.toRotoList(statsList), Roto::getTotal);
     }
 
@@ -105,10 +115,10 @@ public class RotoService {
     }
 
     public void updatePlayerName(String newName, String oldName) {
-        List<Stats> statsList = repository.findAllByName(oldName);
-        repository.deleteAll(statsList);
-        statsList.forEach(stats -> stats.setName(newName));
-        repository.saveAll(statsList);
+        List<Stats> statsForOldName = repository.findAllByName(oldName);
+        repository.deleteAll(statsForOldName);
+        statsForOldName.forEach(stats -> stats.setName(newName));
+        repository.saveAll(statsForOldName);
     }
 
     private List<Roto> withWeeklyChanges(List<Roto> currentRoto){
@@ -116,7 +126,7 @@ public class RotoService {
         List<Roto> unmatchedRotos = new ArrayList<>();
         for (Roto roto : currentRoto){
             lastWeeksRanks.stream()
-                .filter(oldRoto -> oldRoto.getName().equals(roto.getName()))
+                .filter(oldStats -> oldStats.getName().equals(roto.getName()))
                 .findAny()
                 .ifPresentOrElse(
                     roto::setChangesFromGiven,

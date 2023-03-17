@@ -49,7 +49,19 @@ public class StatsMother {
         return statsList;
     }
 
-    public static Stats buildWeek8Stats(String name) {
+    public static List<Stats> buildWeek12StatsList() {
+        List<Stats> statsList = buildEvenWeek12StatsList();
+        statsList.get(0).setRuns(80);
+        statsList.get(1).setRbis(80);
+        statsList.get(2).setAvg(.270f);
+        statsList.get(2).setOps(.850f);
+        statsList.get(2).setEra(2.75f);
+        statsList.get(2).setQualityStarts(15);
+        return statsList;
+    }
+
+
+        public static Stats buildWeek8Stats(String name) {
         Stats stats = new Stats();
         stats.setName(name);
 

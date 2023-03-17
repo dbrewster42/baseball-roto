@@ -30,11 +30,15 @@ public class RotoController {
         excelService.writeRanks(rotoService.rankCategories(rotoList));
     }
 
-    @PostMapping("/calculate{pastWeeks}weeks")
-    public List<Stats> writeLastXWeeks(@PathVariable int pastWeeks) {
-        List<Stats> statsList = rotoService.limitStatsToPastXWeeks(pastWeeks);
-        excelService.writeLastXWeeks(rotoService.convertToSortedRoto(statsList));
-        return statsList;
+//    @PostMapping("/calculate{includedWeeks}weeks")
+//    public List<Stats> writeLastXWeeks(@PathVariable int includedWeeks) {
+//        List<Stats> statsList = rotoService.limitStatsToPastXWeeks(includedWeeks);
+//        excelService.writeLastXWeeks(rotoService.convertToSortedRoto(statsList));
+//        return statsList;
+//    }
+    @PostMapping("/calculate{includedWeeks}weeks")
+    public void writeLastXWeeks(@PathVariable int includedWeeks) {
+        excelService.writeLastXWeeks(rotoService.calculateRotoForPastXWeeks(includedWeeks));
     }
 
     @DeleteMapping

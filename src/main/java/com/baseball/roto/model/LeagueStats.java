@@ -18,10 +18,8 @@ public class LeagueStats { //todo do single instead?
         this.pitchingStats = convertStatFieldsToMap(Stats::gatherPitchingStats);
     }
 
-    public LeagueStats(List<Stats> statsList, Map<String, List<Float>> hittingStats, Map<String, List<Float>> pitchingStats) {
-        this.statsList = statsList;
-        this.hittingStats = hittingStats;
-        this.pitchingStats = pitchingStats;
+    public void determineTotals() {
+        statsList.forEach(stats -> stats.determineTotals(hittingStats, pitchingStats));
     }
 
     private Map<String, List<Float>> convertStatFieldsToMap(Function<Stats, Map<String, List<Float>>> statsGetter) {

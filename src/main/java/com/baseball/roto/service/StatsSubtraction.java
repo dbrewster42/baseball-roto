@@ -1,4 +1,8 @@
-package com.baseball.roto.model;
+package com.baseball.roto.service;
+
+import com.baseball.roto.model.League;
+import com.baseball.roto.model.LeagueStats;
+import com.baseball.roto.model.Stats;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,21 +12,26 @@ import java.util.Map.Entry;
 public class StatsSubtraction {
     private final LeagueStats currentStats;
     private final LeagueStats previousStats;
-    private float weight;
-    private int totalColumns;
-    private int counterColumns;
+    private final League league;
+    private final float weight;
+    private boolean isHitting;
 
-    public StatsSubtraction(List<Stats> currentStatsList, List<Stats> previousStatsList) {
-        this.currentStats = new LeagueStats(currentStatsList);
-        this.previousStats = new LeagueStats(previousStatsList);
+    public static LeagueStats getRecentLeagueStats(List<Stats> currentStats, List<Stats> previousStats, League league, float weight) {
+        StatsSubtraction statsSubtraction = new StatsSubtraction(currentStats, previousStats, league, weight);
+        return statsSubtraction.getRecentLeagueStats();
     }
 
-    public LeagueStats getRecentLeagueStats(float weight, LeagueSettings leagueSettings) {
+    private StatsSubtraction(List<Stats> currentStats, List<Stats> previousStats, League league, float weight) {
+        this.currentStats = new LeagueStats(currentStats);
+        this.previousStats = new LeagueStats(previousStats);
         this.weight = weight;
-        totalColumns = leagueSettings.getStatColumns();
-        counterColumns = leagueSettings.getHitCounterCol();
+        this.league = league;
+        this.isHitting = true;
+    }
+
+    private LeagueStats getRecentLeagueStats() {
         currentStats.setHittingStats(subtractStatLists(currentStats.getHittingStats(), previousStats.getHittingStats()));
-        counterColumns = leagueSettings.getPitchCounterCol();
+        isHitting = false;
         currentStats.setPitchingStats(subtractStatLists(currentStats.getPitchingStats(), previousStats.getPitchingStats()));
         return currentStats;
     }
@@ -47,15 +56,15 @@ public class StatsSubtraction {
         } else if (!unmatchedStats.isEmpty()) {
             throw new RuntimeException("There are multiple unmatched players so recent stats cannot be calculated");
         }
-//        currentStats.forEach((k, v) -> log.info(k + " - " + v));
 
         return currentStats;
     }
     private void subtractPlayersStats(Entry<String, List<Float>> playersStats, List<Float> playersOldStats) {
+        int counterColumns = isHitting ? league.getHitCounterCol() : league.getPitchCounterCol();
         for (int i = 0; i < counterColumns; i++) {
             playersStats.getValue().set(i, playersStats.getValue().get(i) - playersOldStats.get(i));
         }
-        for (int i = counterColumns; i < totalColumns; i++) {
+        for (int i = counterColumns; i < league.getStatColumns(); i++) {
             playersStats.getValue().set(i, calculateAveragedValues(playersStats.getValue().get(i), playersOldStats.get(i)));
         }
     }
