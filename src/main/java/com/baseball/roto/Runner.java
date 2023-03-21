@@ -17,6 +17,12 @@ public class Runner {
         log.info("PostConstruct");
         rotoController.writeRotoToExcel();
         log.info("wrote stats");
-//        log.info(rotoController.updateName("Old Fart", "Mac"));
     }
+
+//    @PostConstruct
+//    public void test() {
+//        log.info("PostConstruct");
+////        log.info(rotoController.updateName("Old Fart", "Mac"));
+//        rotoController.deleteLastWeek();
+//    }
 }

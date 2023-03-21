@@ -5,7 +5,7 @@ import lombok.Getter;
 @Getter
 public enum League {
     CHAMPIONS("Champs", 14, 6, 4, 4),
-    PSD("PSD", 12, 5, 3, 4);
+    PSD("PSD", 10, 5, 3, 4);
 
     private final String name;
     private final int size;

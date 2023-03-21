@@ -43,11 +43,11 @@ public class ExcelService {
     }
 
     public void writeRoto(List<Roto> rotoList){
-        writeRoto(rotoList, "Sheet");
+        writeRoto(rotoList, league);
     }
     public void writeLastXWeeks(List<Roto> rotoList) {
         rotoXcel.setOptions(null);
-        writeRoto(rotoList, "Recent");
+        writeRoto(rotoList, "Recent " + league);
     }
     public void writeRoto(List<Roto> rotoList, String sheetName){
         log.info("writing results");
@@ -61,7 +61,7 @@ public class ExcelService {
         options.setHeaderRowIndex(categoryRanks.size() + 2);
         rotoXcel.setOptions(options);
 
-        rotoXcel.getSheet("Sheet").getBeanWriter(CategoryRank.class).write(categoryRanks);
+        rotoXcel.getSheet(league).getBeanWriter(CategoryRank.class).write(categoryRanks);
         rotoXcel.write(outputFile);
     }
 

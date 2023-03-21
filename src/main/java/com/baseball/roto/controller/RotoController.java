@@ -37,11 +37,11 @@ public class RotoController {
     }
 
     @DeleteMapping
-    public void deleteLastWeek() {
+    public void deleteLastWeek() { //todo add league
         rotoService.deleteThisWeeksStats();
     }
 
-    @PutMapping("/{newName}/{oldName}")
+    @PutMapping("/{newName}/{oldName}") //todo league needed?
     public String updateName(@PathVariable String newName, @PathVariable String oldName) {
         rotoService.updatePlayerName(newName, oldName);
         return "Done";
