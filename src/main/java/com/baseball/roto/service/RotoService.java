@@ -19,52 +19,47 @@ import static com.baseball.roto.service.StatsSubtraction.getRecentLeagueStats;
 @Service
 @Slf4j
 public class RotoService {
-    private final League league;
     private final StatsRepository repository;
     private final RotoStatsMapper rotoStatsMapper;
     private final RotoCalculator rotoCalculator;
     private final RankService rankService;
+    private final League league;
     private final int week;
 
-    public RotoService(League league, StatsRepository repository, RotoStatsMapper rotoStatsMapper, RotoCalculator rotoCalculator, RankService rankService, @Value("${week}") int week) {
-        this.league = league;
-        this.rankService = rankService;
-        this.week = week;
+    public RotoService(StatsRepository repository, RotoStatsMapper rotoStatsMapper, RotoCalculator rotoCalculator,
+                       RankService rankService, League league, @Value("${week}") int week) {
         this.repository = repository;
         this.rotoStatsMapper = rotoStatsMapper;
         this.rotoCalculator = rotoCalculator;
+        this.rankService = rankService;
+        this.league = league;
+        this.week = week;
     }
 
     public List<Roto> calculateRoto(RawStats rawStats){
-        List<Stats> statsList = calculateRotoStats(rawStats);
-        List<Roto> rotoList = convertToSortedRoto(statsList);
-        return withWeeklyChanges(rotoList, getLastWeeksStats());
+        List<Stats> statsList = rawStats.convertToStatsList(rotoStatsMapper, week, league);
+        repository.saveAll(rotoCalculator.calculateRotoPoints(new LeagueStats(statsList)));
+        return withWeeklyChanges(convertToSortedRoto(statsList));
     }
 
     public List<Roto> calculateRotoForPastXWeeks(int includedWeeks){
-        float weight = (week - includedWeeks) / (float) includedWeeks;
-        LeagueStats recentLeagueStats = getRecentLeagueStats(getStatsFromWeek(week), getStatsFromWeek(week - includedWeeks), league, weight);
-        List<Stats> statsList = rotoCalculator.calculateRotoPoints(recentLeagueStats);
-        return convertToSortedRoto(statsList);
+        List<Stats> excludedStats = getStatsFromWeek(week - includedWeeks);
+        LeagueStats recentStats = getRecentLeagueStats(getThisWeeksStats(), excludedStats, league, calculateWeight(includedWeeks));
+        List<Stats> statsList = rotoCalculator.calculateRotoPoints(recentStats);
+        return withChanges(convertToSortedRoto(statsList), excludedStats);
     }
 
-    private List<Stats> calculateRotoStats(RawStats rawStats){
-        List<Stats> statsList = rawStats.convertToStatsList(rotoStatsMapper, week, league.getName());
-        repository.saveAll(rotoCalculator.calculateRotoPoints(new LeagueStats(statsList)));
-        return statsList;
-    }
-
-    public List<Stats> getLastWeeksStats() {
-        return repository.findAllByWeek(week - 1);
+    public List<Stats> getThisWeeksStats() {
+        return getStatsFromWeek(week);
     }
     public List<Stats> getStatsFromWeek(int x) {
         return repository.findAllByWeek(x);
     }
 
-    public void deleteLastWeek() {
-        deleteByWeek((int) repository.count() / league.getPlayersNo());
+    public void deleteThisWeeksStats() {
+        deleteStatsByWeek(week);
     }
-    public void deleteByWeek(int x) {
+    public void deleteStatsByWeek(int x) {
         repository.deleteAll(repository.findAllByWeek(x));
     }
 
@@ -75,20 +70,21 @@ public class RotoService {
         repository.saveAll(statsForOldName);
     }
 
-    private List<Stats> limitStatsToPastXWeeks(int includedWeeks) {
-        float weight = (week - includedWeeks) / (float) includedWeeks;
-        LeagueStats recentLeagueStats = getRecentLeagueStats(getStatsFromWeek(week), getStatsFromWeek(week - includedWeeks), league, weight);
-        return rotoCalculator.calculateRotoPoints(recentLeagueStats);
-    }
-
     private List<Roto> convertToSortedRoto(List<Stats> statsList) {
         return rankService.rankRoto(rotoStatsMapper.toRotoList(statsList));
     }
 
-    private List<Roto> withWeeklyChanges(List<Roto> currentRoto, List<Stats> lastWeeksRanks){
+    private float calculateWeight(int includedWeeks) {
+        return (week - includedWeeks) / (float) includedWeeks;
+    }
+
+    private List<Roto> withWeeklyChanges(List<Roto> currentRoto) {
+        return withChanges(currentRoto, getStatsFromWeek(week - 1));
+    }
+    private List<Roto> withChanges(List<Roto> currentRoto, List<Stats> priorStats){
         List<Roto> unmatchedRotos = new ArrayList<>();
         for (Roto roto : currentRoto){
-            lastWeeksRanks.stream()
+            priorStats.stream()
                 .filter(oldStats -> oldStats.getName().equals(roto.getName()))
                 .findAny()
                 .ifPresentOrElse(
@@ -96,14 +92,13 @@ public class RotoService {
                     () -> unmatchedRotos.add(roto));
         }
         if (unmatchedRotos.size() == 1){
-            lastWeeksRanks.stream()
+            priorStats.stream()
                 .filter(lw -> currentRoto.stream()
                     .noneMatch(roto -> lw.getName().equals(roto.getName())))
                 .findAny()
                 .ifPresent(lw -> unmatchedRotos.get(0).setChangesFromGiven(lw));
         }
         currentRoto.forEach(roto -> log.info(roto.toString()));
-        log.info("changes calculated with {} unmatched players", unmatchedRotos.size());
         return currentRoto;
     }
 

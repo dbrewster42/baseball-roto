@@ -17,18 +17,10 @@ public class RawStats {
     private List<Hitting> hittingList;
     private List<Pitching> pitchingList;
 
-    public int size() {
-        int size = hittingList.size();
-        if (size != pitchingList.size()) {
-            throw new RuntimeException("Stats are mismatched");
-        }
-        return size;
-    }
-
-    public List<Stats> convertToStatsList(RotoStatsMapper rotoStatsMapper, int week, String league) {
+    public List<Stats> convertToStatsList(RotoStatsMapper rotoStatsMapper, int week, League league) {
         orderListsByName();
-        return IntStream.range(0, size())
-            .mapToObj(i -> rotoStatsMapper.toStats(hittingList.get(i), pitchingList.get(i), week, league))
+        return IntStream.range(0, league.getSize())
+            .mapToObj(i -> rotoStatsMapper.toStats(hittingList.get(i), pitchingList.get(i), week, league.getName()))
             .collect(Collectors.toList());
     }
 

@@ -8,14 +8,14 @@ public enum League {
     PSD("PSD", 12, 5, 3, 4);
 
     private final String name;
-    private final int playersNo;
+    private final int size;
     private final int statColumns;
     private final int hitCounterCol;
     private final int pitchCounterCol;
 
-    League(String name, int playersNo, int statColumns, int hitCounterCol, int pitchCounterCol) {
+    League(String name, int size, int statColumns, int hitCounterCol, int pitchCounterCol) {
         this.name = name;
-        this.playersNo = playersNo;
+        this.size = size;
         this.statColumns = statColumns;
         this.hitCounterCol = hitCounterCol;
         this.pitchCounterCol = pitchCounterCol;

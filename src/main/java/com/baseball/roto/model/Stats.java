@@ -47,7 +47,9 @@ public class Stats {
         stats.add((float) homeRuns);
         stats.add((float) rbis);
         stats.add((float) sbs);
-        stats.add(avg);
+        if (league.equals(League.CHAMPIONS.getName())) {
+            stats.add(avg);
+        }
         stats.add(ops);
         map.put(name, stats);
         return map;
@@ -56,7 +58,9 @@ public class Stats {
     public Map<String, List<Float>> gatherPitchingStats(){
         Map<String, List<Float>> map = new HashMap<>();
         List<Float> stats = new ArrayList<>();
-        stats.add((float) wins);
+        if (league.equals(League.CHAMPIONS.getName())) {
+            stats.add((float) wins);
+        }
         stats.add((float) strikeouts);
         stats.add((float) qualityStarts);
         stats.add((float) netSaves);
