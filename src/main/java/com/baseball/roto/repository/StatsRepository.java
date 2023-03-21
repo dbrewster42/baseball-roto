@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface StatsRepository extends CrudRepository<Stats, StatsId> {
     List<Stats> findAllByWeek(int week);
+
+    List<Stats> findAllByName(String name);
 }

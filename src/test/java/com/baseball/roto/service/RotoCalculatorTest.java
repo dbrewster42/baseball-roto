@@ -1,38 +1,18 @@
 package com.baseball.roto.service;
 
-import com.baseball.roto.model.Stats;
+import com.baseball.roto.model.League;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
-import static com.baseball.roto.mother.StatsMother.buildEvenStatsList;
-import static com.baseball.roto.mother.StatsMother.buildEvenWeek12StatsList;
-import static com.baseball.roto.mother.StatsMother.buildVariedStatsList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
-class StatCalculationServiceTest {
-    StatCalculationService sut = new StatCalculationService();
+class RotoCalculatorTest {
+    RotoCalculator sut = new RotoCalculator(League.CHAMPIONS);
 
 
     @Test
     void calculateStats() {
     }
 
-    @Test
-    void subtractOldStats1() {
-        List<Stats> recentStats = sut.subtractOldStats(buildEvenStatsList(), buildVariedStatsList(), 8);
-//        assertThat(recentStats.get(0).getName()).isEqualTo("player1");
-    }
-
-    @Test
-    void subtractOldStatsWeighted() {
-        List<Stats> recentStats = sut.subtractOldStats(buildEvenWeek12StatsList(), buildEvenStatsList(), 12);
-        assertThat(recentStats.get(0).getEra()).isEqualTo(3.1);
-        assertThat(recentStats.get(0).getWhip()).isEqualTo(1.35);
-        assertThat(recentStats.get(0).getAvg()).isEqualTo(.295);
-        assertThat(recentStats.get(0).getOps()).isEqualTo(.872);
-    }
 
     @Test
     void customTest() {
@@ -66,4 +46,12 @@ class StatCalculationServiceTest {
     private float divideInts(int first, int second) {
         return (first - second) / 4f;
     }
+
+//    @Test
+//    void debug(){
+//        Map<String, List<Float>> currentStats = new HashMap<>();
+//        currentStats.put("player1", List.of(2f, 4f, 6f, 8f));
+//        currentStats.put("player2", List.of(3f, 5f, 7f, 9f));
+//        sut.debug(currentStats);
+//    }
 }

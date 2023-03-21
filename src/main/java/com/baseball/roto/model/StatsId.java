@@ -15,4 +15,6 @@ public class StatsId implements Serializable {
     private int week;
     @Id
     private String name;
+    @Id
+    private String league;
 }

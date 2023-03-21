@@ -32,7 +32,7 @@ public class Roto {
     public void setChangesFromGiven(Stats oldStats) {
         totalChange = total - oldStats.getTotal();
         hittingChange = hitting - oldStats.getHitting();
-        pitchingChange = pitchingChange - oldStats.getPitching();
+        pitchingChange = pitching - oldStats.getPitching();
     }
 
 }

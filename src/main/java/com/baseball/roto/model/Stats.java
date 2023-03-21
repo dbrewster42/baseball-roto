@@ -18,6 +18,8 @@ public class Stats {
     private int week = 0;
     @Id
     private String name;
+    @Id
+    private String league;
 
     private int runs;
     private int homeRuns;
@@ -37,8 +39,6 @@ public class Stats {
     private float hitting;
     private float pitching;
 
-    public Stats() {
-    }
 
     public Map<String, List<Float>> gatherHittingStats(){
         Map<String, List<Float>> map = new HashMap<>();
@@ -64,5 +64,15 @@ public class Stats {
         stats.add(whip);
         map.put(name, stats);
         return map;
+    }
+
+    public void determineTotals(Map<String, List<Float>> hittingStats, Map<String, List<Float>> pitchingStats) {
+        this.hitting = sumTotal(hittingStats);
+        this.pitching = sumTotal(pitchingStats);
+        this.total = hitting + pitching;
+    }
+
+    private float sumTotal(Map<String, List<Float>> stats) {
+        return (float) stats.get(name).stream().mapToDouble(stat -> stat).sum();
     }
 }
