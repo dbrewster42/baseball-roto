@@ -10,7 +10,7 @@ import org.mapstruct.Mapping;
 import java.util.List;
 
 @Mapper(componentModel = "spring")
-public interface StatsMapper {
+public interface RotoStatsMapper {
 
     @Mapping(target = "name", source = "hitting.name")
     Stats toStats(Hitting hitting, Pitching pitching, int week, String league);

@@ -1,6 +1,6 @@
 package com.baseball.roto.model;
 
-import com.baseball.roto.mapper.StatsMapper;
+import com.baseball.roto.mapper.RotoStatsMapper;
 import com.baseball.roto.model.excel.Hitting;
 import com.baseball.roto.model.excel.Pitching;
 import lombok.Builder;
@@ -25,10 +25,10 @@ public class RawStats {
         return size;
     }
 
-    public List<Stats> convertToStatsList(StatsMapper statsMapper, int week, String league) {
+    public List<Stats> convertToStatsList(RotoStatsMapper rotoStatsMapper, int week, String league) {
         orderListsByName();
         return IntStream.range(0, size())
-            .mapToObj(i -> statsMapper.toStats(hittingList.get(i), pitchingList.get(i), week, league))
+            .mapToObj(i -> rotoStatsMapper.toStats(hittingList.get(i), pitchingList.get(i), week, league))
             .collect(Collectors.toList());
     }
 
