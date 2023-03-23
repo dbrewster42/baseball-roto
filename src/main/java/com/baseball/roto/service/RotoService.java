@@ -36,13 +36,14 @@ public class RotoService {
         this.week = week;
     }
 
-    public List<Roto> calculateRoto(RawStats rawStats){
+    public List<Roto> calculateRoto(RawStats rawStats) {
+        if (!getStatsFromWeek(week).isEmpty()) { throw new RuntimeException("the given week is incorrect");}
         List<Stats> statsList = rawStats.convertToStatsList(rotoStatsMapper, week, league);
         repository.saveAll(rotoCalculator.calculateRotoPoints(new LeagueStats(statsList)));
         return withWeeklyChanges(convertToSortedRoto(statsList));
     }
 
-    public List<Roto> calculateRotoForPastXWeeks(int includedWeeks){
+    public List<Roto> limitCalculatedRotoToIncludedWeeks(int includedWeeks){
         List<Stats> excludedStats = getStatsFromWeek(week - includedWeeks);
         LeagueStats recentStats = getRecentLeagueStats(getThisWeeksStats(), excludedStats, league, calculateWeight(includedWeeks));
         List<Stats> statsList = rotoCalculator.calculateRotoPoints(recentStats);
@@ -52,19 +53,19 @@ public class RotoService {
     public List<Stats> getThisWeeksStats() {
         return getStatsFromWeek(week);
     }
-    public List<Stats> getStatsFromWeek(int x) {
-        return repository.findAllByWeek(x);
+    public List<Stats> getStatsFromWeek(int week) {
+        return repository.findAllByWeekAndLeague(week, league.getName());
     }
 
     public void deleteThisWeeksStats() {
         deleteStatsByWeek(week);
     }
-    public void deleteStatsByWeek(int x) {
-        repository.deleteAll(repository.findAllByWeek(x));
+    public void deleteStatsByWeek(int week) {
+        repository.deleteAll(getStatsFromWeek(week));
     }
 
     public void updatePlayerName(String newName, String oldName) {
-        List<Stats> statsForOldName = repository.findAllByName(oldName);
+        List<Stats> statsForOldName = repository.findAllByNameAndLeague(oldName, league.getName());
         repository.deleteAll(statsForOldName);
         statsForOldName.forEach(stats -> stats.setName(newName));
         repository.saveAll(statsForOldName);

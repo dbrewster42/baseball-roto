@@ -25,25 +25,25 @@ public class RotoController {
     }
 
     @PostMapping
-    public void writeRotoToExcel() {
+    public void writeRoto() {
         List<Roto> rotoList = rotoService.calculateRoto(excelService.readStats());
         excelService.writeRoto(rotoList);
         excelService.writeRanks(rankService.getCategoryRanks(rotoList));
     }
 
     @PostMapping("/calculate{includedWeeks}weeks")
-    public void writeLastXWeeks(@PathVariable int includedWeeks) {
-        excelService.writeLastXWeeks(rotoService.calculateRotoForPastXWeeks(includedWeeks));
+    public void writeOverallAndRecentRoto(@PathVariable int includedWeeks) {
+        writeRoto();
+        excelService.writeRecentRoto(rotoService.limitCalculatedRotoToIncludedWeeks(includedWeeks));
     }
 
     @DeleteMapping
-    public void deleteLastWeek() { //todo add league
+    public void deleteLastWeek() {
         rotoService.deleteThisWeeksStats();
     }
 
-    @PutMapping("/{newName}/{oldName}") //todo league needed?
-    public String updateName(@PathVariable String newName, @PathVariable String oldName) {
+    @PutMapping("/{newName}/{oldName}")
+    public void updateName(@PathVariable String newName, @PathVariable String oldName) {
         rotoService.updatePlayerName(newName, oldName);
-        return "Done";
     }
 }

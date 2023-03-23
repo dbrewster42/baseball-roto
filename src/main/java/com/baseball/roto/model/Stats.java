@@ -14,6 +14,7 @@ import java.util.Map;
 @IdClass(StatsId.class)
 @Data
 public class Stats {
+
     @Id
     private int week = 0;
     @Id
