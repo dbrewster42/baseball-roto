@@ -9,5 +9,5 @@ import java.util.List;
 public interface StatsRepository extends CrudRepository<Stats, StatsId> {
     List<Stats> findAllByWeekAndLeague(int week, String league);
     List<Stats> findAllByNameAndLeague(String name, String league);
-
 }
+

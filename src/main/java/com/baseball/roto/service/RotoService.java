@@ -1,5 +1,6 @@
 package com.baseball.roto.service;
 
+import com.baseball.roto.exception.BadInput;
 import com.baseball.roto.mapper.RotoStatsMapper;
 import com.baseball.roto.model.League;
 import com.baseball.roto.model.LeagueStats;
@@ -37,13 +38,14 @@ public class RotoService {
     }
 
     public List<Roto> calculateRoto(RawStats rawStats) {
-        if (!getStatsFromWeek(week).isEmpty()) { throw new RuntimeException("the given week is incorrect");}
+        if (!getStatsFromWeek(week).isEmpty()) { throw new BadInput("the given week has already been calculated for this league");}
         List<Stats> statsList = rawStats.convertToStatsList(rotoStatsMapper, week, league);
         repository.saveAll(rotoCalculator.calculateRotoPoints(new LeagueStats(statsList)));
         return withWeeklyChanges(convertToSortedRoto(statsList));
     }
 
-    public List<Roto> limitCalculatedRotoToIncludedWeeks(int includedWeeks){
+    public List<Roto> limitRotoToIncludedWeeks(int includedWeeks){
+        if (getStatsFromWeek(week).isEmpty()) { throw new BadInput("Roto must be calculated before it is limited to included weeks");}
         List<Stats> excludedStats = getStatsFromWeek(week - includedWeeks);
         LeagueStats recentStats = getRecentLeagueStats(getThisWeeksStats(), excludedStats, league, calculateWeight(includedWeeks));
         List<Stats> statsList = rotoCalculator.calculateRotoPoints(recentStats);
@@ -64,7 +66,7 @@ public class RotoService {
         repository.deleteAll(getStatsFromWeek(week));
     }
 
-    public void updatePlayerName(String newName, String oldName) {
+    public void updatePlayerName(String oldName, String newName) {
         List<Stats> statsForOldName = repository.findAllByNameAndLeague(oldName, league.getName());
         repository.deleteAll(statsForOldName);
         statsForOldName.forEach(stats -> stats.setName(newName));

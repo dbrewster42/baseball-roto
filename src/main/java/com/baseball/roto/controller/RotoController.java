@@ -32,9 +32,8 @@ public class RotoController {
     }
 
     @PostMapping("/calculate{includedWeeks}weeks")
-    public void writeOverallAndRecentRoto(@PathVariable int includedWeeks) {
-        writeRoto();
-        excelService.writeRecentRoto(rotoService.limitCalculatedRotoToIncludedWeeks(includedWeeks));
+    public void limitCalculatedRotoToIncludedWeeks(@PathVariable int includedWeeks) {
+        excelService.writeRecentRoto(rotoService.limitRotoToIncludedWeeks(includedWeeks));
     }
 
     @DeleteMapping
@@ -42,8 +41,8 @@ public class RotoController {
         rotoService.deleteThisWeeksStats();
     }
 
-    @PutMapping("/{newName}/{oldName}")
-    public void updateName(@PathVariable String newName, @PathVariable String oldName) {
-        rotoService.updatePlayerName(newName, oldName);
+    @PutMapping("/{oldName}/{newName}")
+    public void updateName(@PathVariable String oldName, @PathVariable String newName) {
+        rotoService.updatePlayerName(oldName, newName);
     }
 }

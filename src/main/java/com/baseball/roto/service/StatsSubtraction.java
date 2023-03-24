@@ -1,5 +1,6 @@
 package com.baseball.roto.service;
 
+import com.baseball.roto.exception.BadInput;
 import com.baseball.roto.model.League;
 import com.baseball.roto.model.LeagueStats;
 import com.baseball.roto.model.Stats;
@@ -54,7 +55,7 @@ public class StatsSubtraction {
                 .findAny()
                 .ifPresent(lw ->  subtractPlayersStats(unmatchedStats.get(0), lw.getValue()));
         } else if (!unmatchedStats.isEmpty()) {
-            throw new RuntimeException("There are multiple unmatched players so recent stats cannot be calculated");
+            throw new BadInput("There are multiple unmatched player names so recent stats cannot be calculated");
         }
 
         return currentStats;

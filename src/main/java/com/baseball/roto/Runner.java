@@ -1,9 +1,12 @@
 package com.baseball.roto;
 
+import com.baseball.roto.configuration.LeagueConfiguration;
 import com.baseball.roto.controller.RotoController;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.support.DefaultSingletonBeanRegistry;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -12,43 +15,56 @@ import javax.annotation.PostConstruct;
 @Slf4j
 public class Runner {
     @Autowired private RotoController rotoController;
+    @Autowired private ApplicationContext applicationContext;
     @Value("${actions}") private String actions;
 
     @PostConstruct
     public void run() {
         switch (actions.split(" - ")[0]) {
+            case "run both":
+                runChampionsThenPSD();
             case "plus":
                 standardPlus();
                 break;
             case "change":
-                String[] names = actions.split(" - ")[1].split(",");
-                changeName(names[0], names[1]);
+                changeName(actions.split(" - ")[1].split(","));
                 break;
             case "delete":
+                delete();
+                break;
+            case "rerun":
                 delete();
             default:
                 standard();
         }
     }
 
-    public void standard() {
-        log.info("PostConstruct");
+    private void runChampionsThenPSD() {
+        standard();
+        DefaultSingletonBeanRegistry registry = (DefaultSingletonBeanRegistry) applicationContext.getAutowireCapableBeanFactory();
+        registry.destroySingleton("League");
+        registry.registerSingleton("League", new LeagueConfiguration().league("PSD"));
+        standard();
+    }
+
+    private void standard() {
         rotoController.writeRoto();
         log.info("wrote stats");
     }
 
-    public void standardPlus() {
-        rotoController.writeOverallAndRecentRoto(4);
+    private void standardPlus() {
+        standard();
+        rotoController.limitCalculatedRotoToIncludedWeeks(4);
         log.info("wrote recent stats");
     }
 
-    public void delete() {
+    private void delete() {
         log.info("deleting");
         rotoController.deleteLastWeek();
     }
 
-    public void changeName(String newName, String oldName) {
-        log.info("changing name");
-        rotoController.updateName(newName, oldName);
+    private void changeName(String[] names) {
+        log.info("changing {} to {}", names[0], names[1]);
+        rotoController.updateName(names[0], names[1]);
     }
 }

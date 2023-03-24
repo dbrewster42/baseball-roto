@@ -19,7 +19,6 @@ public class RotoCalculator {
         this.league = league;
     }
 
-
     protected List<Stats> calculateRotoPoints(LeagueStats leagueStats) {
         for (int i = 0; i < league.getStatColumns(); i++){
             rankColumn(leagueStats.getHittingStats(), i, true);
