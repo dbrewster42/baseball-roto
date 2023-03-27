@@ -1,6 +1,6 @@
 package com.baseball.roto.mother;
 
-import com.baseball.roto.model.Stats;
+import com.baseball.roto.model.entity.Stats;
 
 import java.util.ArrayList;
 import java.util.List;

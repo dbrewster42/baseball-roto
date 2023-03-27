@@ -1,5 +1,6 @@
 package com.baseball.roto.model;
 
+import com.baseball.roto.model.entity.Stats;
 import lombok.Data;
 
 import java.util.List;

@@ -1,15 +1,15 @@
 package com.baseball.roto.model;
 
 import com.baseball.roto.mapper.RotoStatsMapper;
+import com.baseball.roto.model.entity.Stats;
 import com.baseball.roto.model.excel.Hitting;
 import com.baseball.roto.model.excel.Pitching;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Builder
 @Getter
@@ -19,9 +19,15 @@ public class RawStats {
 
     public List<Stats> convertToStatsList(RotoStatsMapper rotoStatsMapper, int week, League league) {
         orderListsByName();
-        return IntStream.range(0, league.getSize())
-            .mapToObj(i -> rotoStatsMapper.toStats(hittingList.get(i), pitchingList.get(i), week, league.getName()))
-            .collect(Collectors.toList());
+        List<Stats> statsList = new ArrayList<>();
+        for (int i = 0; i < league.getSize(); i++) {
+            if (league.equals(League.CHAMPIONS)) {
+                statsList.add(rotoStatsMapper.toChampStats(hittingList.get(i), pitchingList.get(i), week, league.getName()));
+            } else if (league.equals(League.PSD)) {
+                statsList.add(rotoStatsMapper.toPsdStats(hittingList.get(i), pitchingList.get(i), week, league.getName()));
+            }
+        }
+        return statsList;
     }
 
     public void orderListsByName(){

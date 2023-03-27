@@ -2,7 +2,7 @@ package com.baseball.roto.service;
 
 import com.baseball.roto.model.League;
 import com.baseball.roto.model.LeagueStats;
-import com.baseball.roto.model.Stats;
+import com.baseball.roto.model.entity.Stats;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

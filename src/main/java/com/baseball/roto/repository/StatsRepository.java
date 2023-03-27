@@ -1,7 +1,7 @@
 package com.baseball.roto.repository;
 
-import com.baseball.roto.model.Stats;
-import com.baseball.roto.model.StatsId;
+import com.baseball.roto.model.entity.Stats;
+import com.baseball.roto.model.entity.StatsId;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;

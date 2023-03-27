@@ -1,27 +1,18 @@
-package com.baseball.roto.model;
+package com.baseball.roto.model.entity;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.IdClass;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Entity
-@IdClass(StatsId.class)
-@Data
-public class Stats {
-
-    @Id
-    private int week = 0;
-    @Id
-    private String name;
-    @Id
-    private String league;
-
+@Getter
+@Setter
+public class ChampStats extends Stats {
     private int runs;
     private int homeRuns;
     private int rbis;
@@ -36,11 +27,6 @@ public class Stats {
     private int qualityStarts;
     private int netSaves;
 
-    private float total;
-    private float hitting;
-    private float pitching;
-
-
     public Map<String, List<Float>> gatherHittingStats(){
         Map<String, List<Float>> map = new HashMap<>();
         List<Float> stats = new ArrayList<>();
@@ -48,36 +34,22 @@ public class Stats {
         stats.add((float) homeRuns);
         stats.add((float) rbis);
         stats.add((float) sbs);
-        if (league.equals(League.CHAMPIONS.getName())) {
-            stats.add(avg);
-        }
+        stats.add(avg);
         stats.add(ops);
-        map.put(name, stats);
+        map.put(getName(), stats);
         return map;
     }
 
     public Map<String, List<Float>> gatherPitchingStats(){
         Map<String, List<Float>> map = new HashMap<>();
         List<Float> stats = new ArrayList<>();
-        if (league.equals(League.CHAMPIONS.getName())) {
-            stats.add((float) wins);
-        }
+        stats.add((float) wins);
         stats.add((float) strikeouts);
         stats.add((float) qualityStarts);
         stats.add((float) netSaves);
         stats.add(era);
         stats.add(whip);
-        map.put(name, stats);
+        map.put(getName(), stats);
         return map;
-    }
-
-    public void determineTotals(Map<String, List<Float>> hittingStats, Map<String, List<Float>> pitchingStats) {
-        this.hitting = sumTotal(hittingStats);
-        this.pitching = sumTotal(pitchingStats);
-        this.total = hitting + pitching;
-    }
-
-    private float sumTotal(Map<String, List<Float>> stats) {
-        return (float) stats.get(name).stream().mapToDouble(stat -> stat).sum();
     }
 }

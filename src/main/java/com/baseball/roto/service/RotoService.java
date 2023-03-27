@@ -5,7 +5,7 @@ import com.baseball.roto.mapper.RotoStatsMapper;
 import com.baseball.roto.model.League;
 import com.baseball.roto.model.LeagueStats;
 import com.baseball.roto.model.RawStats;
-import com.baseball.roto.model.Stats;
+import com.baseball.roto.model.entity.Stats;
 import com.baseball.roto.model.excel.Roto;
 import com.baseball.roto.repository.StatsRepository;
 import lombok.extern.slf4j.Slf4j;

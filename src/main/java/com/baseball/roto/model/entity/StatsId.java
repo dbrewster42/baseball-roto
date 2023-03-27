@@ -1,4 +1,4 @@
-package com.baseball.roto.model;
+package com.baseball.roto.model.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

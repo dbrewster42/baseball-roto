@@ -3,7 +3,7 @@ package com.baseball.roto.service;
 import com.baseball.roto.exception.BadInput;
 import com.baseball.roto.model.League;
 import com.baseball.roto.model.LeagueStats;
-import com.baseball.roto.model.Stats;
+import com.baseball.roto.model.entity.Stats;
 
 import java.util.ArrayList;
 import java.util.List;
