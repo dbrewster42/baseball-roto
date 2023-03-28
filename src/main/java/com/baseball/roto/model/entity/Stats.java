@@ -18,8 +18,6 @@ public abstract class Stats {
     private int week = 0;
     @Id
     private String name;
-    @Id
-    private String league;
 
     private float total;
     private float hitting;

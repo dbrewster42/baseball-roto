@@ -56,7 +56,7 @@ public class RotoService {
         return getStatsFromWeek(week);
     }
     public List<Stats> getStatsFromWeek(int week) {
-        return repository.findAllByWeekAndLeague(week, league.getName());
+        return repository.findAllByWeek(week);
     }
 
     public void deleteThisWeeksStats() {
@@ -67,7 +67,7 @@ public class RotoService {
     }
 
     public void updatePlayerName(String oldName, String newName) {
-        List<Stats> statsForOldName = repository.findAllByNameAndLeague(oldName, league.getName());
+        List<Stats> statsForOldName = repository.findAllByName(oldName);
         repository.deleteAll(statsForOldName);
         statsForOldName.forEach(stats -> stats.setName(newName));
         repository.saveAll(statsForOldName);

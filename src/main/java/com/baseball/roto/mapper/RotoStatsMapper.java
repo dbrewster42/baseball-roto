@@ -16,16 +16,13 @@ import java.util.List;
 public interface RotoStatsMapper {
 
 //    @Mapping(target = "name", source = "hitting.name")
-//    default Stats toStats(Hitting hitting, Pitching pitching, int week, String league) {
-//        if (league.equals(League.CHAMPIONS)) {
-//            return toChampStats(hitting, pitching, week);
-//        }
-//    }
-    @Mapping(target = "name", source = "hitting.name")
-    ChampStats toChampStats(Hitting hitting, Pitching pitching, int week, String league);
+//    Stats toStats(Hitting hitting, Pitching pitching, int week);
 
     @Mapping(target = "name", source = "hitting.name")
-    PsdStats toPsdStats(Hitting hitting, Pitching pitching, int week, String league);
+    ChampStats toStats(Hitting hitting, Pitching pitching, int week);
+
+//    @Mapping(target = "name", source = "hitting.name")
+//    PsdStats toPsdStats(Hitting hitting, Pitching pitching, int week);
 
 //    List<Stats> toStatsList(List<Hitting> hitting, List<Pitching> pitching, int week);
 

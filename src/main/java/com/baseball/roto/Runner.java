@@ -1,12 +1,9 @@
 package com.baseball.roto;
 
-import com.baseball.roto.configuration.LeagueConfiguration;
 import com.baseball.roto.controller.RotoController;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.support.DefaultSingletonBeanRegistry;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -15,14 +12,12 @@ import javax.annotation.PostConstruct;
 @Slf4j
 public class Runner {
     @Autowired private RotoController rotoController;
-    @Autowired private ApplicationContext applicationContext;
     @Value("${actions}") private String actions;
 
     @PostConstruct
     public void run() {
+        log.info("running {}", actions);
         switch (actions.split(" - ")[0]) {
-            case "run both":
-                runChampionsThenPSD();
             case "plus":
                 standardPlus();
                 break;
@@ -37,14 +32,7 @@ public class Runner {
             default:
                 standard();
         }
-    }
-
-    private void runChampionsThenPSD() {
-        standard();
-        DefaultSingletonBeanRegistry registry = (DefaultSingletonBeanRegistry) applicationContext.getAutowireCapableBeanFactory();
-        registry.destroySingleton("League");
-        registry.registerSingleton("League", new LeagueConfiguration().league("PSD"));
-        standard();
+        log.info("completed");
     }
 
     private void standard() {

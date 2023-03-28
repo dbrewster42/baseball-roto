@@ -1,5 +1,6 @@
 package com.baseball.roto.mother;
 
+import com.baseball.roto.model.entity.ChampStats;
 import com.baseball.roto.model.entity.Stats;
 
 import java.util.ArrayList;
@@ -7,7 +8,7 @@ import java.util.List;
 
 public class StatsMother {
 
-    public static List<Stats> buildVariedStatsList() {
+    public static List<ChampStats> buildVariedStatsList() {
         List<Stats> statsList = new ArrayList<>();
         int playerNumber = 1;
         statsList.add(buildStats("player" + playerNumber++, 0));
@@ -50,7 +51,7 @@ public class StatsMother {
     }
 
     public static List<Stats> buildWeek12StatsList() {
-        List<Stats> statsList = buildEvenWeek12StatsList();
+        List<ChampStats> statsList = buildEvenWeek12StatsList();
         statsList.get(0).setRuns(80);
         statsList.get(1).setRbis(80);
         statsList.get(2).setAvg(.270f);
@@ -61,8 +62,8 @@ public class StatsMother {
     }
 
 
-        public static Stats buildWeek8Stats(String name) {
-        Stats stats = new Stats();
+    public static Stats buildWeek8Stats(String name) {
+        ChampStats stats = new ChampStats();
         stats.setName(name);
 
         stats.setEra(2.5f);
@@ -81,7 +82,7 @@ public class StatsMother {
         return stats;
     }
     public static Stats buildWeek12Stats(String name) {
-        Stats stats = new Stats();
+        ChampStats stats = new ChampStats();
         stats.setName(name);
 
         stats.setEra(2.8f);
@@ -101,7 +102,7 @@ public class StatsMother {
     }
 
     public static Stats buildStats(String name, int diff) {
-        Stats stats = new Stats();
+        ChampStats stats = new ChampStats();
         stats.setName(name);
 
 //        stats.setTotal(50);
@@ -125,13 +126,13 @@ public class StatsMother {
         return stats;
     }
 
-    public static List<Stats> buildVariedStatsListWith1NameChange() {
-        List<Stats> statsList = buildVariedStatsList();
+    public static List<ChampStats> buildVariedStatsListWith1NameChange() {
+        List<ChampStats> statsList = buildVariedStatsList();
         statsList.get(1).setName("problemCauser");
         return statsList;
     }
-    public static List<Stats> buildVariedStatsListWith2NameChanges() {
-        List<Stats> statsList = buildVariedStatsList();
+    public static List<ChampStats> buildVariedStatsListWith2NameChanges() {
+        List<ChampStats> statsList = buildVariedStatsList();
         statsList.get(1).setName("problemCauser");
         statsList.get(3).setName("rocking the boat");
         return statsList;
