@@ -27,9 +27,6 @@ public class RotoCalculator {
         leagueStats.determineTotals();
         return leagueStats.getStatsList();
     }
-    protected void switchLeague(League league) {
-        this.league = league;
-    }
 
     private void rankColumn(Map<String, List<Float>> stats, int columnNumber, boolean isDescending){
         List<Float> statColumn = new ArrayList<>();

@@ -24,12 +24,6 @@ public class Runner {
     public void run() {
         log.info("running {}", actions);
         switch (actions.split(BREAKER)[0]) {
-            case "run both":
-                runChampionsThenPSD();
-                break;
-            case "everything":
-                premiumChampionsPSD(actions);
-                break;
             case "premium":
                 standardPlus();
                 break;
@@ -50,16 +44,8 @@ public class Runner {
         log.info("completed");
     }
 
-    private void premiumChampionsPSD(String weeks) {
-        rotoController.runTotalAndRecentRotoForChampAndPsd(convertToInt(weeks));
-    }
-
-    private void runChampionsThenPSD() {
-        rotoController.runStandardRotoForChampAndPsd();
-    }
-
     private void standard() {
-        rotoController.writeRoto();
+        rotoController.generateRoto();
         log.info("wrote stats");
     }
 

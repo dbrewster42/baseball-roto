@@ -21,7 +21,6 @@ public class ExcelService {
     private final Xcelite statsXcel;
     private final Xcelite rotoXcel;
     private final String league;
-    private final static String STATS_FILE = "stats";
     private final static String FILE_SUFFIX = ".xlsx";
 
     public ExcelService(@Value("${folder}") String folder, @Value("${league}") String league) {
@@ -32,10 +31,7 @@ public class ExcelService {
     }
 
     public RawStats readStats() {
-        return RawStats.builder()
-            .hittingList(readHitting())
-            .pitchingList(readPitching())
-            .build();
+        return new RawStats(readHitting(), readPitching());
     }
     private List<Hitting> readHitting() {
         return (List<Hitting>) statsXcel.getSheet(league + " Hitting").getBeanReader(Hitting.class).read();
