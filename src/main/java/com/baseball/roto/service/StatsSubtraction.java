@@ -17,8 +17,8 @@ public class StatsSubtraction {
     private final float weight;
     private boolean isHitting;
 
-    public static LeagueStats getRecentLeagueStats(List<Stats> currentStats, List<Stats> previousStats, League league, float weight) {
-        StatsSubtraction statsSubtraction = new StatsSubtraction(currentStats, previousStats, league, weight);
+    public static LeagueStats getRecentLeagueStats(List<Stats> currentStats, List<Stats> excludedStats, League league, float weight) {
+        StatsSubtraction statsSubtraction = new StatsSubtraction(currentStats, excludedStats, league, weight);
         return statsSubtraction.getRecentLeagueStats();
     }
 
@@ -57,7 +57,7 @@ public class StatsSubtraction {
         } else if (!unmatchedStats.isEmpty()) {
             throw new BadInput("There are multiple unmatched player names so recent stats cannot be calculated");
         }
-
+        currentStats.forEach((key, value) -> System.out.println(key + " - " + value)); //todo temp
         return currentStats;
     }
     private void subtractPlayersStats(Entry<String, List<Float>> playersStats, List<Float> playersOldStats) {

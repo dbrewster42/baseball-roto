@@ -2,27 +2,42 @@ package com.baseball.roto;
 
 import com.baseball.roto.controller.RotoController;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.util.Optional;
 
 @Component
 @Slf4j
 public class Runner {
-    @Autowired private RotoController rotoController;
-    @Value("${actions}") private String actions;
+    private final RotoController rotoController;
+    private final String actions;
+    private static final String BREAKER = " - ";
+
+    public Runner(RotoController rotoController, @Value("${actions}") String actions) {
+        this.rotoController = rotoController;
+        this.actions = actions;
+    }
 
     @PostConstruct
     public void run() {
         log.info("running {}", actions);
-        switch (actions.split(" - ")[0]) {
-            case "plus":
+        switch (actions.split(BREAKER)[0]) {
+            case "run both":
+                runChampionsThenPSD();
+                break;
+            case "everything":
+                premiumChampionsPSD(actions);
+                break;
+            case "premium":
                 standardPlus();
                 break;
+            case "recent":
+                recent(actions);
+                break;
             case "change":
-                changeName(actions.split(" - ")[1].split(","));
+                changeName(actions.split(BREAKER)[1].split(","));
                 break;
             case "delete":
                 delete();
@@ -35,14 +50,21 @@ public class Runner {
         log.info("completed");
     }
 
+    private void premiumChampionsPSD(String weeks) {
+        rotoController.runTotalAndRecentRotoForChampAndPsd(convertToInt(weeks));
+    }
+
+    private void runChampionsThenPSD() {
+        rotoController.runStandardRotoForChampAndPsd();
+    }
+
     private void standard() {
         rotoController.writeRoto();
         log.info("wrote stats");
     }
 
     private void standardPlus() {
-        standard();
-        rotoController.limitCalculatedRotoToIncludedWeeks(4);
+        rotoController.writeTotalAndRecentRoto(4);
         log.info("wrote recent stats");
     }
 
@@ -53,6 +75,19 @@ public class Runner {
 
     private void changeName(String[] names) {
         log.info("changing {} to {}", names[0], names[1]);
-        rotoController.updateName(names[0], names[1]);
+        rotoController.changeName(names[0], names[1]);
+    }
+
+    private void recent(String weeks) {
+        log.info("running only recent roto for already calculated week");
+        rotoController.limitCalculatedRotoToIncludedWeeks(convertToInt(weeks));
+    }
+
+    private int convertToInt(String weeks) {
+        return Optional.of(weeks)
+            .filter(w -> w.split(BREAKER).length > 1)
+            .map(w ->  w.split(BREAKER)[1])
+            .map(Integer::parseInt)
+            .orElse(4);
     }
 }

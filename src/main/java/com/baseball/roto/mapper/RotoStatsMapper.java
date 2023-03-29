@@ -1,6 +1,5 @@
 package com.baseball.roto.mapper;
 
-import com.baseball.roto.model.League;
 import com.baseball.roto.model.entity.ChampStats;
 import com.baseball.roto.model.entity.PsdStats;
 import com.baseball.roto.model.entity.Stats;
@@ -15,14 +14,11 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface RotoStatsMapper {
 
-//    @Mapping(target = "name", source = "hitting.name")
-//    Stats toStats(Hitting hitting, Pitching pitching, int week);
+    @Mapping(target = "name", source = "hitting.name")
+    ChampStats toChampStats(Hitting hitting, Pitching pitching, int week);
 
     @Mapping(target = "name", source = "hitting.name")
-    ChampStats toStats(Hitting hitting, Pitching pitching, int week);
-
-//    @Mapping(target = "name", source = "hitting.name")
-//    PsdStats toPsdStats(Hitting hitting, Pitching pitching, int week);
+    PsdStats toPsdStats(Hitting hitting, Pitching pitching, int week);
 
 //    List<Stats> toStatsList(List<Hitting> hitting, List<Pitching> pitching, int week);
 

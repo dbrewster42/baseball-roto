@@ -3,10 +3,13 @@ package com.baseball.roto.service;
 import com.baseball.roto.exception.BadInput;
 import com.baseball.roto.model.League;
 import com.baseball.roto.model.LeagueStats;
+import com.baseball.roto.model.entity.ChampStats;
+import com.baseball.roto.model.entity.Stats;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.baseball.roto.mother.StatsMother.buildEvenStatsList;
 import static com.baseball.roto.mother.StatsMother.buildVariedStatsListWith2NameChanges;
@@ -18,7 +21,7 @@ class StatsSubtractionTest {
 
     @Test
     void getRecentLeagueStatsTest() {
-        LeagueStats leagueStats = getRecentLeagueStats(buildWeek12StatsList(), buildEvenStatsList(), League.CHAMPIONS, 1f);
+        LeagueStats leagueStats = getRecentLeagueStats(cast(buildWeek12StatsList()), cast(buildEvenStatsList()), League.CHAMPIONS, 1f);
 
         List<Float> player1HittingStats = leagueStats.getHittingStats().get("player1");
         List<Float> player1PitchingStats = leagueStats.getPitchingStats().get("player1");
@@ -51,7 +54,7 @@ class StatsSubtractionTest {
 
     @Test
     void getRecentLeagueStatsTestWeighted() {
-        LeagueStats leagueStats = getRecentLeagueStats(buildWeek12StatsList(), buildEvenStatsList(), League.CHAMPIONS, 2f);
+        LeagueStats leagueStats = getRecentLeagueStats(cast(buildWeek12StatsList()), cast(buildEvenStatsList()), League.CHAMPIONS, 2f);
 
         List<Float> player1HittingStats = leagueStats.getHittingStats().get("player1");
         List<Float> player1PitchingStats = leagueStats.getPitchingStats().get("player1");
@@ -81,7 +84,11 @@ class StatsSubtractionTest {
     @Test
     void subtractOldStatsWithMultipleChangedNames() {
         assertThrows(BadInput.class,
-            () -> getRecentLeagueStats(buildWeek12StatsList(), buildVariedStatsListWith2NameChanges(), League.CHAMPIONS, 2f));
+            () -> getRecentLeagueStats(cast(buildWeek12StatsList()), cast(buildVariedStatsListWith2NameChanges()), League.CHAMPIONS, 2f));
     }
 
+
+    private List<Stats> cast(List<ChampStats> champStats) {
+        return champStats.stream().map(s -> (Stats) s).collect(Collectors.toList());
+    }
 }

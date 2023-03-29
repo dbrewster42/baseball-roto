@@ -1,5 +1,6 @@
 package com.baseball.roto.service;
 
+import com.baseball.roto.configuration.RepositoryConfiguration;
 import com.baseball.roto.exception.BadInput;
 import com.baseball.roto.mapper.RotoStatsMapper;
 import com.baseball.roto.model.League;
@@ -19,15 +20,15 @@ import static com.baseball.roto.service.StatsSubtraction.getRecentLeagueStats;
 
 @Service
 @Slf4j
-public class RotoService {
-    private final StatsRepository repository;
+public class RotoService<T extends Stats> {
+    private final StatsRepository<T> repository;
     private final RotoStatsMapper rotoStatsMapper;
     private final RotoCalculator rotoCalculator;
     private final RankService rankService;
-    private final League league;
     private final int week;
+    private League league;
 
-    public RotoService(StatsRepository repository, RotoStatsMapper rotoStatsMapper, RotoCalculator rotoCalculator,
+    public RotoService(StatsRepository<T> repository, RotoStatsMapper rotoStatsMapper, RotoCalculator rotoCalculator,
                        RankService rankService, League league, @Value("${week}") int week) {
         this.repository = repository;
         this.rotoStatsMapper = rotoStatsMapper;
@@ -40,7 +41,7 @@ public class RotoService {
     public List<Roto> calculateRoto(RawStats rawStats) {
         if (!getStatsFromWeek(week).isEmpty()) { throw new BadInput("the given week has already been calculated for this league");}
         List<Stats> statsList = rawStats.convertToStatsList(rotoStatsMapper, week, league);
-        repository.saveAll(rotoCalculator.calculateRotoPoints(new LeagueStats(statsList)));
+        repository.saveAll((List<T>) rotoCalculator.calculateRotoPoints(new LeagueStats(statsList)));
         return withWeeklyChanges(convertToSortedRoto(statsList));
     }
 
@@ -56,18 +57,24 @@ public class RotoService {
         return getStatsFromWeek(week);
     }
     public List<Stats> getStatsFromWeek(int week) {
-        return repository.findAllByWeek(week);
+        return (List<Stats>) repository.findAllByWeek(week);
     }
 
     public void deleteThisWeeksStats() {
         deleteStatsByWeek(week);
     }
     public void deleteStatsByWeek(int week) {
-        repository.deleteAll(getStatsFromWeek(week));
+        repository.deleteAll(repository.findAllByWeek(week));
+    }
+
+    public void switchLeague(League league) {
+        this.league = league;
+        rotoCalculator.switchLeague(league);
+//        this.repository = new RepositoryConfiguration().repository(league);
     }
 
     public void updatePlayerName(String oldName, String newName) {
-        List<Stats> statsForOldName = repository.findAllByName(oldName);
+        List<T> statsForOldName = repository.findAllByName(oldName);
         repository.deleteAll(statsForOldName);
         statsForOldName.forEach(stats -> stats.setName(newName));
         repository.saveAll(statsForOldName);

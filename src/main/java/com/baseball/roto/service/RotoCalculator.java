@@ -13,7 +13,7 @@ import java.util.Map;
 @Service
 @Slf4j
 public class RotoCalculator {
-    private final League league;
+    private League league;
 
     public RotoCalculator(League league) {
         this.league = league;
@@ -26,6 +26,9 @@ public class RotoCalculator {
         }
         leagueStats.determineTotals();
         return leagueStats.getStatsList();
+    }
+    protected void switchLeague(League league) {
+        this.league = league;
     }
 
     private void rankColumn(Map<String, List<Float>> stats, int columnNumber, boolean isDescending){

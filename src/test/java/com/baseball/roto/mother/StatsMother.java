@@ -1,7 +1,6 @@
 package com.baseball.roto.mother;
 
 import com.baseball.roto.model.entity.ChampStats;
-import com.baseball.roto.model.entity.Stats;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +8,7 @@ import java.util.List;
 public class StatsMother {
 
     public static List<ChampStats> buildVariedStatsList() {
-        List<Stats> statsList = new ArrayList<>();
+        List<ChampStats> statsList = new ArrayList<>();
         int playerNumber = 1;
         statsList.add(buildStats("player" + playerNumber++, 0));
         statsList.add(buildStats("player" + playerNumber++, 2));
@@ -22,9 +21,9 @@ public class StatsMother {
         return statsList;
     }
 
-    public static List<Stats> buildEvenStatsList() {
+    public static List<ChampStats> buildEvenStatsList() {
         int playerNumber = 1;
-        List<Stats> statsList = new ArrayList<>();
+        List<ChampStats> statsList = new ArrayList<>();
         statsList.add(buildWeek8Stats("player" + playerNumber++));
         statsList.add(buildWeek8Stats("player" + playerNumber++));
         statsList.add(buildWeek8Stats("player" + playerNumber++));
@@ -36,9 +35,9 @@ public class StatsMother {
         return statsList;
     }
 
-    public static List<Stats> buildEvenWeek12StatsList() {
+    public static List<ChampStats> buildEvenWeek12StatsList() {
         int playerNumber = 1;
-        List<Stats> statsList = new ArrayList<>();
+        List<ChampStats> statsList = new ArrayList<>();
         statsList.add(buildWeek12Stats("player" + playerNumber++));
         statsList.add(buildWeek12Stats("player" + playerNumber++));
         statsList.add(buildWeek12Stats("player" + playerNumber++));
@@ -50,7 +49,7 @@ public class StatsMother {
         return statsList;
     }
 
-    public static List<Stats> buildWeek12StatsList() {
+    public static List<ChampStats> buildWeek12StatsList() {
         List<ChampStats> statsList = buildEvenWeek12StatsList();
         statsList.get(0).setRuns(80);
         statsList.get(1).setRbis(80);
@@ -62,7 +61,7 @@ public class StatsMother {
     }
 
 
-    public static Stats buildWeek8Stats(String name) {
+    public static ChampStats buildWeek8Stats(String name) {
         ChampStats stats = new ChampStats();
         stats.setName(name);
 
@@ -81,7 +80,7 @@ public class StatsMother {
         stats.setSbs(9);
         return stats;
     }
-    public static Stats buildWeek12Stats(String name) {
+    public static ChampStats buildWeek12Stats(String name) {
         ChampStats stats = new ChampStats();
         stats.setName(name);
 
@@ -101,7 +100,7 @@ public class StatsMother {
         return stats;
     }
 
-    public static Stats buildStats(String name, int diff) {
+    public static ChampStats buildStats(String name, int diff) {
         ChampStats stats = new ChampStats();
         stats.setName(name);
 
