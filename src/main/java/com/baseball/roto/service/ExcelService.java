@@ -21,19 +21,17 @@ public class ExcelService {
     private final Xcelite statsXcel;
     private final Xcelite rotoXcel;
     private final String league;
+    private final static String FILE_SUFFIX = ".xlsx";
 
-    public ExcelService(@Value("${file.stats}") String statsFile, @Value("${file.output}") String outputFilename, @Value("${league}") String league) {
-        this.statsXcel = new Xcelite(new File(statsFile));
+    public ExcelService(@Value("${folder}") String folder, @Value("${league}") String league) {
+        this.statsXcel = new Xcelite(new File(folder + "stats" + FILE_SUFFIX));
         this.rotoXcel = new Xcelite();
-        this.outputFile = new File(outputFilename);
+        this.outputFile = new File(folder + league + FILE_SUFFIX);
         this.league = league;
     }
 
     public RawStats readStats() {
-        return RawStats.builder()
-            .hittingList(readHitting())
-            .pitchingList(readPitching())
-            .build();
+        return new RawStats(readHitting(), readPitching());
     }
     private List<Hitting> readHitting() {
         return (List<Hitting>) statsXcel.getSheet(league + " Hitting").getBeanReader(Hitting.class).read();
@@ -43,11 +41,11 @@ public class ExcelService {
     }
 
     public void writeRoto(List<Roto> rotoList){
-        writeRoto(rotoList, "Sheet");
+        writeRoto(rotoList, league);
     }
-    public void writeLastXWeeks(List<Roto> rotoList) {
+    public void writeRecentRoto(List<Roto> rotoList) {
         rotoXcel.setOptions(null);
-        writeRoto(rotoList, "Recent");
+        writeRoto(rotoList, "Recent " + league);
     }
     public void writeRoto(List<Roto> rotoList, String sheetName){
         log.info("writing results");
@@ -61,8 +59,7 @@ public class ExcelService {
         options.setHeaderRowIndex(categoryRanks.size() + 2);
         rotoXcel.setOptions(options);
 
-        rotoXcel.getSheet("Sheet").getBeanWriter(CategoryRank.class).write(categoryRanks);
+        rotoXcel.getSheet(league).getBeanWriter(CategoryRank.class).write(categoryRanks);
         rotoXcel.write(outputFile);
     }
-
 }

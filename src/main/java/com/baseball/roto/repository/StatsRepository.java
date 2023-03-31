@@ -1,13 +1,15 @@
 package com.baseball.roto.repository;
 
-import com.baseball.roto.model.Stats;
-import com.baseball.roto.model.StatsId;
+import com.baseball.roto.model.entity.Stats;
+import com.baseball.roto.model.entity.StatsId;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.NoRepositoryBean;
 
 import java.util.List;
 
-public interface StatsRepository extends CrudRepository<Stats, StatsId> {
-    List<Stats> findAllByWeek(int week);
-
-    List<Stats> findAllByName(String name);
+@NoRepositoryBean
+public interface StatsRepository<T extends Stats> extends CrudRepository<T, StatsId> {
+    List<T> findAllByWeek(int week);
+    List<T> findAllByName(String name);
 }
+

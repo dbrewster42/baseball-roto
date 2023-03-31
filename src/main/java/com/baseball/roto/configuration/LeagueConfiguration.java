@@ -7,11 +7,9 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class LeagueConfiguration {
-//    @Value("${league}")
-//    private String league;
 
     @Bean
-    public League leagueSettings(@Value("${league}") String league) {
+    public League league(@Value("${league}") String league) {
         return League.valueOf(league);
     }
 }

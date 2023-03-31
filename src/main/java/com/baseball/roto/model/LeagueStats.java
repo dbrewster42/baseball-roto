@@ -1,5 +1,6 @@
 package com.baseball.roto.model;
 
+import com.baseball.roto.model.entity.Stats;
 import lombok.Data;
 
 import java.util.List;
@@ -7,7 +8,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 @Data
-public class LeagueStats { //todo do single instead?
+public class LeagueStats {
     private final List<Stats> statsList;
     private Map<String, List<Float>> hittingStats;
     private Map<String, List<Float>> pitchingStats;
@@ -28,7 +29,6 @@ public class LeagueStats { //todo do single instead?
             .reduce((left, right) -> {
                 left.putAll(right);
                 return left;
-            })
-            .orElseThrow(() -> new RuntimeException("error combining stat lists"));
+            }).orElseThrow(() -> new RuntimeException("error combining stat lists"));
     }
 }

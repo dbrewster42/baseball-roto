@@ -1,4 +1,4 @@
-package com.baseball.roto.model;
+package com.baseball.roto.model.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,6 +15,4 @@ public class StatsId implements Serializable {
     private int week;
     @Id
     private String name;
-    @Id
-    private String league;
 }

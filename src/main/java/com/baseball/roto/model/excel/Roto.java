@@ -1,6 +1,6 @@
 package com.baseball.roto.model.excel;
 
-import com.baseball.roto.model.Stats;
+import com.baseball.roto.model.entity.Stats;
 import com.ebay.xcelite.annotations.Column;
 import com.ebay.xcelite.annotations.Row;
 import lombok.Data;

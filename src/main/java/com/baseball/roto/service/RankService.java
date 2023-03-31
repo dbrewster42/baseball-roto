@@ -2,12 +2,14 @@ package com.baseball.roto.service;
 
 import com.baseball.roto.model.excel.CategoryRank;
 import com.baseball.roto.model.excel.Roto;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+@Service
 public class RankService {
     public List<CategoryRank> getCategoryRanks(List<Roto> rotoList) {
         List<CategoryRank> categoryRanks = rankByGetter(rotoList, Roto::getHitting)

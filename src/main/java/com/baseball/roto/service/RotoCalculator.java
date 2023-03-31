@@ -2,7 +2,7 @@ package com.baseball.roto.service;
 
 import com.baseball.roto.model.League;
 import com.baseball.roto.model.LeagueStats;
-import com.baseball.roto.model.Stats;
+import com.baseball.roto.model.entity.Stats;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -13,12 +13,11 @@ import java.util.Map;
 @Service
 @Slf4j
 public class RotoCalculator {
-    private final League league;
+    private League league;
 
     public RotoCalculator(League league) {
         this.league = league;
     }
-
 
     protected List<Stats> calculateRotoPoints(LeagueStats leagueStats) {
         for (int i = 0; i < league.getStatColumns(); i++){
