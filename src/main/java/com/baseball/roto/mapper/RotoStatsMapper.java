@@ -20,8 +20,6 @@ public interface RotoStatsMapper {
     @Mapping(target = "name", source = "hitting.name")
     PsdStats toPsdStats(Hitting hitting, Pitching pitching, int week);
 
-//    List<Stats> toStatsList(List<Hitting> hitting, List<Pitching> pitching, int week);
-
     Roto toRoto(Stats source);
 
     List<Roto> toRotoList(List<Stats> source);

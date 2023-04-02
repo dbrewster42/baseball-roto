@@ -1,37 +1,43 @@
 package com.baseball.roto;
 
-import com.baseball.roto.controller.RotoController;
+import com.baseball.roto.model.excel.Roto;
+import com.baseball.roto.service.ExcelService;
+import com.baseball.roto.service.RotoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.util.List;
 import java.util.Optional;
 
 @Component
 @Slf4j
 public class Runner {
-    private final RotoController rotoController;
+    private final RotoService rotoService;
+    private final ExcelService excelService;
     private final String actions;
-    private static final String BREAKER = " - ";
+    private static final String SPLITTER = " - ";
+    private static final int DEFAULT_INCLUDED_WEEKS = 4;
 
-    public Runner(RotoController rotoController, @Value("${actions}") String actions) {
-        this.rotoController = rotoController;
+    public Runner(RotoService rotoService, ExcelService excelService, @Value("${actions}") String actions) {
+        this.rotoService = rotoService;
+        this.excelService = excelService;
         this.actions = actions;
     }
 
     @PostConstruct
     public void run() {
         log.info("running {}", actions);
-        switch (actions.split(BREAKER)[0]) {
-            case "premium":
-                standardPlus();
+        switch (actions.split(SPLITTER)[0]) {
+            case "everything":
+                totalAndRecentRoto();
                 break;
             case "recent":
-                recent(actions);
+                recent();
                 break;
             case "change":
-                changeName(actions.split(BREAKER)[1].split(","));
+                changeName(actions.split(SPLITTER)[1].split(","));
                 break;
             case "delete":
                 delete();
@@ -39,41 +45,51 @@ public class Runner {
             case "rerun":
                 delete();
             default:
-                standard();
+                generateRoto();
         }
         log.info("completed");
     }
 
-    private void standard() {
-        rotoController.generateRoto();
+    private void generateRoto() {
+        log.info("running standard roto");
+        List<Roto> rotoList = rotoService.calculateRoto(excelService.readStats());
+        log.info("calculated roto");
+        excelService.writeRoto(rotoList);
         log.info("wrote stats");
+        excelService.writeRanks(rotoService.getCategoryRanks(rotoList));
+        log.info("wrote ranks");
     }
 
-    private void standardPlus() {
-        rotoController.writeTotalAndRecentRoto(4);
+    private void totalAndRecentRoto() {
+        generateRoto();
+        recent();
+    }
+
+    private void recent() {
+        int includedWeeks = getIncludedWeeks();
+        log.info("limiting the previous calculated roto to past {} weeks", includedWeeks);
+        excelService.writeRecentRoto(rotoService.limitRotoToIncludedWeeks(includedWeeks));
         log.info("wrote recent stats");
-    }
-
-    private void delete() {
-        log.info("deleting");
-        rotoController.deleteLastWeek();
     }
 
     private void changeName(String[] names) {
         log.info("changing {} to {}", names[0], names[1]);
-        rotoController.changeName(names[0], names[1]);
+        rotoService.updatePlayerName(names[0], names[1]);
     }
 
-    private void recent(String weeks) {
-        log.info("running only recent roto for already calculated week");
-        rotoController.limitCalculatedRotoToIncludedWeeks(convertToInt(weeks));
+    private void delete() {
+        log.info("deleting this weeks stats");
+        rotoService.deleteThisWeeksStats();
     }
 
-    private int convertToInt(String weeks) {
-        return Optional.of(weeks)
-            .filter(w -> w.split(BREAKER).length > 1)
-            .map(w ->  w.split(BREAKER)[1])
-            .map(Integer::parseInt)
-            .orElse(4);
+    private int getIncludedWeeks() {
+        try {
+            return Optional.of(actions)
+                .map(w ->  w.split(SPLITTER)[1])
+                .map(Integer::parseInt)
+                .orElseThrow();
+        } catch (Exception e) {
+            return DEFAULT_INCLUDED_WEEKS;
+        }
     }
 }

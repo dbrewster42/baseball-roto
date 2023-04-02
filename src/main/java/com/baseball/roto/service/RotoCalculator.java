@@ -13,7 +13,7 @@ import java.util.Map;
 @Service
 @Slf4j
 public class RotoCalculator {
-    private League league;
+    private final League league;
 
     public RotoCalculator(League league) {
         this.league = league;

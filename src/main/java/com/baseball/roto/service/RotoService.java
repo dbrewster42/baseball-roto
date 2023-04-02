@@ -6,6 +6,7 @@ import com.baseball.roto.model.League;
 import com.baseball.roto.model.LeagueStats;
 import com.baseball.roto.model.RawStats;
 import com.baseball.roto.model.entity.Stats;
+import com.baseball.roto.model.excel.CategoryRank;
 import com.baseball.roto.model.excel.Roto;
 import com.baseball.roto.repository.StatsRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +43,10 @@ public class RotoService {
         List<Stats> statsList = convertToStatsList(rawStats);
         repository.saveAll(rotoCalculator.calculateRotoPoints(new LeagueStats(statsList)));
         return withWeeklyChanges(convertToSortedRoto(statsList));
+    }
+
+    public List<CategoryRank> getCategoryRanks(List<Roto> rotoList) {
+        return rankService.getCategoryRanks(rotoList);
     }
 
     public List<Roto> limitRotoToIncludedWeeks(int includedWeeks){
@@ -116,5 +121,4 @@ public class RotoService {
         currentRoto.forEach(roto -> log.info(roto.toString()));
         return currentRoto;
     }
-
 }

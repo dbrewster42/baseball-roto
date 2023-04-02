@@ -26,7 +26,7 @@ public class ExcelService {
     public ExcelService(@Value("${folder}") String folder, @Value("${league}") String league) {
         this.statsXcel = new Xcelite(new File(folder + "stats" + FILE_SUFFIX));
         this.rotoXcel = new Xcelite();
-        this.outputFile = new File(folder + league + FILE_SUFFIX);
+        this.outputFile = new File(folder + "results/" + league + FILE_SUFFIX);
         this.league = league;
     }
 
