@@ -39,7 +39,7 @@ public class RotoService {
     }
 
     public List<Roto> calculateRoto(RawStats rawStats) {
-        if (!getStatsFromWeek(week).isEmpty()) { throw new BadInput("the given week has already been calculated for this league");}
+        if (!getThisWeeksStats().isEmpty()) { throw new BadInput("The stats have already been calculated for the given week in this league");}
         List<Stats> statsList = convertToStatsList(rawStats);
         repository.saveAll(rotoCalculator.calculateRotoPoints(new LeagueStats(statsList)));
         return withWeeklyChanges(convertToSortedRoto(statsList));
@@ -50,7 +50,7 @@ public class RotoService {
     }
 
     public List<Roto> limitRotoToIncludedWeeks(int includedWeeks){
-        if (getStatsFromWeek(week).isEmpty()) { throw new BadInput("Roto must be calculated before it is limited to included weeks");}
+        if (getThisWeeksStats().isEmpty()) { throw new BadInput("Roto must be calculated before it is limited to included weeks");}
         List<Stats> excludedStats = getStatsFromWeek(week - includedWeeks);
         LeagueStats recentStats = getRecentLeagueStats(getThisWeeksStats(), excludedStats, league, calculateWeight(includedWeeks));
         List<Stats> statsList = rotoCalculator.calculateRotoPoints(recentStats);

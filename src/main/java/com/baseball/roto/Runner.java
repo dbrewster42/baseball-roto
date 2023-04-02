@@ -55,9 +55,7 @@ public class Runner {
         List<Roto> rotoList = rotoService.calculateRoto(excelService.readStats());
         log.info("calculated roto");
         excelService.writeRoto(rotoList);
-        log.info("wrote stats");
         excelService.writeRanks(rotoService.getCategoryRanks(rotoList));
-        log.info("wrote ranks");
     }
 
     private void totalAndRecentRoto() {
@@ -69,7 +67,6 @@ public class Runner {
         int includedWeeks = getIncludedWeeks();
         log.info("limiting the previous calculated roto to past {} weeks", includedWeeks);
         excelService.writeRecentRoto(rotoService.limitRotoToIncludedWeeks(includedWeeks));
-        log.info("wrote recent stats");
     }
 
     private void changeName(String[] names) {
