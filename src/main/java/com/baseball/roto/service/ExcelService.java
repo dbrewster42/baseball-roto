@@ -17,15 +17,15 @@ import java.util.List;
 @Service
 @Slf4j
 public class ExcelService {
-    private final File outputFile;
+    private final static String FILE_SUFFIX = ".xlsx";
     private final Xcelite statsXcel;
     private final Xcelite rotoXcel;
+    private final File outputFile;
     private final String league;
-    private final static String FILE_SUFFIX = ".xlsx";
 
-    public ExcelService(@Value("${folder}") String folder, @Value("${league}") String league) {
-        this.statsXcel = new Xcelite(new File(folder + "stats" + FILE_SUFFIX));
+    public ExcelService(@Value("${stats.folder}") String folder, @Value("${league}") String league) {
         this.rotoXcel = new Xcelite();
+        this.statsXcel = new Xcelite(new File(folder + "stats" + FILE_SUFFIX));
         this.outputFile = new File(folder + "results/" + league + FILE_SUFFIX);
         this.league = league;
     }

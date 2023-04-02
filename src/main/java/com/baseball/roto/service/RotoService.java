@@ -1,7 +1,8 @@
 package com.baseball.roto.service;
 
 import com.baseball.roto.exception.BadInput;
-import com.baseball.roto.mapper.RotoStatsMapper;
+import com.baseball.roto.mapper.RotoMapper;
+import com.baseball.roto.mapper.StatsMapper;
 import com.baseball.roto.model.League;
 import com.baseball.roto.model.LeagueStats;
 import com.baseball.roto.model.RawStats;
@@ -21,17 +22,19 @@ import static com.baseball.roto.service.StatsSubtraction.getRecentLeagueStats;
 @Service
 @Slf4j
 public class RotoService {
-    private StatsRepository repository;
-    private final RotoStatsMapper rotoStatsMapper;
+    private final StatsRepository repository;
+    private final StatsMapper statsMapper;
+    private final RotoMapper rotoMapper;
     private final RotoCalculator rotoCalculator;
     private final RankService rankService;
     private final int week;
     private final League league;
 
-    public RotoService(StatsRepository repository, RotoStatsMapper rotoStatsMapper, RotoCalculator rotoCalculator,
+    public RotoService(StatsRepository repository, StatsMapper statsMapper, RotoMapper rotoMapper, RotoCalculator rotoCalculator,
                        RankService rankService, League league, @Value("${week}") int week) {
         this.repository = repository;
-        this.rotoStatsMapper = rotoStatsMapper;
+        this.statsMapper = statsMapper;
+        this.rotoMapper = rotoMapper;
         this.rotoCalculator = rotoCalculator;
         this.rankService = rankService;
         this.league = league;
@@ -79,17 +82,13 @@ public class RotoService {
     }
 
     private List<Roto> convertToSortedRoto(List<Stats> statsList) {
-        return rankService.rankRoto(rotoStatsMapper.toRotoList(statsList));
+        return rankService.rankRoto(rotoMapper.toRotoList(statsList));
     }
 
     private List<Stats> convertToStatsList(RawStats rawStats) {
         List<Stats> statsList = new ArrayList<>();
         for (int i = 0; i < league.getSize(); i++) {
-            if (league.equals(League.CHAMPIONS)) {
-                statsList.add(rotoStatsMapper.toChampStats(rawStats.getHittingList().get(i), rawStats.getPitchingList().get(i), week));
-            } else if (league.equals(League.PSD)) {
-                statsList.add(rotoStatsMapper.toPsdStats(rawStats.getHittingList().get(i), rawStats.getPitchingList().get(i), week));
-            }
+            statsList.add(statsMapper.toStats(rawStats.getHittingList().get(i), rawStats.getPitchingList().get(i), week));
         }
         return statsList;
     }

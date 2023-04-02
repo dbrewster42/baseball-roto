@@ -1,26 +1,26 @@
 package com.baseball.roto.configuration;
 
 import com.baseball.roto.exception.BadInput;
+import com.baseball.roto.mapper.ChampStatsMapper;
+import com.baseball.roto.mapper.PsdStatsMapper;
+import com.baseball.roto.mapper.StatsMapper;
 import com.baseball.roto.model.League;
-import com.baseball.roto.model.entity.ChampStats;
-import com.baseball.roto.model.entity.PsdStats;
 import com.baseball.roto.model.entity.Stats;
-import com.baseball.roto.repository.StatsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class RepositoryConfiguration {
-    @Autowired private StatsRepository<ChampStats> champRepository;
-    @Autowired private StatsRepository<PsdStats> psdRepository;
+public class MapperConfiguration {
+    @Autowired private ChampStatsMapper champStatsMapper;
+    @Autowired private PsdStatsMapper psdStatsMapper;
 
     @Bean
-    public StatsRepository<? extends Stats> repository(League league) {
+    public StatsMapper<? extends Stats> statsMapper(League league) {
         if (league.equals(League.CHAMPIONS)) {
-            return champRepository;
+            return champStatsMapper;
         } else if (league.equals(League.PSD)) {
-            return psdRepository;
+            return psdStatsMapper;
         }
         throw new BadInput("The given league is not valid");
     }

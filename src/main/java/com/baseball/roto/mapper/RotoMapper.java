@@ -12,13 +12,7 @@ import org.mapstruct.Mapping;
 import java.util.List;
 
 @Mapper(componentModel = "spring")
-public interface RotoStatsMapper {
-
-    @Mapping(target = "name", source = "hitting.name")
-    ChampStats toChampStats(Hitting hitting, Pitching pitching, int week);
-
-    @Mapping(target = "name", source = "hitting.name")
-    PsdStats toPsdStats(Hitting hitting, Pitching pitching, int week);
+public interface RotoMapper {
 
     Roto toRoto(Stats source);
 
