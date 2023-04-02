@@ -22,8 +22,8 @@ import static com.baseball.roto.service.StatsSubtraction.getRecentLeagueStats;
 @Service
 @Slf4j
 public class RotoService {
-    private final StatsRepository repository;
-    private final StatsMapper statsMapper;
+    private final StatsRepository<Stats> repository;
+    private final StatsMapper<Stats> statsMapper;
     private final RotoMapper rotoMapper;
     private final RotoCalculator rotoCalculator;
     private final RankService rankService;
