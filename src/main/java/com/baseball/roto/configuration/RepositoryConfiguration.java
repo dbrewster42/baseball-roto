@@ -1,6 +1,5 @@
 package com.baseball.roto.configuration;
 
-import com.baseball.roto.exception.BadInput;
 import com.baseball.roto.model.League;
 import com.baseball.roto.model.entity.ChampStats;
 import com.baseball.roto.model.entity.PsdStats;
@@ -19,13 +18,15 @@ public class RepositoryConfiguration {
 
     @Bean
     public StatsRepository<? extends Stats> repository(League league) {
-        if (league.equals(League.CHAMPIONS)) {
-            return champRepository;
-        } else if (league.equals(League.PSD)) {
-            return psdRepository;
-        } else if (league.equals(League.STANDARD)) {
-            return standardRepository;
+        switch (league) {
+            case CHAMPIONS:
+                return champRepository;
+            case PSD:
+                return psdRepository;
+            case STANDARD:
+                return standardRepository;
+            default:
+                throw new RuntimeException("The validated league could not be matched with a StatsRepository");
         }
-        throw new BadInput("The given league is not valid");
     }
 }

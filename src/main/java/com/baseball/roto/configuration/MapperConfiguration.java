@@ -1,6 +1,5 @@
 package com.baseball.roto.configuration;
 
-import com.baseball.roto.exception.BadInput;
 import com.baseball.roto.mapper.ChampStatsMapper;
 import com.baseball.roto.mapper.PsdStatsMapper;
 import com.baseball.roto.mapper.StandardStatsMapper;
@@ -16,13 +15,15 @@ public class MapperConfiguration {
 
     @Bean
     public StatsMapper<? extends Stats> statsMapper(League league) {
-        if (league.equals(League.CHAMPIONS)) {
-            return Mappers.getMapper(ChampStatsMapper.class);
-        } else if (league.equals(League.PSD)) {
-            return Mappers.getMapper(PsdStatsMapper.class);
-        } else if (league.equals(League.STANDARD)) {
-            return Mappers.getMapper(StandardStatsMapper.class);
+        switch (league) {
+            case CHAMPIONS:
+                return Mappers.getMapper(ChampStatsMapper.class);
+            case PSD:
+                return Mappers.getMapper(PsdStatsMapper.class);
+            case STANDARD:
+                return Mappers.getMapper(StandardStatsMapper.class);
+            default:
+                throw new RuntimeException("The validated league could not be matched with a StatsMapper");
         }
-        throw new BadInput("The given league is not valid");
     }
 }
