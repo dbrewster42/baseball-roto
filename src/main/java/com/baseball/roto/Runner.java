@@ -9,16 +9,17 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
-import java.util.Optional;
+
+import static java.lang.Integer.parseInt;
 
 @Component
 @Slf4j
 public class Runner {
+    private static final String SPLITTER = " - ";
+    private static final int DEFAULT_INCLUDED_WEEKS = 4;
     private final RotoService rotoService;
     private final ExcelService excelService;
     private final String actions;
-    private static final String SPLITTER = " - ";
-    private static final int DEFAULT_INCLUDED_WEEKS = 4;
 
     public Runner(RotoService rotoService, ExcelService excelService, @Value("${actions}") String actions) {
         this.rotoService = rotoService;
@@ -28,7 +29,7 @@ public class Runner {
 
     @PostConstruct
     public void run() {
-        log.info("running {}", actions);
+        log.info("running [{}]", actions);
         switch (actions.split(SPLITTER)[0]) {
             case "everything":
                 totalAndRecentRoto();
@@ -81,10 +82,7 @@ public class Runner {
 
     private int getIncludedWeeks() {
         try {
-            return Optional.of(actions)
-                .map(w ->  w.split(SPLITTER)[1])
-                .map(Integer::parseInt)
-                .orElseThrow();
+            return parseInt(actions.split(SPLITTER)[1]);
         } catch (Exception e) {
             return DEFAULT_INCLUDED_WEEKS;
         }

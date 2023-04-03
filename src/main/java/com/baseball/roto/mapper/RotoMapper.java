@@ -1,13 +1,8 @@
 package com.baseball.roto.mapper;
 
-import com.baseball.roto.model.entity.ChampStats;
-import com.baseball.roto.model.entity.PsdStats;
 import com.baseball.roto.model.entity.Stats;
-import com.baseball.roto.model.excel.Hitting;
-import com.baseball.roto.model.excel.Pitching;
 import com.baseball.roto.model.excel.Roto;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 import java.util.List;
 
