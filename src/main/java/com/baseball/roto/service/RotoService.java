@@ -87,7 +87,7 @@ public class RotoService {
 
     private List<Stats> convertToStatsList(RawStats rawStats) {
         List<Stats> statsList = new ArrayList<>();
-        for (int i = 0; i < league.getSize(); i++) {
+        for (int i = 0; i < league.getNumberOfTeams(); i++) {
             statsList.add(statsMapper.toStats(rawStats.getHittingList().get(i), rawStats.getPitchingList().get(i), week));
         }
         return statsList;
