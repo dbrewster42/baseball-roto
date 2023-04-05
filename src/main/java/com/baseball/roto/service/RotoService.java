@@ -10,7 +10,6 @@ import com.baseball.roto.model.excel.CategoryRank;
 import com.baseball.roto.model.excel.Roto;
 import com.baseball.roto.repository.StatsRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -19,8 +18,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static com.baseball.roto.service.StatsSubtraction.getRecentLeagueStats;
-import static com.baseball.roto.validation.InputValidator.validateRotoHasBeenPrepped;
-import static com.baseball.roto.validation.InputValidator.validateWeek;
 import static com.baseball.roto.validation.InputValidator.validatedLeagueSize;
 
 @Service
@@ -35,18 +32,17 @@ public class RotoService {
     private final League league;
 
     public RotoService(StatsRepository repository, StatsMapper statsMapper, RotoMapper rotoMapper, RotoCalculator rotoCalculator,
-                       RankService rankService, League league, @Value("${week}") int week) {
+                       RankService rankService, League league) {
         this.repository = repository;
         this.statsMapper = statsMapper;
         this.rotoMapper = rotoMapper;
         this.rotoCalculator = rotoCalculator;
         this.rankService = rankService;
         this.league = league;
-        this.week = week;
+        this.week = determineWeek();
     }
 
     public List<Roto> calculateRoto(RawStats rawStats) {
-        validateWeek(getThisWeeksStats());
         List<Stats> statsList = convertToStatsList(rawStats);
         repository.saveAll(rotoCalculator.calculateRotoPoints(new LeagueStats(statsList)));
         return withWeeklyChanges(convertToSortedRoto(statsList));
@@ -57,7 +53,6 @@ public class RotoService {
     }
 
     public List<Roto> limitRotoToIncludedWeeks(int includedWeeks){
-        validateRotoHasBeenPrepped(getThisWeeksStats());
         List<Stats> excludedStats = getStatsFromWeek(week - includedWeeks);
         LeagueStats recentStats = getRecentLeagueStats(getThisWeeksStats(), excludedStats, league, calculateWeight(includedWeeks));
         List<Stats> statsList = rotoCalculator.calculateRotoPoints(recentStats);
@@ -93,6 +88,10 @@ public class RotoService {
         return IntStream.range(0, validatedLeagueSize(rawStats, league))
             .mapToObj(i -> statsMapper.toStats(rawStats.getHittingList().get(i), rawStats.getPitchingList().get(i), week))
             .collect(Collectors.toList());
+    }
+
+    private int determineWeek() {
+        return (int) (repository.count() / league.getNumberOfTeams()) + 1;
     }
 
     private float calculateWeight(int includedWeeks) {

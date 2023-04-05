@@ -32,8 +32,7 @@ public class Runner {
         log.info("running [{}]", actions);
         switch (actions.split(SPLITTER)[0]) {
             case "everything":
-                totalAndRecentRoto();
-                break;
+                generateRoto();
             case "recent":
                 recent();
                 break;
@@ -57,11 +56,6 @@ public class Runner {
         log.info("calculated roto");
         excelService.writeRoto(rotoList);
         excelService.writeRanks(rotoService.getCategoryRanks(rotoList));
-    }
-
-    private void totalAndRecentRoto() {
-        generateRoto();
-        recent();
     }
 
     private void recent() {
