@@ -1,51 +1,58 @@
 package com.baseball.roto.service;
 
-import com.baseball.roto.exception.BadInput;
-import com.baseball.roto.mapper.RotoStatsMapper;
+import com.baseball.roto.mapper.RotoMapper;
+import com.baseball.roto.mapper.StatsMapper;
 import com.baseball.roto.model.League;
 import com.baseball.roto.model.LeagueStats;
 import com.baseball.roto.model.RawStats;
 import com.baseball.roto.model.entity.Stats;
+import com.baseball.roto.model.excel.CategoryRank;
 import com.baseball.roto.model.excel.Roto;
 import com.baseball.roto.repository.StatsRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static com.baseball.roto.service.StatsSubtraction.getRecentLeagueStats;
+import static com.baseball.roto.validation.InputValidator.validatedLeagueSize;
 
 @Service
 @Slf4j
 public class RotoService {
-    private StatsRepository repository;
-    private final RotoStatsMapper rotoStatsMapper;
+    private final StatsRepository<Stats> repository;
+    private final StatsMapper<Stats> statsMapper;
+    private final RotoMapper rotoMapper;
     private final RotoCalculator rotoCalculator;
     private final RankService rankService;
     private final int week;
     private final League league;
 
-    public RotoService(StatsRepository repository, RotoStatsMapper rotoStatsMapper, RotoCalculator rotoCalculator,
-                       RankService rankService, League league, @Value("${week}") int week) {
+    public RotoService(StatsRepository repository, StatsMapper statsMapper, RotoMapper rotoMapper, RotoCalculator rotoCalculator,
+                       RankService rankService, League league) {
         this.repository = repository;
-        this.rotoStatsMapper = rotoStatsMapper;
+        this.statsMapper = statsMapper;
+        this.rotoMapper = rotoMapper;
         this.rotoCalculator = rotoCalculator;
         this.rankService = rankService;
         this.league = league;
-        this.week = week;
+        this.week = determineWeek();
     }
 
     public List<Roto> calculateRoto(RawStats rawStats) {
-        if (!getStatsFromWeek(week).isEmpty()) { throw new BadInput("the given week has already been calculated for this league");}
         List<Stats> statsList = convertToStatsList(rawStats);
         repository.saveAll(rotoCalculator.calculateRotoPoints(new LeagueStats(statsList)));
         return withWeeklyChanges(convertToSortedRoto(statsList));
     }
 
+    public List<CategoryRank> getCategoryRanks(List<Roto> rotoList) {
+        return rankService.getCategoryRanks(rotoList);
+    }
+
     public List<Roto> limitRotoToIncludedWeeks(int includedWeeks){
-        if (getStatsFromWeek(week).isEmpty()) { throw new BadInput("Roto must be calculated before it is limited to included weeks");}
         List<Stats> excludedStats = getStatsFromWeek(week - includedWeeks);
         LeagueStats recentStats = getRecentLeagueStats(getThisWeeksStats(), excludedStats, league, calculateWeight(includedWeeks));
         List<Stats> statsList = rotoCalculator.calculateRotoPoints(recentStats);
@@ -74,19 +81,17 @@ public class RotoService {
     }
 
     private List<Roto> convertToSortedRoto(List<Stats> statsList) {
-        return rankService.rankRoto(rotoStatsMapper.toRotoList(statsList));
+        return rankService.rankRoto(rotoMapper.toRotoList(statsList));
     }
 
     private List<Stats> convertToStatsList(RawStats rawStats) {
-        List<Stats> statsList = new ArrayList<>();
-        for (int i = 0; i < league.getSize(); i++) {
-            if (league.equals(League.CHAMPIONS)) {
-                statsList.add(rotoStatsMapper.toChampStats(rawStats.getHittingList().get(i), rawStats.getPitchingList().get(i), week));
-            } else if (league.equals(League.PSD)) {
-                statsList.add(rotoStatsMapper.toPsdStats(rawStats.getHittingList().get(i), rawStats.getPitchingList().get(i), week));
-            }
-        }
-        return statsList;
+        return IntStream.range(0, validatedLeagueSize(rawStats, league))
+            .mapToObj(i -> statsMapper.toStats(rawStats.getHittingList().get(i), rawStats.getPitchingList().get(i), week))
+            .collect(Collectors.toList());
+    }
+
+    private int determineWeek() {
+        return (int) (repository.count() / league.getNumberOfTeams()) + 1;
     }
 
     private float calculateWeight(int includedWeeks) {
@@ -116,5 +121,4 @@ public class RotoService {
         currentRoto.forEach(roto -> log.info(roto.toString()));
         return currentRoto;
     }
-
 }

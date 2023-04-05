@@ -15,7 +15,6 @@ public class StatsSubtraction {
     private final LeagueStats previousStats;
     private final League league;
     private final float weight;
-    private boolean isHitting;
 
     public static LeagueStats getRecentLeagueStats(List<Stats> currentStats, List<Stats> excludedStats, League league, float weight) {
         StatsSubtraction statsSubtraction = new StatsSubtraction(currentStats, excludedStats, league, weight);
@@ -27,17 +26,15 @@ public class StatsSubtraction {
         this.previousStats = new LeagueStats(previousStats);
         this.weight = weight;
         this.league = league;
-        this.isHitting = true;
     }
 
     private LeagueStats getRecentLeagueStats() {
-        currentStats.setHittingStats(subtractStatLists(currentStats.getHittingStats(), previousStats.getHittingStats()));
-        isHitting = false;
-        currentStats.setPitchingStats(subtractStatLists(currentStats.getPitchingStats(), previousStats.getPitchingStats()));
+        currentStats.setHittingStats(subtractStatLists(currentStats.getHittingStats(), previousStats.getHittingStats(), league.getHitCountingStats()));
+        currentStats.setPitchingStats(subtractStatLists(currentStats.getPitchingStats(), previousStats.getPitchingStats(), league.getPitchCountingStats()));
         return currentStats;
     }
 
-    private Map<String, List<Float>> subtractStatLists(Map<String, List<Float>> currentStats, Map<String, List<Float>> oldStats) {
+    private Map<String, List<Float>> subtractStatLists(Map<String, List<Float>> currentStats, Map<String, List<Float>> oldStats, int countingColumns) {
         List<Entry<String, List<Float>>> unmatchedStats = new ArrayList<>();
         for (Entry<String, List<Float>> playersStats : currentStats.entrySet()) {
             oldStats.entrySet().stream()
@@ -45,7 +42,7 @@ public class StatsSubtraction {
                 .map(Entry::getValue)
                 .findAny()
                 .ifPresentOrElse(
-                    playersOldStats -> subtractPlayersStats(playersStats, playersOldStats),
+                    playersOldStats -> subtractPlayersStats(playersStats, playersOldStats, countingColumns),
                     () -> unmatchedStats.add(playersStats)
                 );
         }
@@ -53,19 +50,18 @@ public class StatsSubtraction {
             oldStats.entrySet().stream()
                 .filter(lw -> currentStats.entrySet().stream().noneMatch(stats -> lw.getKey().equals(stats.getKey())))
                 .findAny()
-                .ifPresent(lw ->  subtractPlayersStats(unmatchedStats.get(0), lw.getValue()));
+                .ifPresent(lw ->  subtractPlayersStats(unmatchedStats.get(0), lw.getValue(), countingColumns));
         } else if (!unmatchedStats.isEmpty()) {
             throw new BadInput("There are multiple unmatched player names so recent stats cannot be calculated");
         }
-        currentStats.forEach((key, value) -> System.out.println(key + " - " + value)); //todo temp
+        currentStats.forEach((key, value) -> System.out.println(key + " - " + value));
         return currentStats;
     }
-    private void subtractPlayersStats(Entry<String, List<Float>> playersStats, List<Float> playersOldStats) {
-        int counterColumns = isHitting ? league.getHitCounterCol() : league.getPitchCounterCol();
-        for (int i = 0; i < counterColumns; i++) {
+    private void subtractPlayersStats(Entry<String, List<Float>> playersStats, List<Float> playersOldStats, int countingColumns) {
+        for (int i = 0; i < countingColumns; i++) {
             playersStats.getValue().set(i, playersStats.getValue().get(i) - playersOldStats.get(i));
         }
-        for (int i = counterColumns; i < league.getStatColumns(); i++) {
+        for (int i = countingColumns; i < league.getStatColumns(); i++) {
             playersStats.getValue().set(i, calculateAveragedValues(playersStats.getValue().get(i), playersOldStats.get(i)));
         }
     }

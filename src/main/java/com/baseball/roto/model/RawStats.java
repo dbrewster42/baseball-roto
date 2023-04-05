@@ -1,12 +1,9 @@
 package com.baseball.roto.model;
 
-import com.baseball.roto.model.entity.Stats;
 import com.baseball.roto.model.excel.Hitting;
 import com.baseball.roto.model.excel.Pitching;
-import com.baseball.roto.model.excel.PlayerStats;
 import lombok.Getter;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 

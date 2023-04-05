@@ -20,14 +20,6 @@ public class CategoryRank {
     @Column(name = " ")
     public final String __ = null;
 
-    public CategoryRank(Roto hitter, Roto pitcher) {
-        this.hittingRank = hitter.getRank();
-        this.hittingName = hitter.getName();
-        this.hitting = hitter.getHitting();
-        this.pitchingRank = pitcher.getRank();
-        this.pitchingName = pitcher.getName();
-        this.pitching = pitcher.getPitching();
-    }
     public CategoryRank(Roto hitter) {
         this.hittingRank = hitter.getRank();
         this.hittingName = hitter.getName();
