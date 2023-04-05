@@ -1,9 +1,9 @@
 package com.baseball.roto.service;
 
-import com.baseball.roto.model.RawStats;
+import com.baseball.roto.model.League;
+import com.baseball.roto.model.LeagueStats;
+import com.baseball.roto.model.entity.Stats;
 import com.baseball.roto.model.excel.CategoryRank;
-import com.baseball.roto.model.excel.Hitting;
-import com.baseball.roto.model.excel.Pitching;
 import com.baseball.roto.model.excel.Roto;
 import com.ebay.xcelite.Xcelite;
 import com.ebay.xcelite.options.XceliteOptions;
@@ -21,31 +21,25 @@ public class ExcelService {
     private final Xcelite statsXcel;
     private final Xcelite rotoXcel;
     private final File outputFile;
-    private final String league;
+    private final League league;
 
-    public ExcelService(@Value("${stats.folder}") String folder, @Value("${league}") String league) {
+    public ExcelService(@Value("${stats.folder}") String folder, League league) {
         this.rotoXcel = new Xcelite();
         this.statsXcel = new Xcelite(new File(folder + "stats" + FILE_SUFFIX));
         this.outputFile = new File(folder + "results/" + league + FILE_SUFFIX);
         this.league = league;
+
     }
 
-    public RawStats readStats() {
-        return new RawStats(readHitting(), readPitching());
+    public LeagueStats readStats() {
+        return new LeagueStats((List<Stats>) statsXcel.getSheet(league.name()).getBeanReader(league.getEntity()).read());
     }
-    private List<Hitting> readHitting() {
-        return (List<Hitting>) statsXcel.getSheet(league + " Hitting").getBeanReader(Hitting.class).read();
-    }
-    private List<Pitching> readPitching() {
-        return (List<Pitching>) statsXcel.getSheet(league + " Pitching").getBeanReader(Pitching.class).read();
-    }
-
     public void writeRoto(List<Roto> rotoList){
-        writeRoto(rotoList, league);
+        writeRoto(rotoList, league.name());
     }
     public void writeRecentRoto(List<Roto> rotoList) {
         rotoXcel.setOptions(null);
-        writeRoto(rotoList, "Recent " + league);
+        writeRoto(rotoList, "Recent " + league.name());
     }
     public void writeRoto(List<Roto> rotoList, String sheetName){
         log.info("writing results");
@@ -59,7 +53,7 @@ public class ExcelService {
         options.setHeaderRowIndex(categoryRanks.size() + 2);
         rotoXcel.setOptions(options);
 
-        rotoXcel.getSheet(league).getBeanWriter(CategoryRank.class).write(categoryRanks);
+        rotoXcel.getSheet(league.name()).getBeanWriter(CategoryRank.class).write(categoryRanks);
         rotoXcel.write(outputFile);
     }
 }

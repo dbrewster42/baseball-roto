@@ -61,7 +61,7 @@ public class StatsSubtraction {
         for (int i = 0; i < countingColumns; i++) {
             playersStats.getValue().set(i, playersStats.getValue().get(i) - playersOldStats.get(i));
         }
-        for (int i = countingColumns; i < league.getStatColumns(); i++) {
+        for (int i = countingColumns; i < league.getStatColumnsPerSide(); i++) {
             playersStats.getValue().set(i, calculateAveragedValues(playersStats.getValue().get(i), playersOldStats.get(i)));
         }
     }

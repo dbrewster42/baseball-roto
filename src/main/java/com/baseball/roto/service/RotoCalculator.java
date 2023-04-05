@@ -20,7 +20,7 @@ public class RotoCalculator {
     }
 
     protected List<Stats> calculateRotoPoints(LeagueStats leagueStats) {
-        for (int i = 0; i < league.getStatColumns(); i++){
+        for (int i = 0; i < league.getStatColumnsPerSide(); i++){
             rankColumn(leagueStats.getHittingStats(), i, true);
             rankColumn(leagueStats.getPitchingStats(), i, i < league.getPitchCountingStats());
         }
