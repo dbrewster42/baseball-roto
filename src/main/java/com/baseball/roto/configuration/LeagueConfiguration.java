@@ -1,22 +1,16 @@
 package com.baseball.roto.configuration;
 
-import com.baseball.roto.exception.BadInput;
 import com.baseball.roto.model.League;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import static com.baseball.roto.model.League.leagueNames;
-import static java.lang.String.format;
+import static com.baseball.roto.validation.InputValidator.validatedLeague;
 
 @Configuration
 public class LeagueConfiguration {
     @Bean
     public League league(@Value("${league}") String league) {
-        try {
-            return League.valueOf(league);
-        } catch (Exception e) {
-            throw new BadInput(format("The given league [%s] is not one of the supported options - %s", league, leagueNames()));
-        }
+        return validatedLeague(league);
     }
 }

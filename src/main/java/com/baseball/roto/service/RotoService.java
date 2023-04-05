@@ -1,6 +1,5 @@
 package com.baseball.roto.service;
 
-import com.baseball.roto.exception.BadInput;
 import com.baseball.roto.mapper.RotoMapper;
 import com.baseball.roto.mapper.StatsMapper;
 import com.baseball.roto.model.League;
@@ -16,8 +15,13 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static com.baseball.roto.service.StatsSubtraction.getRecentLeagueStats;
+import static com.baseball.roto.validation.InputValidator.validateRotoHasBeenPrepped;
+import static com.baseball.roto.validation.InputValidator.validateWeek;
+import static com.baseball.roto.validation.InputValidator.validatedLeagueSize;
 
 @Service
 @Slf4j
@@ -42,7 +46,7 @@ public class RotoService {
     }
 
     public List<Roto> calculateRoto(RawStats rawStats) {
-        if (!getThisWeeksStats().isEmpty()) { throw new BadInput("The stats have already been calculated for the given week in this league");}
+        validateWeek(getThisWeeksStats());
         List<Stats> statsList = convertToStatsList(rawStats);
         repository.saveAll(rotoCalculator.calculateRotoPoints(new LeagueStats(statsList)));
         return withWeeklyChanges(convertToSortedRoto(statsList));
@@ -53,7 +57,7 @@ public class RotoService {
     }
 
     public List<Roto> limitRotoToIncludedWeeks(int includedWeeks){
-        if (getThisWeeksStats().isEmpty()) { throw new BadInput("Roto must be calculated before it is limited to included weeks");}
+        validateRotoHasBeenPrepped(getThisWeeksStats());
         List<Stats> excludedStats = getStatsFromWeek(week - includedWeeks);
         LeagueStats recentStats = getRecentLeagueStats(getThisWeeksStats(), excludedStats, league, calculateWeight(includedWeeks));
         List<Stats> statsList = rotoCalculator.calculateRotoPoints(recentStats);
@@ -86,11 +90,9 @@ public class RotoService {
     }
 
     private List<Stats> convertToStatsList(RawStats rawStats) {
-        List<Stats> statsList = new ArrayList<>();
-        for (int i = 0; i < league.getNumberOfTeams(); i++) {
-            statsList.add(statsMapper.toStats(rawStats.getHittingList().get(i), rawStats.getPitchingList().get(i), week));
-        }
-        return statsList;
+        return IntStream.range(0, validatedLeagueSize(rawStats, league))
+            .mapToObj(i -> statsMapper.toStats(rawStats.getHittingList().get(i), rawStats.getPitchingList().get(i), week))
+            .collect(Collectors.toList());
     }
 
     private float calculateWeight(int includedWeeks) {
