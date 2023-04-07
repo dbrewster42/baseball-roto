@@ -47,7 +47,7 @@ public class RotoService {
 
     public List<Roto> limitRotoToIncludedWeeks(int includedWeeks){
         List<Stats> excludedStats = getStatsFromWeek(week - includedWeeks);
-        LeagueStats recentStats = getRecentLeagueStats(getThisWeeksStats(), excludedStats, league, calculateWeight(includedWeeks));
+        LeagueStats recentStats = getRecentLeagueStats(getThisWeeksStats(), excludedStats, league, week, includedWeeks);
         List<Stats> statsList = rotoCalculator.calculateRotoPoints(recentStats);
         return withChanges(convertToSortedRoto(statsList), excludedStats);
     }
@@ -79,10 +79,6 @@ public class RotoService {
 
     private int determineWeek() {
         return (int) (repository.count() / league.getNumberOfTeams()) + 1;
-    }
-
-    private float calculateWeight(int includedWeeks) {
-        return (week - includedWeeks) / (float) includedWeeks;
     }
 
     private List<Roto> withWeeklyChanges(List<Roto> currentRoto) {

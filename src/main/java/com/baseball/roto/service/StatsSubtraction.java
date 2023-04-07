@@ -11,27 +11,35 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 public class StatsSubtraction {
-    private final LeagueStats currentStats;
+    private final LeagueStats totalStats;
     private final LeagueStats previousStats;
     private final League league;
     private final float weight;
 
-    public static LeagueStats getRecentLeagueStats(List<Stats> currentStats, List<Stats> excludedStats, League league, float weight) {
-        StatsSubtraction statsSubtraction = new StatsSubtraction(currentStats, excludedStats, league, weight);
+    public static LeagueStats getRecentLeagueStats(List<Stats> totalStats, List<Stats> excludedStats, League league, float weight) {
+        StatsSubtraction statsSubtraction = new StatsSubtraction(totalStats, excludedStats, league, weight);
         return statsSubtraction.getRecentLeagueStats();
     }
 
-    private StatsSubtraction(List<Stats> currentStats, List<Stats> previousStats, League league, float weight) {
-        this.currentStats = new LeagueStats(currentStats);
+    public static LeagueStats getRecentLeagueStats(List<Stats> totalStats, List<Stats> excludedStats, League league, int week, int includedWeeks) {
+        return getRecentLeagueStats(totalStats, excludedStats, league, calculateWeight(week, includedWeeks));
+    }
+
+    private static float calculateWeight(int week, int includedWeeks) {
+        return (week - includedWeeks) / (float) includedWeeks;
+    }
+
+    private StatsSubtraction(List<Stats> totalStats, List<Stats> previousStats, League league, float weight) {
+        this.totalStats = new LeagueStats(totalStats);
         this.previousStats = new LeagueStats(previousStats);
         this.weight = weight;
         this.league = league;
     }
 
     private LeagueStats getRecentLeagueStats() {
-        currentStats.setHittingStats(subtractStatLists(currentStats.getHittingStats(), previousStats.getHittingStats(), league.getHitCountingStats()));
-        currentStats.setPitchingStats(subtractStatLists(currentStats.getPitchingStats(), previousStats.getPitchingStats(), league.getPitchCountingStats()));
-        return currentStats;
+        totalStats.setHittingStats(subtractStatLists(totalStats.getHittingStats(), previousStats.getHittingStats(), league.getHitCountingStats()));
+        totalStats.setPitchingStats(subtractStatLists(totalStats.getPitchingStats(), previousStats.getPitchingStats(), league.getPitchCountingStats()));
+        return totalStats;
     }
 
     private Map<String, List<Float>> subtractStatLists(Map<String, List<Float>> currentStats, Map<String, List<Float>> oldStats, int countingColumns) {

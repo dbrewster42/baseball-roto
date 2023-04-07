@@ -82,6 +82,23 @@ class StatsSubtractionTest {
     }
 
     @Test
+    void getRecentLeagueStatsTestWeightedDecimal() {
+        LeagueStats leagueStats = getRecentLeagueStats(cast(buildWeek12StatsList()), cast(buildEvenStatsList()), League.CHAMPIONS, 4/3f);
+
+        List<Float> player1HittingStats = leagueStats.getHittingStats().get("player1");
+        List<Float> player3HittingStats = leagueStats.getHittingStats().get("player3");
+        //week 8 stats .250 AVG and .800 OPS
+        SoftAssertions.assertSoftly(soft -> {
+            //week 12 player1 stats .265 .824
+            soft.assertThat(player1HittingStats.get(4)).isEqualTo(.285f);
+            soft.assertThat(player1HittingStats.get(5)).isEqualTo(.856f);
+            //week 12 player3 stats .270 .850
+            soft.assertThat(player3HittingStats.get(4)).isEqualTo(.297f);
+            soft.assertThat(player3HittingStats.get(5)).isEqualTo(.917f);
+        });
+    }
+
+    @Test
     void subtractOldStatsWithMultipleChangedNames() {
         assertThrows(BadInput.class,
             () -> getRecentLeagueStats(cast(buildWeek12StatsList()), cast(buildVariedStatsListWith2NameChanges()), League.CHAMPIONS, 2f));
