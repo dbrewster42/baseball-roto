@@ -1,5 +1,6 @@
 package com.baseball.roto.model.entity;
 
+import com.ebay.xcelite.annotations.Column;
 import lombok.Data;
 
 import javax.persistence.Id;
@@ -8,14 +9,14 @@ import javax.persistence.MappedSuperclass;
 import java.util.List;
 import java.util.Map;
 
-//@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @MappedSuperclass
 @IdClass(StatsId.class)
 @Data
 public abstract class Stats {
 
     @Id
-    private int week = 0;
+    private int week;
+    @Column(name="Team Name")
     @Id
     private String name;
 
