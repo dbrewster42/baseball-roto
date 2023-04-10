@@ -10,19 +10,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.baseball.roto.model.League.getCurrentLeague;
+
 @Service
 @Slf4j
 public class RotoCalculator {
-    private final League league;
 
-    public RotoCalculator(League league) {
-        this.league = league;
-    }
 
     protected List<Stats> calculateRotoPoints(LeagueStats leagueStats) {
-        for (int i = 0; i < league.getStatColumnsPerSide(); i++){
+        for (int i = 0; i < getCurrentLeague().getStatColumnsPerSide(); i++){
             rankColumn(leagueStats.getHittingStats(), i, true);
-            rankColumn(leagueStats.getPitchingStats(), i, i < league.getPitchCountingStats());
+            rankColumn(leagueStats.getPitchingStats(), i, i < getCurrentLeague().getPitchCountingStats());
         }
         leagueStats.determineTotals();
         return leagueStats.getStatsList();

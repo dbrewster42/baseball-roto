@@ -26,6 +26,7 @@ public enum League {
     private final int pitchCountingStats;
     private final Class<? extends Stats> entity;
     private final Class<? extends StatsRepository<?>> repository;
+    private static League currentLeague = League.CHAMPIONS;
 
     League(int numberOfTeams, int statColumnsPerSide, int hitCountingStats, int pitchCountingStats,
            Class<? extends Stats> entity, Class<? extends StatsRepository<?>> repository) {
@@ -36,6 +37,17 @@ public enum League {
         this.entity = entity;
         this.repository = repository;
     }
+
+    public static void setCurrentLeague(League league) {
+        currentLeague = league;
+    }
+    public static League getCurrentLeague() {
+        return currentLeague;
+    }
+    public static String getLeagueName() {
+        return currentLeague.name();
+    }
+
 
     public static List<String> leagueNames() {
         return Arrays.stream(League.values()).map(Enum::name).collect(Collectors.toList());

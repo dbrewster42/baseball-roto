@@ -1,5 +1,6 @@
 package com.baseball.roto;
 
+import com.baseball.roto.model.League;
 import com.baseball.roto.model.excel.Roto;
 import com.baseball.roto.service.ExcelService;
 import com.baseball.roto.service.RotoService;
@@ -52,10 +53,13 @@ public class Runner {
 
     private void generateRoto() {
         log.info("running standard roto");
-        List<Roto> rotoList = rotoService.calculateRoto(excelService.readStats());
-        log.info("calculated roto");
-        excelService.writeRoto(rotoList);
-        excelService.writeRanks(rotoService.getCategoryRanks(rotoList));
+        for (League league : League.values()) {
+            rotoService.setup(league);
+            List<Roto> rotoList = rotoService.calculateRoto(excelService.readStats());
+            log.info("calculated roto for {}", league.name());
+            excelService.writeRoto(rotoList);
+            excelService.writeRanks(rotoService.getCategoryRanks(rotoList));
+        }
     }
 
     private void recent() {

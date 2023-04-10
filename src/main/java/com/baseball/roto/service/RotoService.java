@@ -1,5 +1,6 @@
 package com.baseball.roto.service;
 
+import com.baseball.roto.configuration.RepositoryConfig;
 import com.baseball.roto.mapper.RotoMapper;
 import com.baseball.roto.model.League;
 import com.baseball.roto.model.LeagueStats;
@@ -18,20 +19,17 @@ import static com.baseball.roto.service.StatsSubtraction.getRecentLeagueStats;
 @Service
 @Slf4j
 public class RotoService {
-    private final StatsRepository<Stats> repository;
     private final RotoMapper rotoMapper;
     private final RotoCalculator rotoCalculator;
     private final RankService rankService;
-    private final int week;
-    private final League league;
+    private League league;
+    private StatsRepository<Stats> repository;
+    private int week;
 
-    public RotoService(StatsRepository repository, RotoMapper rotoMapper, RotoCalculator rotoCalculator, RankService rankService, League league) {
-        this.repository = repository;
+    public RotoService(RotoMapper rotoMapper, RotoCalculator rotoCalculator, RankService rankService) {
         this.rotoMapper = rotoMapper;
         this.rotoCalculator = rotoCalculator;
         this.rankService = rankService;
-        this.league = league;
-        this.week = determineWeek();
     }
 
     public List<Roto> calculateRoto(LeagueStats leagueStats) {
@@ -71,6 +69,13 @@ public class RotoService {
         repository.deleteAll(statsForOldName);
         statsForOldName.forEach(stats -> stats.setName(newName));
         repository.saveAll(statsForOldName);
+    }
+
+    public void setup(League league) {
+        this.league = league;
+        League.setCurrentLeague(league);
+        this.repository = new RepositoryConfig().repository(league);
+        this.week = determineWeek();
     }
 
     private List<Roto> convertToSortedRoto(List<Stats> statsList) {
