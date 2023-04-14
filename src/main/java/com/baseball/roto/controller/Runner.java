@@ -1,8 +1,9 @@
-package com.baseball.roto;
+package com.baseball.roto.controller;
 
 import com.baseball.roto.model.League;
 import com.baseball.roto.model.excel.Roto;
 import com.baseball.roto.service.ExcelService;
+import com.baseball.roto.service.LeagueService;
 import com.baseball.roto.service.RotoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,11 +21,13 @@ public class Runner {
     private static final int DEFAULT_INCLUDED_WEEKS = 4;
     private final RotoService rotoService;
     private final ExcelService excelService;
+    private final LeagueService leagueService;
     private final String actions;
 
-    public Runner(RotoService rotoService, ExcelService excelService, @Value("${actions}") String actions) {
+    public Runner(RotoService rotoService, ExcelService excelService, LeagueService leagueService, @Value("${actions}") String actions) {
         this.rotoService = rotoService;
         this.excelService = excelService;
+        this.leagueService = leagueService;
         this.actions = actions;
     }
 
@@ -54,7 +57,7 @@ public class Runner {
     private void generateRoto() {
         log.info("running standard roto");
         for (League league : League.values()) {
-            rotoService.setup(league);
+            leagueService.setLeague(league);
             List<Roto> rotoList = rotoService.calculateRoto(excelService.readStats());
             log.info("calculated roto for {}", league.name());
             excelService.writeRoto(rotoList);

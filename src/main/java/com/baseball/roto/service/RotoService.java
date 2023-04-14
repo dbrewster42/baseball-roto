@@ -1,6 +1,5 @@
 package com.baseball.roto.service;
 
-import com.baseball.roto.configuration.RepositoryConfig;
 import com.baseball.roto.mapper.RotoMapper;
 import com.baseball.roto.model.League;
 import com.baseball.roto.model.LeagueStats;
@@ -22,18 +21,21 @@ public class RotoService {
     private final RotoMapper rotoMapper;
     private final RotoCalculator rotoCalculator;
     private final RankService rankService;
+    private final LeagueService leagueService;
     private League league;
     private StatsRepository<Stats> repository;
     private int week;
 
-    public RotoService(RotoMapper rotoMapper, RotoCalculator rotoCalculator, RankService rankService) {
+    public RotoService(RotoMapper rotoMapper, RotoCalculator rotoCalculator, RankService rankService, LeagueService leagueService) {
         this.rotoMapper = rotoMapper;
         this.rotoCalculator = rotoCalculator;
         this.rankService = rankService;
+        this.leagueService = leagueService;
     }
 
     public List<Roto> calculateRoto(LeagueStats leagueStats) {
-        List<Stats> statsList = rotoCalculator.calculateRotoPoints(leagueStats);
+        setup(leagueService);
+        List<Stats> statsList = rotoCalculator.calculateRotoPoints(leagueStats, league);
         statsList.forEach(stats -> stats.setWeek(week));
         repository.saveAll(statsList);
         return withWeeklyChanges(convertToSortedRoto(statsList));
@@ -46,7 +48,7 @@ public class RotoService {
     public List<Roto> limitRotoToIncludedWeeks(int includedWeeks){
         List<Stats> excludedStats = getStatsFromWeek(week - includedWeeks);
         LeagueStats recentStats = getRecentLeagueStats(getThisWeeksStats(), excludedStats, league, week, includedWeeks);
-        List<Stats> statsList = rotoCalculator.calculateRotoPoints(recentStats);
+        List<Stats> statsList = rotoCalculator.calculateRotoPoints(recentStats, league);
         return withChanges(convertToSortedRoto(statsList), excludedStats);
     }
 
@@ -71,10 +73,9 @@ public class RotoService {
         repository.saveAll(statsForOldName);
     }
 
-    public void setup(League league) {
-        this.league = league;
-        League.setCurrentLeague(league);
-        this.repository = new RepositoryConfig().repository(league);
+    private void setup(LeagueService leagueService) {
+        this.league = leagueService.getLeague();
+        this.repository = leagueService.repository();
         this.week = determineWeek();
     }
 

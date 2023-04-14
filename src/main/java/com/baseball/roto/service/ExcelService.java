@@ -1,6 +1,5 @@
 package com.baseball.roto.service;
 
-import com.baseball.roto.model.League;
 import com.baseball.roto.model.LeagueStats;
 import com.baseball.roto.model.entity.Stats;
 import com.baseball.roto.model.excel.CategoryRank;
@@ -14,38 +13,38 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.util.List;
 
-import static com.baseball.roto.model.League.getCurrentLeague;
-import static com.baseball.roto.model.League.getLeagueName;
+
 
 @Service
 @Slf4j
 public class ExcelService {
+    private final LeagueService leagueService;
     private final static String FILE_SUFFIX = ".xlsx";
     private final Xcelite statsXcel;
-    private final Xcelite rotoXcel;
+    private final String folder;
+    private Xcelite rotoXcel;
     private File outputFile;
 
-    private String folder;
 
-    public ExcelService(@Value("${stats.folder}") String folder) {
-        this.rotoXcel = new Xcelite();
+    public ExcelService(LeagueService leagueService, @Value("${stats.folder}") String folder) {
+        this.leagueService = leagueService;
         this.statsXcel = new Xcelite(new File(folder + "stats" + FILE_SUFFIX));
         this.folder = folder;
-//        this.outputFile = new File(folder + "results/" + getLeagueName() + FILE_SUFFIX);
     }
 
     public LeagueStats readStats() {
-        return new LeagueStats((List<Stats>) statsXcel.getSheet(getLeagueName()).getBeanReader(getCurrentLeague().getEntity()).read());
+        return new LeagueStats((List<Stats>) statsXcel.getSheet(leagueService.getLeagueName()).getBeanReader(leagueService.getLeague().getEntity()).read());
     }
     public void writeRoto(List<Roto> rotoList){
-        writeRoto(rotoList, getLeagueName());
+        writeRoto(rotoList, leagueService.getLeagueName());
     }
     public void writeRecentRoto(List<Roto> rotoList) {
         rotoXcel.setOptions(null);
-        writeRoto(rotoList, "Recent " + getLeagueName());
+        writeRoto(rotoList, "Recent " + leagueService.getLeagueName());
     }
     public void writeRoto(List<Roto> rotoList, String sheetName){
-        this.outputFile = new File(folder + "results/" + getLeagueName() + FILE_SUFFIX);
+        this.outputFile = new File(folder + "results/" + sheetName + FILE_SUFFIX);
+        this.rotoXcel = new Xcelite();
         log.info("writing results");
         rotoXcel.createSheet(sheetName).getBeanWriter(Roto.class).write(rotoList);
         rotoXcel.write(outputFile);
@@ -58,7 +57,7 @@ public class ExcelService {
         rotoXcel.setOptions(options);
 
 
-        rotoXcel.getSheet(getLeagueName()).getBeanWriter(CategoryRank.class).write(categoryRanks);
+        rotoXcel.getSheet(leagueService.getLeagueName()).getBeanWriter(CategoryRank.class).write(categoryRanks);
         rotoXcel.write(outputFile);
     }
 }

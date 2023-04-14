@@ -1,6 +1,8 @@
 package com.baseball.roto;
 
+import com.baseball.roto.controller.Runner;
 import com.baseball.roto.service.ExcelService;
+import com.baseball.roto.service.LeagueService;
 import com.baseball.roto.service.RotoService;
 import org.junit.jupiter.api.Test;
 
@@ -12,10 +14,12 @@ class RunnerTest {
     private Runner sut;
     private final RotoService rotoService = mock(RotoService.class);
     private final ExcelService excelService = mock(ExcelService.class);
+    private final LeagueService leagueService = mock(LeagueService.class);
+
 
     @Test
     void run0() {
-        sut = new Runner(rotoService, excelService, "everything");
+        sut = new Runner(rotoService, excelService, leagueService, "everything");
 
         sut.run();
 
@@ -24,7 +28,7 @@ class RunnerTest {
 
     @Test
     void run1() {
-        sut = new Runner(rotoService, excelService, "recent");
+        sut = new Runner(rotoService, excelService, leagueService, "recent");
 
         sut.run();
 
@@ -33,7 +37,7 @@ class RunnerTest {
 
     @Test
     void run2() {
-        sut = new Runner(rotoService,  excelService, "everything - asdf");
+        sut = new Runner(rotoService,  excelService, leagueService, "everything - asdf");
 
         sut.run();
 
@@ -42,7 +46,7 @@ class RunnerTest {
 
     @Test
     void run3() {
-        sut = new Runner(rotoService, excelService, "recent - 3");
+        sut = new Runner(rotoService, excelService, leagueService, "recent - 3");
 
         sut.run();
 
@@ -51,7 +55,7 @@ class RunnerTest {
 
     @Test
     void run4() {
-        sut = new Runner(rotoService, excelService, "everything - ");
+        sut = new Runner(rotoService, excelService, leagueService, "everything - ");
 
         sut.run();
 
@@ -60,7 +64,7 @@ class RunnerTest {
 
     @Test
     void run5() {
-        sut = new Runner(rotoService, excelService, "everything - 1");
+        sut = new Runner(rotoService, excelService, leagueService, "everything - 1");
 
         sut.run();
 
@@ -69,7 +73,7 @@ class RunnerTest {
 
     @Test
     void changeName() {
-        sut = new Runner(rotoService, excelService, "change - George,Harry");
+        sut = new Runner(rotoService, excelService, leagueService, "change - George,Harry");
 
         sut.run();
 
