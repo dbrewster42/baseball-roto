@@ -36,7 +36,8 @@ public class Runner {
         log.info("running [{}]", actions);
         switch (actions.split(SPLITTER)[0]) {
             case "everything":
-                generateRoto();
+                generateEverything();
+                break;
             case "recent":
                 recent();
                 break;
@@ -49,20 +50,31 @@ public class Runner {
             case "rerun":
                 delete();
             default:
-                generateRoto();
+                generateAllRoto();
         }
         log.info("completed");
     }
 
-    private void generateRoto() {
+    private void generateEverything() {
+        log.info("running standard and recent roto");
+        for (League league : League.values()) {
+            generateRoto(league);
+            recent();
+        }
+    }
+
+    private void generateAllRoto() {
         log.info("running standard roto");
         for (League league : League.values()) {
-            leagueService.setLeague(league);
-            List<Roto> rotoList = rotoService.calculateRoto(excelService.readStats());
-            log.info("calculated roto for {}", league.name());
-            excelService.writeRoto(rotoList);
-            excelService.writeRanks(rotoService.getCategoryRanks(rotoList));
+            generateRoto(league);
         }
+    }
+    private void generateRoto(League league) {
+        leagueService.setLeague(league);
+        List<Roto> rotoList = rotoService.calculateRoto(excelService.readStats());
+        log.info("calculated roto for {}", league.name());
+        excelService.writeRoto(rotoList);
+        excelService.writeRanks(rotoService.getCategoryRanks(rotoList));
     }
 
     private void recent() {

@@ -34,7 +34,7 @@ public class RotoService {
     }
 
     public List<Roto> calculateRoto(LeagueStats leagueStats) {
-        setup(leagueService);
+        setup();
         List<Stats> statsList = rotoCalculator.calculateRotoPoints(leagueStats, league);
         statsList.forEach(stats -> stats.setWeek(week));
         repository.saveAll(statsList);
@@ -60,6 +60,7 @@ public class RotoService {
     }
 
     public void deleteThisWeeksStats() {
+        setup();
         deleteStatsByWeek(week);
     }
     public void deleteStatsByWeek(int week) {
@@ -67,13 +68,14 @@ public class RotoService {
     }
 
     public void updatePlayerName(String oldName, String newName) {
+        setup();
         List<Stats> statsForOldName = repository.findAllByName(oldName);
         repository.deleteAll(statsForOldName);
         statsForOldName.forEach(stats -> stats.setName(newName));
         repository.saveAll(statsForOldName);
     }
 
-    private void setup(LeagueService leagueService) {
+    private void setup() {
         this.league = leagueService.getLeague();
         this.repository = leagueService.repository();
         this.week = determineWeek();
