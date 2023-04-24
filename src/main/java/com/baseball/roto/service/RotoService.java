@@ -10,6 +10,7 @@ import com.baseball.roto.repository.StatsRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,8 +34,14 @@ public class RotoService {
         this.leagueService = leagueService;
     }
 
+    public void setLeague(League league) {
+        leagueService.setLeague(league);
+        this.league = league;
+        this.repository = leagueService.repository();
+        this.week = determineWeek();
+    }
+
     public List<Roto> calculateRoto(LeagueStats leagueStats) {
-        setup();
         List<Stats> statsList = rotoCalculator.calculateRotoPoints(leagueStats, league);
         statsList.forEach(stats -> stats.setWeek(week));
         repository.saveAll(statsList);
@@ -59,8 +66,11 @@ public class RotoService {
         return repository.findAllByWeek(week);
     }
 
+    public void deleteLatestWeeksStatsFor(League league) {
+        setLeague(league);
+        deleteStatsByWeek(week);
+    }
     public void deleteThisWeeksStats() {
-        setup();
         deleteStatsByWeek(week);
     }
     public void deleteStatsByWeek(int week) {
@@ -68,14 +78,13 @@ public class RotoService {
     }
 
     public void updatePlayerName(String oldName, String newName) {
-        setup();
         List<Stats> statsForOldName = repository.findAllByName(oldName);
         repository.deleteAll(statsForOldName);
         statsForOldName.forEach(stats -> stats.setName(newName));
         repository.saveAll(statsForOldName);
     }
 
-    private void setup() {
+    private void setupLeague() {
         this.league = leagueService.getLeague();
         this.repository = leagueService.repository();
         this.week = determineWeek();

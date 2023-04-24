@@ -3,7 +3,6 @@ package com.baseball.roto.controller;
 import com.baseball.roto.model.League;
 import com.baseball.roto.model.excel.Roto;
 import com.baseball.roto.service.ExcelService;
-import com.baseball.roto.service.LeagueService;
 import com.baseball.roto.service.RotoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,18 +15,17 @@ import static java.lang.Integer.parseInt;
 
 @Component
 @Slf4j
-public class Runner {
+public class RotoRunner {
     private static final String SPLITTER = " - ";
     private static final int DEFAULT_INCLUDED_WEEKS = 4;
     private final RotoService rotoService;
     private final ExcelService excelService;
-    private final LeagueService leagueService;
     private final String actions;
 
-    public Runner(RotoService rotoService, ExcelService excelService, LeagueService leagueService, @Value("${actions}") String actions) {
+
+    public RotoRunner(RotoService rotoService, ExcelService excelService, @Value("${actions}") String actions) {
         this.rotoService = rotoService;
         this.excelService = excelService;
-        this.leagueService = leagueService;
         this.actions = actions;
     }
 
@@ -39,16 +37,22 @@ public class Runner {
                 generateEverything();
                 break;
             case "recent":
-                recent();
+                generateAllRecent();
+                break;
+            case "roto":
+                generateRoto(League.valueOf(actions.split(SPLITTER)[1]));
+                break;
+            case "delete":
+                delete(League.valueOf(actions.split(SPLITTER)[1]));
                 break;
             case "change":
                 changeName(actions.split(SPLITTER)[1].split(","));
                 break;
-            case "delete":
-                delete();
+            case "deleteAll":
+                deleteAll();
                 break;
             case "rerun":
-                delete();
+                deleteAll();
             default:
                 generateAllRoto();
         }
@@ -64,23 +68,37 @@ public class Runner {
     }
 
     private void generateAllRoto() {
-        log.info("running standard roto");
+        log.info("running standard roto for all leagues");
+        rotoService.setLeague(League.CHAMPIONS);
         for (League league : League.values()) {
             generateRoto(league);
         }
     }
     private void generateRoto(League league) {
-        leagueService.setLeague(league);
+        rotoService.setLeague(league);
         List<Roto> rotoList = rotoService.calculateRoto(excelService.readStats());
         log.info("calculated roto for {}", league.name());
         excelService.writeRoto(rotoList);
         excelService.writeRanks(rotoService.getCategoryRanks(rotoList));
     }
 
+    private void generateAllRecent() {
+        log.info("running recent roto for all leagues");
+        for (League league : League.values()) {
+            rotoService.setLeague(league);
+            recent();
+        }
+    }
     private void recent() {
         int includedWeeks = getIncludedWeeks();
         log.info("limiting the previous calculated roto to past {} weeks", includedWeeks);
         excelService.writeRecentRoto(rotoService.limitRotoToIncludedWeeks(includedWeeks));
+    }
+
+    private void deleteAll() {
+        for (League league : League.values()) {
+            rotoService.deleteLatestWeeksStatsFor(league);
+        }
     }
 
     private void changeName(String[] names) {
@@ -88,9 +106,9 @@ public class Runner {
         rotoService.updatePlayerName(names[0], names[1]);
     }
 
-    private void delete() {
+    private void delete(League league) {
         log.info("deleting this weeks stats");
-        rotoService.deleteThisWeeksStats();
+        rotoService.deleteLatestWeeksStatsFor(league);
     }
 
     private int getIncludedWeeks() {
