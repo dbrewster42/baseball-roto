@@ -10,16 +10,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+
 @Service
 @Slf4j
 public class RotoCalculator {
-    private final League league;
 
-    public RotoCalculator(League league) {
-        this.league = league;
-    }
 
-    protected List<Stats> calculateRotoPoints(LeagueStats leagueStats) {
+    protected List<Stats> calculateRotoPoints(LeagueStats leagueStats, League league) {
         for (int i = 0; i < league.getStatColumnsPerSide(); i++){
             rankColumn(leagueStats.getHittingStats(), i, true);
             rankColumn(leagueStats.getPitchingStats(), i, i < league.getPitchCountingStats());

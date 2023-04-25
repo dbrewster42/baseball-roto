@@ -10,6 +10,7 @@ import com.baseball.roto.repository.StatsRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,24 +19,30 @@ import static com.baseball.roto.service.StatsSubtraction.getRecentLeagueStats;
 @Service
 @Slf4j
 public class RotoService {
-    private final StatsRepository<Stats> repository;
     private final RotoMapper rotoMapper;
     private final RotoCalculator rotoCalculator;
     private final RankService rankService;
-    private final int week;
-    private final League league;
+    private final LeagueService leagueService;
+    private League league;
+    private StatsRepository<Stats> repository;
+    private int week;
 
-    public RotoService(StatsRepository repository, RotoMapper rotoMapper, RotoCalculator rotoCalculator, RankService rankService, League league) {
-        this.repository = repository;
+    public RotoService(RotoMapper rotoMapper, RotoCalculator rotoCalculator, RankService rankService, LeagueService leagueService) {
         this.rotoMapper = rotoMapper;
         this.rotoCalculator = rotoCalculator;
         this.rankService = rankService;
+        this.leagueService = leagueService;
+    }
+
+    public void setLeague(League league) {
+        leagueService.setLeague(league);
         this.league = league;
+        this.repository = leagueService.repository();
         this.week = determineWeek();
     }
 
     public List<Roto> calculateRoto(LeagueStats leagueStats) {
-        List<Stats> statsList = rotoCalculator.calculateRotoPoints(leagueStats);
+        List<Stats> statsList = rotoCalculator.calculateRotoPoints(leagueStats, league);
         statsList.forEach(stats -> stats.setWeek(week));
         repository.saveAll(statsList);
         return withWeeklyChanges(convertToSortedRoto(statsList));
@@ -48,7 +55,7 @@ public class RotoService {
     public List<Roto> limitRotoToIncludedWeeks(int includedWeeks){
         List<Stats> excludedStats = getStatsFromWeek(week - includedWeeks);
         LeagueStats recentStats = getRecentLeagueStats(getThisWeeksStats(), excludedStats, league, week, includedWeeks);
-        List<Stats> statsList = rotoCalculator.calculateRotoPoints(recentStats);
+        List<Stats> statsList = rotoCalculator.calculateRotoPoints(recentStats, league);
         return withChanges(convertToSortedRoto(statsList), excludedStats);
     }
 
@@ -59,6 +66,10 @@ public class RotoService {
         return repository.findAllByWeek(week);
     }
 
+    public void deleteLatestWeeksStatsFor(League league) {
+        setLeague(league);
+        deleteStatsByWeek(week);
+    }
     public void deleteThisWeeksStats() {
         deleteStatsByWeek(week);
     }
@@ -71,6 +82,12 @@ public class RotoService {
         repository.deleteAll(statsForOldName);
         statsForOldName.forEach(stats -> stats.setName(newName));
         repository.saveAll(statsForOldName);
+    }
+
+    private void setupLeague() {
+        this.league = leagueService.getLeague();
+        this.repository = leagueService.repository();
+        this.week = determineWeek();
     }
 
     private List<Roto> convertToSortedRoto(List<Stats> statsList) {

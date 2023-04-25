@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class RotoCalculatorTest {
-    RotoCalculator sut = new RotoCalculator(League.CHAMPIONS);
+    RotoCalculator sut = new RotoCalculator();
 
 
     @Test

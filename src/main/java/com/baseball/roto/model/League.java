@@ -37,6 +37,7 @@ public enum League {
         this.repository = repository;
     }
 
+
     public static List<String> leagueNames() {
         return Arrays.stream(League.values()).map(Enum::name).collect(Collectors.toList());
     }
