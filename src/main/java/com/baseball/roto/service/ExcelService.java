@@ -39,7 +39,6 @@ public class ExcelService {
         writeRoto(rotoList, leagueService.getLeagueName());
     }
     public void writeRecentRoto(List<Roto> rotoList) {
-        rotoXcel.setOptions(null);
         writeRoto(rotoList, "Recent " + leagueService.getLeagueName());
     }
     public void writeRoto(List<Roto> rotoList, String sheetName){

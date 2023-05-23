@@ -17,8 +17,8 @@ import java.util.stream.Collectors;
 @Getter
 public enum League {
     CHAMPIONS(14, 6, 4, 4, ChampStats.class, ChampRepository.class),
-    PSD(10, 5, 4, 3, PsdStats.class, PsdRepository.class),
-    STANDARD(12, 5, 4, 3, StandardStats.class, StandardRepository.class);
+    PSD(10, 5, 4, 3, PsdStats.class, PsdRepository.class);
+//    STANDARD(12, 5, 4, 3, StandardStats.class, StandardRepository.class);
 
     private final int numberOfTeams;
     private final int statColumnsPerSide;
