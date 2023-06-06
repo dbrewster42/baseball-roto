@@ -53,8 +53,9 @@ public class RotoService {
     }
 
     public List<Roto> limitRotoToIncludedWeeks(int includedWeeks){
-        List<Stats> excludedStats = getStatsFromWeek(week - includedWeeks);
-        LeagueStats recentStats = getRecentLeagueStats(getLastWeeksStats(), excludedStats, league, week, includedWeeks);
+        int lastWeek = week - 1;
+        List<Stats> excludedStats = getStatsFromWeek(lastWeek - includedWeeks);
+        LeagueStats recentStats = getRecentLeagueStats(getLastWeeksStats(), excludedStats, league, lastWeek, includedWeeks);
         List<Stats> statsList = rotoCalculator.calculateRotoPoints(recentStats, league);
         return withChanges(convertToSortedRoto(statsList), excludedStats);
     }

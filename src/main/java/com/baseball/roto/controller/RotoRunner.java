@@ -16,7 +16,7 @@ import static java.lang.Integer.parseInt;
 @Component
 @Slf4j
 public class RotoRunner {
-    private static final String SPLITTER = " - ";
+    private static final String DELIMITER = "-";
     private static final int DEFAULT_INCLUDED_WEEKS = 4;
     private final RotoService rotoService;
     private final ExcelService excelService;
@@ -32,7 +32,7 @@ public class RotoRunner {
     @PostConstruct
     public void run() {
         log.info("running [{}]", actions);
-        switch (actions.split(SPLITTER)[0]) {
+        switch (actions.split(DELIMITER)[0]) {
             case "everything":
                 generateEverything();
                 break;
@@ -40,13 +40,13 @@ public class RotoRunner {
                 generateAllRecent();
                 break;
             case "roto":
-                generateRoto(League.valueOf(actions.split(SPLITTER)[1]));
+                generateRoto(League.valueOf(actions.split(DELIMITER)[1]));
                 break;
             case "delete":
-                delete(League.valueOf(actions.split(SPLITTER)[1]));
+                delete(League.valueOf(actions.split(DELIMITER)[1]));
                 break;
             case "change":
-                changeName(actions.split(SPLITTER)[1].split(","));
+                changeName(actions.split(DELIMITER)[1].split(","));
                 break;
             case "deleteAll":
                 deleteAll();
@@ -113,7 +113,7 @@ public class RotoRunner {
 
     private int getIncludedWeeks() {
         try {
-            return parseInt(actions.split(SPLITTER)[1]);
+            return parseInt(actions.split(DELIMITER)[1]);
         } catch (Exception e) {
             return DEFAULT_INCLUDED_WEEKS;
         }
