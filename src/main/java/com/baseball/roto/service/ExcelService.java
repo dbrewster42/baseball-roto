@@ -50,13 +50,19 @@ public class ExcelService {
     }
 
     public void writeRanks(List<CategoryRank> categoryRanks) {
+        writeRanks(categoryRanks, leagueService.getLeagueName());
+
+    }
+    public void writeRecentRanks(List<CategoryRank> categoryRanks) {
+        writeRanks(categoryRanks, "Recent " + leagueService.getLeagueName());
+    }
+    public void writeRanks(List<CategoryRank> categoryRanks, String sheetName) {
         log.info("writing ranks");
         XceliteOptions options = new XceliteOptions();
         options.setHeaderRowIndex(categoryRanks.size() + 2);
         rotoXcel.setOptions(options);
 
-
-        rotoXcel.getSheet(leagueService.getLeagueName()).getBeanWriter(CategoryRank.class).write(categoryRanks);
+        rotoXcel.getSheet(sheetName).getBeanWriter(CategoryRank.class).write(categoryRanks); //todo
         rotoXcel.write(outputFile);
     }
 }

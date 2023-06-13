@@ -92,7 +92,9 @@ public class RotoRunner {
     private void recent() {
         int includedWeeks = getIncludedWeeks();
         log.info("limiting the previous calculated roto to past {} weeks", includedWeeks);
-        excelService.writeRecentRoto(rotoService.limitRotoToIncludedWeeks(includedWeeks));
+        List<Roto> rotoList = rotoService.limitRotoToIncludedWeeks(includedWeeks);
+        excelService.writeRecentRoto(rotoList);
+        excelService.writeRecentRanks(rotoService.getCategoryRanks(rotoList));
     }
 
     private void deleteAll() {
