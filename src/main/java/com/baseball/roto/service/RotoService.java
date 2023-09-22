@@ -10,7 +10,6 @@ import com.baseball.roto.repository.StatsRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,7 +53,10 @@ public class RotoService {
 
     public List<Roto> limitRotoToIncludedWeeks(int includedWeeks){
         int lastWeek = week - 1;
-        List<Stats> excludedStats = getStatsFromWeek(lastWeek - includedWeeks);
+        int excludedWeeks = lastWeek - includedWeeks;
+        List<Stats> excludedStats = getStatsFromWeek(excludedWeeks);
+        log.info("calculating weeks {} through {}", excludedWeeks + 1, lastWeek);
+
         LeagueStats recentStats = getRecentLeagueStats(getLastWeeksStats(), excludedStats, league, lastWeek, includedWeeks);
         List<Stats> statsList = rotoCalculator.calculateRotoPoints(recentStats, league);
         return withChanges(convertToSortedRoto(statsList), excludedStats);
