@@ -1,5 +1,6 @@
 package com.baseball.roto.model.entity;
 
+import com.ebay.xcelite.annotations.Column;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,16 +14,26 @@ import java.util.Map;
 @Getter
 @Setter
 public class StandardStats extends Stats {
+    @Column(name="R")
     private int runs;
+    @Column(name="HR")
     private int homeRuns;
+    @Column(name="RBI")
     private int rbis;
+    @Column(name="SB")
     private int sbs;
+    @Column(name="AVG")
     private float avg;
 
+    @Column(name="W")
     private int wins;
+    @Column(name="K")
     private int strikeouts;
+    @Column(name="ERA")
     private float era;
+    @Column(name="WHIP")
     private float whip;
+    @Column(name="SV")
     private int saves;
 
     public Map<String, List<Float>> gatherHittingStats(){

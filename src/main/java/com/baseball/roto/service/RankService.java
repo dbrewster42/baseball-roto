@@ -31,7 +31,7 @@ public class RankService {
         for (int i = 0; i < rotoList.size(); i++){
             float rank = i + 1;
             int tiesCount = 1;
-            while (i + tiesCount < rotoList.size() && getter.apply(rotoList.get(i)).equals(getter.apply(rotoList.get(i + tiesCount)))){
+            while (i + tiesCount < rotoList.size() && getter.apply(rotoList.get(i)).equals(getter.apply(rotoList.get(i + tiesCount)))){ // while tied
                 rank += .5;
                 tiesCount++;
             }
