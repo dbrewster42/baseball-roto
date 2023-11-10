@@ -1,9 +1,10 @@
-package com.baseball.roto.service;
+package com.baseball.roto.service.io;
 
 import com.baseball.roto.model.LeagueStats;
 import com.baseball.roto.model.entity.Stats;
 import com.baseball.roto.model.excel.CategoryRank;
 import com.baseball.roto.model.excel.Roto;
+import com.baseball.roto.service.LeagueService;
 import com.ebay.xcelite.Xcelite;
 import com.ebay.xcelite.options.XceliteOptions;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +18,7 @@ import java.util.List;
 
 @Service
 @Slf4j
-public class ExcelService {
+public class ExcelService implements Reader, Writer {
     private final LeagueService leagueService;
     private final static String FILE_SUFFIX = ".xlsx";
     private final Xcelite statsXcel;

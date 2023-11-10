@@ -2,8 +2,9 @@ package com.baseball.roto.controller;
 
 import com.baseball.roto.model.League;
 import com.baseball.roto.model.excel.Roto;
-import com.baseball.roto.service.ExcelService;
+import com.baseball.roto.service.io.ExcelService;
 import com.baseball.roto.service.RotoService;
+import com.baseball.roto.service.io.ReadWrite;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -19,20 +20,20 @@ public class RotoRunner {
     private static final String DELIMITER = "-";
     private static final int DEFAULT_INCLUDED_WEEKS = 4;
     private final RotoService rotoService;
-    private final ExcelService excelService;
+    private final ReadWrite readWrite;
     private final String actions;
 
 
-    public RotoRunner(RotoService rotoService, ExcelService excelService, @Value("${actions}") String actions) {
+    public RotoRunner(RotoService rotoService, ReadWrite excelService, @Value("${actions}") String actions) {
         this.rotoService = rotoService;
-        this.excelService = excelService;
+        this.readWrite = excelService;
         this.actions = actions;
     }
 
     @PostConstruct
     public void run() {
         log.info("running [{}]", actions);
-        switch (actions.split(DELIMITER)[0]) {
+        switch (actions.split(DELIMITER)[0].trim()) {
             case "everything":
                 generateEverything();
                 break;
@@ -76,10 +77,10 @@ public class RotoRunner {
     }
     private void generateRoto(League league) {
         rotoService.setLeague(league);
-        List<Roto> rotoList = rotoService.calculateRoto(excelService.readStats());
+        List<Roto> rotoList = rotoService.calculateRoto(readWrite.readStats());
         log.info("calculated roto for {}", league.name());
-        excelService.writeRoto(rotoList);
-        excelService.writeRanks(rotoService.getCategoryRanks(rotoList));
+        readWrite.writeRoto(rotoList);
+        readWrite.writeRanks(rotoService.getCategoryRanks(rotoList));
     }
 
     private void generateAllRecent() {
@@ -93,8 +94,8 @@ public class RotoRunner {
         int includedWeeks = getIncludedWeeks();
         log.info("limiting the previous calculated roto to past {} weeks", includedWeeks);
         List<Roto> rotoList = rotoService.limitRotoToIncludedWeeks(includedWeeks);
-        excelService.writeRecentRoto(rotoList);
-        excelService.writeRecentRanks(rotoService.getCategoryRanks(rotoList));
+        readWrite.writeRoto(rotoList);
+        readWrite.writeRanks(rotoService.getCategoryRanks(rotoList));
     }
 
     private void deleteAll() {
@@ -105,7 +106,7 @@ public class RotoRunner {
 
     private void changeName(String[] names) {
         log.info("changing {} to {}", names[0], names[1]);
-        rotoService.updatePlayerName(names[0], names[1]);
+        rotoService.updatePlayerName(names[0].trim(), names[1].trim());
     }
 
     private void delete(League league) {
@@ -115,7 +116,7 @@ public class RotoRunner {
 
     private int getIncludedWeeks() {
         try {
-            return parseInt(actions.split(DELIMITER)[1]);
+            return parseInt(actions.split(DELIMITER)[1].trim());
         } catch (Exception e) {
             return DEFAULT_INCLUDED_WEEKS;
         }
