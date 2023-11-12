@@ -25,6 +25,11 @@ public class ReadWrite implements Reader, Writer {
     }
 
     @Override
+    public void writeRecentRoto(List<Roto> rotoList) {
+        writer.writeRecentRoto(rotoList);
+    }
+
+    @Override
     public void writeRanks(List<CategoryRank> categoryRanks) {
         writer.writeRanks(categoryRanks);
     }

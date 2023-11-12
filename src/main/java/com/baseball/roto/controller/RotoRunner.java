@@ -94,7 +94,7 @@ public class RotoRunner {
         int includedWeeks = getIncludedWeeks();
         log.info("limiting the previous calculated roto to past {} weeks", includedWeeks);
         List<Roto> rotoList = rotoService.limitRotoToIncludedWeeks(includedWeeks);
-        readWrite.writeRoto(rotoList);
+        readWrite.writeRecentRoto(rotoList);
         readWrite.writeRanks(rotoService.getCategoryRanks(rotoList));
     }
 
@@ -118,6 +118,7 @@ public class RotoRunner {
         try {
             return parseInt(actions.split(DELIMITER)[1].trim());
         } catch (Exception e) {
+            log.info("error getting weeks from {}. Setting to default", actions);
             return DEFAULT_INCLUDED_WEEKS;
         }
     }

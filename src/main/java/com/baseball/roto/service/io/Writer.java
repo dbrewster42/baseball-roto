@@ -7,5 +7,7 @@ import java.util.List;
 
 public interface Writer {
     void writeRoto(List<Roto> rotoList);
+    void writeRecentRoto(List<Roto> rotoList);
+
     void writeRanks(List<CategoryRank> categoryRanks);
 }

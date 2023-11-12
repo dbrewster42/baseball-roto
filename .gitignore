@@ -34,3 +34,4 @@ build/
 
 ### files ###
 src/main/resources/files/*
+src/main/resources/application-personal.properties
