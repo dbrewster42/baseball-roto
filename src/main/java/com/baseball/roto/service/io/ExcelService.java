@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.List;
 
 
@@ -33,9 +34,15 @@ public class ExcelService implements Reader, Writer {
         this.statsXcel = new Xcelite(new File(folder + "stats" + FILE_SUFFIX));
     }
 
+    @SuppressWarnings("unchecked")
     public LeagueStats readStats() {
-        return new LeagueStats((List<Stats>) statsXcel.getSheet(leagueService.getLeagueName()).getBeanReader(leagueService.getLeague().getEntity()).read());
+        return new LeagueStats((List<Stats>)
+            statsXcel.getSheet(leagueService.getLeagueName())
+                .getBeanReader(leagueService.getLeague().getEntity())
+                .read()
+        );
     }
+
     public void writeRoto(List<Roto> rotoList){
         outputFile = new File(folder + "results/" + leagueService.getLeagueName() + FILE_SUFFIX);
         writeRoto(rotoList, "Overall ");

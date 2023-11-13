@@ -1,5 +1,6 @@
 package com.baseball.roto.controller;
 
+import com.baseball.roto.configuration.RunProperties;
 import com.baseball.roto.model.League;
 import com.baseball.roto.model.excel.Roto;
 import com.baseball.roto.service.io.ExcelService;
@@ -11,6 +12,9 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static java.lang.Integer.parseInt;
 
@@ -21,34 +25,39 @@ public class RotoRunner {
     private static final int DEFAULT_INCLUDED_WEEKS = 4;
     private final RotoService rotoService;
     private final ReadWrite readWrite;
-    private final String actions;
+    private final RunProperties runProperties;
 
 
-    public RotoRunner(RotoService rotoService, ReadWrite excelService, @Value("${actions}") String actions) {
+//    public RotoRunner(RotoService rotoService, ReadWrite excelService, @Value("${actions}") String actions) {
+//        this.rotoService = rotoService;
+//        this.readWrite = excelService;
+//        this.actions = actions;
+//    }
+    public RotoRunner(RotoService rotoService, ReadWrite excelService, RunProperties runProperties) {
         this.rotoService = rotoService;
         this.readWrite = excelService;
-        this.actions = actions;
+        this.runProperties = runProperties;
     }
 
     @PostConstruct
     public void run() {
-        log.info("running [{}]", actions);
-        switch (actions.split(DELIMITER)[0].trim()) {
+        log.info("running [{}]", runProperties);
+        switch (runProperties.getAction()) {
             case "everything":
                 generateEverything();
                 break;
             case "recent":
                 generateAllRecent();
                 break;
-            case "roto":
-                generateRoto(League.valueOf(actions.split(DELIMITER)[1]));
-                break;
-            case "delete":
-                delete(League.valueOf(actions.split(DELIMITER)[1]));
-                break;
-            case "change":
-                changeName(actions.split(DELIMITER)[1].split(","));
-                break;
+//            case "roto":
+//                generateRoto(League.valueOf(actions.split(DELIMITER)[1]));
+//                break;
+//            case "delete":
+//                delete(League.valueOf(actions.split(DELIMITER)[1]));
+//                break;
+//            case "change":
+//                changeName(actions.split(DELIMITER)[1].split(","));
+//                break;
             case "deleteAll":
                 deleteAll();
                 break;
@@ -60,21 +69,54 @@ public class RotoRunner {
         log.info("completed");
     }
 
+    private void rotoAndRecent() {
+        runActionForOneOrAllLeagues(this::generateRoto, this::generateEverything);
+    }
+
+    private void generateRoto() {
+        runActionForOneOrAllLeagues(this::generateRoto, this::generateAllRoto);
+//        Optional.ofNullable(runProperties.getLeague())
+//            .map(League::valueOf)
+//            .ifPresentOrElse(
+//                this::generateRoto,
+//                this::generateAllRoto
+//            );
+    }
+    private void recent() {
+        runActionForOneOrAllLeagues(this::recent, this::generateAllRecent);
+    }
+
+
+    private void rotoAndRecent(League league) {
+        generateRoto(league);
+        recent(league);
+    }
+
+
     private void generateEverything() {
         log.info("running standard and recent roto");
         for (League league : League.values()) {
             generateRoto(league);
-            recent();
+            recent(league);
         }
+    }
+
+    private void runActionForOneOrAllLeagues(Consumer<League> singleLeague, Runnable allLeagues) {
+        Optional.ofNullable(runProperties.getLeague())
+            .map(League::valueOf)
+            .ifPresentOrElse(
+                singleLeague,
+                allLeagues
+            );
     }
 
     private void generateAllRoto() {
         log.info("running standard roto for all leagues");
-        rotoService.setLeague(League.CHAMPIONS);
         for (League league : League.values()) {
             generateRoto(league);
         }
     }
+
     private void generateRoto(League league) {
         rotoService.setLeague(league);
         List<Roto> rotoList = rotoService.calculateRoto(readWrite.readStats());
@@ -86,11 +128,11 @@ public class RotoRunner {
     private void generateAllRecent() {
         log.info("running recent roto for all leagues");
         for (League league : League.values()) {
-            rotoService.setLeague(league);
-            recent();
+            recent(league);
         }
     }
-    private void recent() {
+    private void recent(League league) {
+        rotoService.setLeague(league);
         int includedWeeks = getIncludedWeeks();
         log.info("limiting the previous calculated roto to past {} weeks", includedWeeks);
         List<Roto> rotoList = rotoService.limitRotoToIncludedWeeks(includedWeeks);
@@ -116,9 +158,9 @@ public class RotoRunner {
 
     private int getIncludedWeeks() {
         try {
-            return parseInt(actions.split(DELIMITER)[1].trim());
+            return parseInt(runProperties.getAction());
         } catch (Exception e) {
-            log.info("error getting weeks from {}. Setting to default", actions);
+            log.info("error getting weeks from {}. Setting to default", runProperties.getAction());
             return DEFAULT_INCLUDED_WEEKS;
         }
     }
