@@ -111,9 +111,9 @@ public class RotoRunner {
 
     private int getIncludedWeeks() {
         try {
-            return parseInt(runProperties.getAction());
+            return parseInt(runProperties.getWeeks());
         } catch (Exception e) {
-            log.info("error getting weeks from {}. Setting to default", runProperties.getAction());
+            log.info("error getting weeks from {}. Setting to default", runProperties.getWeeks());
             return DEFAULT_INCLUDED_WEEKS;
         }
     }

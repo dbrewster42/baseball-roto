@@ -71,6 +71,7 @@ public class RotoService {
 
     public void deleteLatestWeeksStatsFor(League league) {
         setLeague(league);
+        log.info("deleting stats from {} for week {}", league, week);
         deleteStatsByWeek(week);
     }
     public void deleteThisWeeksStats() {
