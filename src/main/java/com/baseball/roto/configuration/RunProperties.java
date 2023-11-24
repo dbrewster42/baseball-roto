@@ -7,8 +7,10 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ConfigurationProperties(prefix = "run")
 @Data
-public class RunProperties {
+public class RunProperties { //todo improve name
     private String action;
     private String league;
     private String weeks;
+    private String oldName;
+    private String newName;
 }
