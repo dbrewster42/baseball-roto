@@ -12,8 +12,6 @@ import org.springframework.util.StringUtils;
 import javax.annotation.PostConstruct;
 import java.util.List;
 
-import static java.lang.Integer.parseInt;
-
 @Component
 @Slf4j
 public class RotoRunner {
@@ -111,9 +109,9 @@ public class RotoRunner {
 
     private int getIncludedWeeks() {
         try {
-            return parseInt(runProperties.getWeeks());
+            return runProperties.getWeeks();
         } catch (Exception e) {
-            log.info("error getting weeks from {}. Setting to default", runProperties.getWeeks());
+            log.info("error setting weeks to {}. Will use default", runProperties.getWeeks());
             return DEFAULT_INCLUDED_WEEKS;
         }
     }

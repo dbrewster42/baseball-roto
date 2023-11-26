@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 public class RunProperties {
     private String action;
     private String league;
-    private String weeks;
+    private Integer weeks;
     private String oldName;
     private String newName;
 }

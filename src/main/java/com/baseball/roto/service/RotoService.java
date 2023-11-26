@@ -8,6 +8,7 @@ import com.baseball.roto.model.excel.CategoryRank;
 import com.baseball.roto.model.excel.Roto;
 import com.baseball.roto.repository.StatsRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -25,6 +26,8 @@ public class RotoService {
     private League league;
     private StatsRepository<Stats> repository;
     private int week;
+    @Value("${numberOfPlayers}")
+    private Integer numberOfPlayers;
 
     public RotoService(RotoMapper rotoMapper, RotoCalculator rotoCalculator, RankService rankService, LeagueService leagueService) {
         this.rotoMapper = rotoMapper;
@@ -93,7 +96,11 @@ public class RotoService {
     }
 
     private int determineWeek() {
-        return (int) (repository.count() / league.getNumberOfTeams()) + 1;
+        if (numberOfPlayers == null) {
+            log.info("is 0");
+            numberOfPlayers = league.getNumberOfTeams();
+        }
+        return (int) (repository.count() / numberOfPlayers) + 1;
     }
 
     private List<Roto> withWeeklyChanges(List<Roto> currentRoto) {
