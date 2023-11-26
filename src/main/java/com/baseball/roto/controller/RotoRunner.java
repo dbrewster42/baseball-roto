@@ -36,10 +36,10 @@ public class RotoRunner {
             case "roto":
                 generateRoto();
                 break;
-            case "everything":
-                generateEverything();
-                break;
             case "recent":
+                generateRotoAndRecent();
+                break;
+            case "only recent":
                 recent();
                 break;
             case "change":
@@ -57,7 +57,7 @@ public class RotoRunner {
     }
 
 
-    private void generateEverything() {
+    private void generateRotoAndRecent() {
         for (League league : extractLeague()) {
             generateRoto(league);
             recent(league);

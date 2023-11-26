@@ -88,12 +88,6 @@ public class RotoService {
         repository.saveAll(statsForOldName);
     }
 
-    private void setupLeague() {
-        this.league = leagueService.getLeague();
-        this.repository = leagueService.repository();
-        this.week = determineWeek();
-    }
-
     private List<Roto> convertToSortedRoto(List<Stats> statsList) {
         return rankService.rankRoto(rotoMapper.toRotoList(statsList));
     }
