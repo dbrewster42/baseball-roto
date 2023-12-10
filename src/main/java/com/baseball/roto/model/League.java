@@ -1,10 +1,12 @@
 package com.baseball.roto.model;
 
 import com.baseball.roto.model.entity.ChampStats;
+import com.baseball.roto.model.entity.ObpStats;
 import com.baseball.roto.model.entity.PsdStats;
 import com.baseball.roto.model.entity.StandardStats;
 import com.baseball.roto.model.entity.Stats;
 import com.baseball.roto.repository.ChampRepository;
+import com.baseball.roto.repository.ObpRepository;
 import com.baseball.roto.repository.PsdRepository;
 import com.baseball.roto.repository.StandardRepository;
 import com.baseball.roto.repository.StatsRepository;
@@ -17,8 +19,9 @@ import java.util.stream.Collectors;
 @Getter
 public enum League {
     CHAMPIONS(14, 6, 4, 4, ChampStats.class, ChampRepository.class),
-    PSD(10, 5, 4, 3, PsdStats.class, PsdRepository.class);
-//    STANDARD(12, 5, 4, 3, StandardStats.class, StandardRepository.class);
+    PSD(10, 5, 4, 3, PsdStats.class, PsdRepository.class),
+    STANDARD(12, 5, 4, 3, StandardStats.class, StandardRepository.class),
+    OBP(12, 5, 4, 3, ObpStats.class, ObpRepository.class);
 
     private final int numberOfTeams;
     private final int statColumnsPerSide;
