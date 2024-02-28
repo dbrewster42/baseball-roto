@@ -4,6 +4,7 @@ import com.baseball.roto.model.entity.Stats;
 import com.ebay.xcelite.annotations.Column;
 import com.ebay.xcelite.annotations.Row;
 import lombok.Data;
+import lombok.ToString.Exclude;
 
 @Data
 @Row(colsOrder = {"rank", "name", "total", "hitting", "pitching", " ", "total change", "hitting change", "pitching change"})
@@ -24,6 +25,7 @@ public class Roto {
     private float hittingChange;
     @Column(name = "pitching change")
     private float pitchingChange;
+    @Exclude
     @Column(name = " ")
     private final String __ = null;
 

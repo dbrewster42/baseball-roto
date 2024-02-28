@@ -36,12 +36,6 @@ public class RotoService {
         this.leagueService = leagueService;
     }
 
-    public void setLeague(League league) {
-        leagueService.setLeague(league);
-        this.league = league;
-        this.repository = leagueService.repository();
-        this.week = determineWeek();
-    }
 
     public List<Roto> calculateRoto(LeagueStats leagueStats) {
         List<Stats> statsList = rotoCalculator.calculateRotoPoints(leagueStats, league);
@@ -64,6 +58,12 @@ public class RotoService {
         List<Stats> statsList = rotoCalculator.calculateRotoPoints(recentStats, league);
         return withChanges(convertToSortedRoto(statsList), excludedStats);
     }
+    public void changeLeague(League league) {
+        this.league = league;
+        this.leagueService.setLeague(league);
+        this.repository = leagueService.repository();
+        this.week = determineWeek();
+    }
 
     private List<Stats> getLastWeeksStats() {
         return getStatsFromWeek(week - 1);
@@ -73,7 +73,7 @@ public class RotoService {
     }
 
     public void deleteLatestWeeksStatsFor(League league) {
-        setLeague(league);
+        changeLeague(league);
         log.info("deleting stats from {} for week {}", league, week);
         deleteStatsByWeek(week);
     }
@@ -97,7 +97,6 @@ public class RotoService {
 
     private int determineWeek() {
         if (numberOfPlayers == null) {
-            log.info("is 0");
             numberOfPlayers = league.getNumberOfTeams();
         }
         return (int) (repository.count() / numberOfPlayers) + 1;

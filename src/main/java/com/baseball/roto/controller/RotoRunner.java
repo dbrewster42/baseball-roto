@@ -1,6 +1,7 @@
 package com.baseball.roto.controller;
 
 import com.baseball.roto.configuration.RunProperties;
+import com.baseball.roto.exception.BadInput;
 import com.baseball.roto.model.League;
 import com.baseball.roto.model.excel.Roto;
 import com.baseball.roto.service.RotoService;
@@ -57,26 +58,34 @@ public class RotoRunner {
 
     private void generateRotoAndRecent() {
         for (League league : extractLeague()) {
-            generateRoto(league);
-            recent(league);
+            try {
+                generateRoto(league);
+                recent(league);
+            } catch (BadInput e) {
+                log.error("Could not generate roto for {}", league.name());
+            }
         }
     }
 
     private League[] extractLeague() {
         return StringUtils.hasText(runProperties.getLeague())
-            ? new League[] { League.valueOf(runProperties.getLeague().toUpperCase()) }
+            ? new League[] { League.valueOf(runProperties.getLeague().trim().toUpperCase()) }
             : League.values();
     }
 
     private void generateRoto() {
         for (League league : extractLeague()) {
-            generateRoto(league);
+            try {
+                generateRoto(league);
+            } catch (BadInput e) {
+                log.error("Could not generate roto for {}", league.name());
+            }
         }
     }
 
     private void generateRoto(League league) {
         log.info("calculating roto for {}", league.name());
-        rotoService.setLeague(league);
+        rotoService.changeLeague(league);
         List<Roto> rotoList = rotoService.calculateRoto(readWrite.readStats());
         readWrite.writeRoto(rotoList);
         readWrite.writeRanks(rotoService.getCategoryRanks(rotoList));
@@ -84,11 +93,15 @@ public class RotoRunner {
 
     private void recent() {
         for (League league : extractLeague()) {
-            recent(league);
+            try {
+                recent(league);
+            } catch (BadInput e) {
+                log.error("Could not generate roto for {}", league.name());
+            }
         }
     }
     private void recent(League league) {
-        rotoService.setLeague(league);
+        rotoService.changeLeague(league);
         int includedWeeks = getIncludedWeeks();
         log.info("running recent roto for {} for past {} weeks", league, includedWeeks);
         List<Roto> rotoList = rotoService.limitRotoToIncludedWeeks(includedWeeks);

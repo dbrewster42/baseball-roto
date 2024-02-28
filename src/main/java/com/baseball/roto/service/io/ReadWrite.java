@@ -1,5 +1,6 @@
 package com.baseball.roto.service.io;
 
+import com.baseball.roto.exception.BadInput;
 import com.baseball.roto.model.LeagueStats;
 import com.baseball.roto.model.excel.CategoryRank;
 import com.baseball.roto.model.excel.Roto;
@@ -16,7 +17,11 @@ public class ReadWrite implements Reader, Writer {
 
     @Override
     public LeagueStats readStats() {
-        return reader.readStats();
+        try {
+            return reader.readStats();
+        } catch (Exception e) {
+            throw new BadInput("There was an error reading the stats - " + e.getMessage());
+        }
     }
 
     @Override
