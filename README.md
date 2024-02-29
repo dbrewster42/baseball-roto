@@ -9,13 +9,10 @@ Most people who play fantasy baseball play Head To Head as it is generally consi
 This application currently supports the 3 League settings. See below if you play in an unconventional league
 
 #### Step 1.
-Find your League. Most likely, you play in the **Standard** League with hitting stats ```R, HR, RBI, SB, AVG``` and pitching `W, SV, K, ERA, WHIP`. 
+Find your League. Most likely, you play in the **Standard** League with hitting stats ```R, HR, RBI, SB, AVG``` and pitching `W, SV, K, ERA, WHIP`. See below for other options. 
 
-The **OBP** league are the same categories except with OBP substituted for AVG. 
 
-The **Champions** league has the Standard League categories plus `OPS` and `QS`
-
-[Include Custom League](#Include-Custom-Leagues)
+[More League Information](#Leagues)
 #### Step 2.
 Copy your stats into the ```stats.xlsx``` file under the path ```src/main/resources/files/```. Pick the Sheet that matches your league
 
@@ -32,20 +29,49 @@ See below for more information on these actions
 Run the Application. Your league's Roto scores will be calculated and saved in an Excel file named after your league under `src/main/resources/files/results` 
 
 
-# Include Custom Leagues
-If you are in a Custom League not supported by this application, you may add it yourself. Go to `League.java` and overwrite one of the leagues with your own settings. Enter the number of players in your league, the number of stat columns, and the number of counting aka cumulative stats (as opposed to averages such as BA, OPS, ERA, WHIP, etc)
-Then **Ctrl + Click** on the chosen league's Stats class. Then modify the fields of that class to reflect the stats used in your league. Then, at the bottom of the file, under gatherStats method, include all of the fields. 
-
 # Database Set Up
 If you want to calculate the change in scores from previous runs or calculate the Roto score for specific parts of the season, then you will need to install a MySQL database
 go the application.properties file and delete the last 5 lines (which specify the temporary H2 database). Replace with the following properties (with your own username and password).
+
 `
-    spring.datasource.url=jdbc:mysql://localhost:3306/roto
+spring.datasource.url=jdbc:mysql://localhost:3306/roto
     spring.datasource.username=username
     spring.datasource.password=password
     spring.jpa.hibernate.ddl-auto=update
     spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
 `
+
+# Leagues
+There are a number of custom league options already available. If none of them match your settings, then follow the steps under 'Include Custom League' below. 
+
+These leagues have a default setting of 12 teams per league (14 for CHAMPIONS). You may change this in the League.java class directly or the `numberOfPlayers` variable in the `application.properties` file
+### STANDARD
+Hitting Stats - `R, HR, RBI, SB, AVG`
+
+Pitching Stats - `W, SV, K, ERA, WHIP`
+
+### OBP
+Hitting Stats - `R, HR, RBI, SB, OBP`
+
+Pitching Stats - `W, SV, K, ERA, WHIP`
+
+### CHAMPIONS
+Hitting Stats - `R, HR, RBI, SB, AVG, OPS`
+
+Pitching Stats - `W, SV, K, ERA, WHIP, QS`
+
+Default number of teams - 14
+### PSD
+Hitting Stats - `R, HR, RBI, SB, OPS`
+
+Pitching Stats - `SV, K, ERA, WHIP, QS`
+
+## Include Custom League
+If you are in a Custom League not supported by this application, you may add it yourself by following these steps
+1. Go to `League.java` and overwrite the `CUSTOM` league with your own settings. Replace the number of players in your league, the number of stat columns, and the number of counting aka cumulative stats (as opposed to averages such as BA, OPS, ERA, WHIP, etc)
+2.  **Ctrl + Click** Go to `CustomStats.class` (you may  **Ctrl + Click** on the CustomStats.class as a shortcut). Modify the fields of that class to reflect the stats used in your league. 
+3. At the bottom of the `CustomStats.class`, include all of your stats under the **gatherHittingStats()** and **gatherPitchingStats()** methods (and remove any stats that you do not use).
+
 
 # Available Actions
 To choose an action, open the application.properties file and enter one of the following values under `run.action`. If left blank, it will perform standard roto
