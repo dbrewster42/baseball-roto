@@ -58,16 +58,12 @@ public class RotoService {
         List<Stats> statsList = rotoCalculator.calculateRotoPoints(recentStats, league);
         return withChanges(convertToSortedRoto(statsList), excludedStats);
     }
-    public void changeLeague(League league) {
-        this.league = league;
-        this.leagueService.setLeague(league);
-        this.repository = leagueService.repository();
-        this.week = determineWeek();
+
+    public static boolean hasChangeFromLastWeek(List<Roto> rotoList) {
+        return rotoList.stream().map(Roto::getTotalChange).noneMatch(change -> change != .11);
     }
 
-    private List<Stats> getLastWeeksStats() {
-        return getStatsFromWeek(week - 1);
-    }
+
     public List<Stats> getStatsFromWeek(int week) {
         return repository.findAllByWeek(week);
     }
@@ -77,9 +73,7 @@ public class RotoService {
         log.info("deleting stats from {} for week {}", league, week);
         deleteStatsByWeek(week);
     }
-    public void deleteThisWeeksStats() {
-        deleteStatsByWeek(week);
-    }
+
     public void deleteStatsByWeek(int week) {
         repository.deleteAll(getStatsFromWeek(week));
     }
@@ -91,6 +85,16 @@ public class RotoService {
         repository.saveAll(statsForOldName);
     }
 
+    public void changeLeague(League league) {
+        this.league = league;
+        this.leagueService.setLeague(league);
+        this.repository = leagueService.repository();
+        this.week = determineWeek();
+    }
+
+    private List<Stats> getLastWeeksStats() {
+        return getStatsFromWeek(week - 1);
+    }
     private List<Roto> convertToSortedRoto(List<Stats> statsList) {
         return rankService.rankRoto(rotoMapper.toRotoList(statsList));
     }
