@@ -26,7 +26,7 @@ public enum League {
     PSD(12, 5, 4, 3, PsdStats.class, PsdRepository.class),
     OBP(12, 5, 4, 3, ObpStats.class, ObpRepository.class);
 
-    private final int numberOfTeams;
+    private int numberOfTeams;
     private final int statColumnsPerSide;
     private final int hitCountingStats;
     private final int pitchCountingStats;
@@ -43,6 +43,9 @@ public enum League {
         this.repository = repository;
     }
 
+    public void setNumberOfTeams(int numberOfTeams) {
+        this.numberOfTeams = numberOfTeams;
+    }
 
     public static List<String> leagueNames() {
         return Arrays.stream(League.values()).map(Enum::name).collect(Collectors.toList());
