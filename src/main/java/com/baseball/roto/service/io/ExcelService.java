@@ -4,33 +4,33 @@ import com.baseball.roto.model.LeagueStats;
 import com.baseball.roto.model.entity.Stats;
 import com.baseball.roto.model.excel.CategoryRank;
 import com.baseball.roto.model.excel.Roto;
+import com.baseball.roto.model.excel.RotoSingleWeek;
 import com.baseball.roto.service.LeagueService;
 import com.ebay.xcelite.Xcelite;
 import com.ebay.xcelite.options.XceliteOptions;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.util.List;
+
+import static com.baseball.roto.service.RotoService.hasChangeFromLastWeek;
 
 
 @Service
 @Slf4j
 public class ExcelService implements Reader, Writer {
     private final LeagueService leagueService;
-    private final static String FILE_SUFFIX = ".xlsx";
     private final Xcelite statsXcel;
     private final Xcelite rotoXcel;
-    private final String folder;
+    private final File outputFile;
     private String sheetName;
-    private File outputFile;
 
-    public ExcelService(LeagueService leagueService, @Value("${stats.folder}") String folder) {
+    public ExcelService(LeagueService leagueService) {
         this.leagueService = leagueService;
-        this.folder = folder;
         this.rotoXcel = new Xcelite(new XceliteOptions());
-        this.statsXcel = new Xcelite(new File(folder + "stats" + FILE_SUFFIX));
+        this.statsXcel = new Xcelite(new File("input-stats.xlsx"));
+        this.outputFile = new File("results.xlsx");
     }
 
     @SuppressWarnings("unchecked")
@@ -43,7 +43,6 @@ public class ExcelService implements Reader, Writer {
     }
 
     public void writeRoto(List<Roto> rotoList){
-        outputFile = new File(folder + "results/" + leagueService.getLeagueName() + FILE_SUFFIX);
         writeRoto(rotoList, "Overall ");
     }
 
@@ -62,9 +61,10 @@ public class ExcelService implements Reader, Writer {
     private void writeRoto(List<Roto> rotoList, String sheetType){
         log.info("writing results");
         sheetName = sheetType + leagueService.getLeagueName();
+        Class rotoClass = hasChangeFromLastWeek(rotoList) ? Roto.class : RotoSingleWeek.class;
 
         rotoXcel.getOptions().setHeaderRowIndex(0);
-        rotoXcel.createSheet(sheetName).getBeanWriter(Roto.class).write(rotoList);
+        rotoXcel.createSheet(sheetName).getBeanWriter(rotoClass).write(rotoList);
         rotoXcel.write(outputFile);
     }
 

@@ -69,8 +69,14 @@ public class RotoRunner {
 
     private League[] extractLeague() {
         return StringUtils.hasText(runProperties.getLeague())
-            ? new League[] { League.valueOf(runProperties.getLeague().trim().toUpperCase()) }
+            ? new League[] { getLeague() }
             : League.values();
+    }
+
+    private League getLeague() {
+        League league = League.valueOf(runProperties.getLeague().trim().toUpperCase());
+        if (runProperties.getNumberOfPlayers() != null) { league.setNumberOfTeams(runProperties.getNumberOfPlayers()); }
+        return league;
     }
 
     private void generateRoto() {
@@ -85,7 +91,7 @@ public class RotoRunner {
 
     private void generateRoto(League league) {
         log.info("calculating roto for {}", league.name());
-        rotoService.changeLeague(league);
+        rotoService.setLeague(league);
         List<Roto> rotoList = rotoService.calculateRoto(readWrite.readStats());
         readWrite.writeRoto(rotoList);
         readWrite.writeRanks(rotoService.getCategoryRanks(rotoList));
@@ -96,12 +102,12 @@ public class RotoRunner {
             try {
                 recent(league);
             } catch (BadInput e) {
-                log.error("Could not generate roto for {}", league.name());
+                log.error("Could not generate recent roto for {}", league.name());
             }
         }
     }
     private void recent(League league) {
-        rotoService.changeLeague(league);
+        rotoService.setLeague(league);
         int includedWeeks = getIncludedWeeks();
         log.info("running recent roto for {} for past {} weeks", league, includedWeeks);
         List<Roto> rotoList = rotoService.limitRotoToIncludedWeeks(includedWeeks);
