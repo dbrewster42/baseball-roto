@@ -58,7 +58,7 @@ public class RotoService {
     }
 
     public static boolean hasChangeFromLastWeek(List<Roto> rotoList) {
-        return rotoList.stream().map(Roto::getTotalChange).noneMatch(change -> change != .11);
+        return rotoList.stream().map(Roto::getTotalChange).noneMatch(change -> change != .11f);
     }
 
     public void setLeague(League league) {
@@ -77,8 +77,13 @@ public class RotoService {
         log.info("deleting stats from {} for week {}", league, week);
         deleteStatsByWeek(week);
     }
+    public void deleteAllStatsFor(League league) {
+        setLeague(league);
+        log.info("deleting ALL stats from {}", league, week);
+        repository.deleteAll(repository.findAll());
+    }
 
-    public void deleteStatsByWeek(int week) {
+    private void deleteStatsByWeek(int week) {
         repository.deleteAll(getStatsFromWeek(week));
     }
 

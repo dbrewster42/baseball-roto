@@ -47,6 +47,9 @@ public class RotoRunner {
             case "delete":
                 delete();
                 break;
+            case "delete year":
+                deleteYear();
+                break;
             case "rerun":
                 delete();
             default:
@@ -118,6 +121,11 @@ public class RotoRunner {
     private void delete() {
         for (League league : extractLeague()) {
             rotoService.deleteLatestWeeksStatsFor(league);
+        }
+    }
+    private void deleteYear() {
+        for (League league : extractLeague()) {
+            rotoService.deleteAllStatsFor(league);
         }
     }
 
