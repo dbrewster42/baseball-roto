@@ -58,7 +58,7 @@ public class RotoService {
     }
 
     public static boolean hasChangeFromLastWeek(List<Roto> rotoList) {
-        return rotoList.stream().map(Roto::getTotalChange).noneMatch(change -> change != .11);
+        return rotoList.stream().map(Roto::getTotalChange).noneMatch(change -> change == .11f);
     }
 
     public void setLeague(League league) {

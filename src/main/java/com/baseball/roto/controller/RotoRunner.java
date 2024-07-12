@@ -36,9 +36,6 @@ public class RotoRunner {
                 generateRoto();
                 break;
             case "recent":
-                generateRotoAndRecent();
-                break;
-            case "only recent":
                 recent();
                 break;
             case "change":

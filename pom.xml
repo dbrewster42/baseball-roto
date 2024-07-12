@@ -16,7 +16,7 @@
 	<properties>
 		<java.version>11</java.version>
 		<poi.version>5.0.0</poi.version>
-		<lombok.version>1.18.12</lombok.version>
+		<lombok.version>1.18.28</lombok.version>
 		<org.mapstruct.version>1.4.2.Final</org.mapstruct.version>
 	</properties>
 	<dependencies>
