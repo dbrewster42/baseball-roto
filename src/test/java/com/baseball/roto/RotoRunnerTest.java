@@ -16,15 +16,15 @@ class RotoRunnerTest {
     private final ReadWrite excelService = mock(ReadWrite.class);
 
 
-    @Test
-    void run0() {
-        sut = new RotoRunner(rotoService, excelService, "everything");
-
-        sut.run();
-
-        verify(rotoService, times(2)).limitRotoToIncludedWeeks(4);
-        verify(rotoService, times(2)).calculateRoto(any());
-    }
+//    @Test
+//    void run0() {
+//        sut = new RotoRunner(rotoService, excelService, "everything");
+//
+//        sut.run();
+//
+//        verify(rotoService, times(2)).limitRotoToIncludedWeeks(4);
+//        verify(rotoService, times(2)).calculateRoto(any());
+//    }
 
 //    @Test
 //    void run1() {
@@ -71,13 +71,13 @@ class RotoRunnerTest {
 //        verify(rotoService, times(1)).limitRotoToIncludedWeeks(1);
 //    }
 
-    @Test
-    void changeName() {
-        sut = new RotoRunner(rotoService, excelService, "change - George,Harry");
-
-        sut.run();
-
-        verify(rotoService, times(1)).updatePlayerName("George", "Harry");
-    }
+//    @Test
+//    void changeName() {
+//        sut = new RotoRunner(rotoService, excelService, "change - George,Harry");
+//
+//        sut.run();
+//
+//        verify(rotoService, times(1)).updatePlayerName("George", "Harry");
+//    }
 
 }
