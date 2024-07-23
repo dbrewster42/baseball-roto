@@ -23,7 +23,7 @@ public enum League {
     CUSTOM(12, 5, 4, 3, CustomStats.class, CustomRepository.class),
     STANDARD(12, 5, 4, 3, StandardStats.class, StandardRepository.class),
     CHAMPIONS(14, 6, 4, 4, ChampStats.class, ChampRepository.class),
-    PSD(12, 5, 4, 3, PsdStats.class, PsdRepository.class),
+    PSD(14, 5, 4, 3, PsdStats.class, PsdRepository.class),
     OBP(12, 5, 4, 3, ObpStats.class, ObpRepository.class);
 
     private int numberOfTeams;
