@@ -18,7 +18,7 @@ Copy your stats, into the ```input-stats.xlsx``` file. Pick the Sheet that match
 #### Step 3. 
 The default behavior is to generate the Roto score for the Standard league. If you are in a different league then open the `options.properties` file and change the value of **league=**
 
-If you choose to set up in your database in the next step, then you may also change **action=** from `roto` to `recent`, `only recent`, `change`, `rerun`, or `delete`
+If you choose to set up in your database in the next step, then you may also change **action=** from empty or `roto` to `recent`, `change`, `rerun`, or `delete`
 
 See [Available Actions](#Available-Actions) for more information
 
@@ -66,10 +66,13 @@ Hitting Stats - `R, HR, RBI, SB, AVG, OPS`
 Pitching Stats - `W, SV, K, ERA, WHIP, QS`
 
 Default number of teams - 14
+
 #### PSD
 Hitting Stats - `R, HR, RBI, SB, OPS`
 
 Pitching Stats - `SV, K, ERA, WHIP, QS`
+
+Default number of teams - 14
 
 ### Include Custom League
 If you are in a Custom League not covered by one of these existing leagues, you may add it yourself by following these steps
@@ -90,15 +93,11 @@ Runs regular roto
 
 If you have a local database installed, then the **recent** option lets you calculate the Roto score for a customizable window of time. You can set the value of **weeks** or else it will default to 4. 
 
-Note: this will calculate the regular roto first and then the recent roto. If you have already run this week's roto then choose the next option
-
-#### only recent
-
-Generates recent Roto from previously entered values. No new stats are saved to the DB so choose this option if you have already calculated the current week.
+Note: Generates recent Roto from previously entered values. No new stats are saved to the DB so only choose this option if you have already calculated the current week.
 
 #### change
 
-If 1 player in your league changes his name, then the app will automatically match the player to his prior stats. However, if you have multiple players change names, then select `change` and input the new name and old name in the fields below (**oldName** and **newName**)
+If 1 player in your league changes his name, then the app will automatically match the player to his prior stats. However, if you have multiple players change names, then select `change` and input the new name and old name in the fields below (_oldName_ and _newName_)
 
 #### delete
 will delete last week's stats
