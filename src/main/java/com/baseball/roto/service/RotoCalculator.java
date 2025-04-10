@@ -38,6 +38,7 @@ public class RotoCalculator {
         List<Integer> ties = recordTies(statColumn);
         overwriteStatsWithRotoPoints(stats, columnNumber, statColumn);
         applyTies(stats, columnNumber, ties);
+//        stats.forEach((n, s) -> log.info("{} - {}", n, s.toString()));;
     }
 
     private List<Integer> recordTies(List<Float> statColumn) {

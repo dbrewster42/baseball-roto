@@ -38,6 +38,7 @@ public class RotoService {
     public List<Roto> calculateRoto(LeagueStats leagueStats) {
         List<Stats> statsList = rotoCalculator.calculateRotoPoints(leagueStats, league);
         statsList.forEach(stats -> stats.setWeek(week));
+        log.info("roto calculated for week {}", week);
         repository.saveAll(statsList);
         return withWeeklyChanges(convertToSortedRoto(statsList));
     }
