@@ -63,7 +63,7 @@ public class RotoCalculator {
             float tieModifier = .5F;
             int tiedRank = tiedRanks.get(i);
             while (i < tiedRanks.size() - 1 && tiedRank == tiedRanks.get(i + 1)){
-                tieModifier += .5;
+                tieModifier += .5F;
                 i++;
             }
             for (List<Float> statList : stats.values()){
